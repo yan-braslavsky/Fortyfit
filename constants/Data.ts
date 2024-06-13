@@ -8,7 +8,7 @@ const ringsEquipment = new EquipmentModel(Math.random().toString(), 'Rings', "ht
 const gymnasticBallEquipment = new EquipmentModel(Math.random().toString(), 'Gymnastic Ball',
     "https://cdn.iconscout.com/icon/premium/png-512-thumb/exercise-ball-3242214-2715557.png");
 
-export const Workouts = [
+export const DEMO_WORKOUTS = [
 
     //Leg Day
     new WorkoutDataModel(Math.random().toString(), 'Leg Day',
