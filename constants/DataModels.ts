@@ -1,10 +1,10 @@
 export class WorkoutDataModel {
-    id: number;
+    id: string;
     name: string;
     imageUrl: string;
     exercises: ExerciseDataModel[];
 
-    constructor(id: number, name: string, imageUrl: string, exercises: ExerciseDataModel[]) {
+    constructor(id: string, name: string, imageUrl: string, exercises: ExerciseDataModel[]) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
@@ -13,12 +13,12 @@ export class WorkoutDataModel {
 }
 
 export class ExerciseSetDataModel {
-    id: number;
+    id: string;
     name: string;
     weight: number;
     reps: number;
 
-    constructor(id: number, name: string, weight: number, reps: number) {
+    constructor(id: string, name: string, weight: number, reps: number) {
         this.id = id;
         this.name = name;
         this.weight = weight;
@@ -28,14 +28,14 @@ export class ExerciseSetDataModel {
 
 
 export class ExerciseDataModel {
-    id: number;
+    id: string;
     name: string;
     imageUrl: string;
     restTimeInSeconds: number;
     sets: ExerciseSetDataModel[];
     equipment: EquipmentModel[];
 
-    constructor(id: number, name: string, imageUrl: string, restTimeInSeconds: number, sets: ExerciseSetDataModel[], equipment: EquipmentModel[]) {
+    constructor(id: string, name: string, imageUrl: string, restTimeInSeconds: number, sets: ExerciseSetDataModel[], equipment: EquipmentModel[]) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
@@ -46,14 +46,13 @@ export class ExerciseDataModel {
 }
 
 export class EquipmentModel {
-    id: number;
+    id: string;
     name: string;
     imageUrl: string;
 
-    constructor(id: number, name: string, imageUrl: string) {
+    constructor(id: string, name: string, imageUrl: string) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
     }
 }
-
