@@ -3,7 +3,7 @@ import { Text, View } from '@/components/Themed';
 import { WorkoutDataModel } from '@/constants/DataModels';
 import { DEMO_WORKOUTS } from '@/constants/Data';
 import { Image } from 'react-native';
-import Colors from '@/constants/Colors';
+import { Link } from 'expo-router';
 
 export default function WorkoutListTabScreen(workouts: WorkoutDataModel[]) {
   workouts = DEMO_WORKOUTS;
@@ -17,19 +17,25 @@ export default function WorkoutListTabScreen(workouts: WorkoutDataModel[]) {
         data={workouts}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) =>
-          <View style={styles.listItemContainer}>
-            <Pressable
-              style={({ pressed }) =>
-                pressed
-                  ? [styles.listItemContainer, styles.listItemContainerPressed]
-                  : styles.listItemContainer
-              }
 
-            >
-              <Image source={{ uri: item.imageUrl }} style={{ width: 50, height: 50 }} />
-              <Text style={styles.title}>{item.name}</Text>
-            </Pressable>
+          <View style={styles.listItemContainer}>
+            <Link href={{
+              pathname: "/workout",
+              params: { workoutID: item.id },
+            }} asChild style={styles.linkItemContainer} >
+              <Pressable
+                style={({ pressed }) =>
+                  pressed
+                    ? [styles.listItemContainer, styles.listItemContainerPressed]
+                    : styles.listItemContainer
+                }
+              >
+                <Image source={{ uri: item.imageUrl }} style={{ width: 50, height: 50 }} />
+                <Text style={styles.title}>{item.name}</Text>
+              </Pressable>
+            </Link>
           </View>
+
         }
       />
     </View>
@@ -57,6 +63,15 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   listItemContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    flex: 1,
+    marginVertical: 5,
+    marginHorizontal: 10,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+  },
+  linkItemContainer: {
     alignItems: 'center',
     flexDirection: 'row',
     flex: 1,

@@ -3,7 +3,7 @@ import { Platform, StyleSheet } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { Button } from 'react-native';
 import { useCallback, useLayoutEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Alert } from 'react-native';
 import React from 'react';
 import { WorkoutDataModel } from '@/constants/DataModels';
@@ -11,6 +11,11 @@ import { WorkoutDataModel } from '@/constants/DataModels';
 
 export default function Workout() {
     const navigation = useNavigation();
+    const router = useRouter();
+    const params = useLocalSearchParams();
+    const { workoutID } = params;
+    // console.log('workoutID:', workoutID);
+
     const showExitDialog = useCallback(() => {
         Alert.alert(
             "Exit",
@@ -23,12 +28,12 @@ export default function Workout() {
                 },
                 {
                     text: "Yes",
-                    onPress: () => navigation.goBack()
+                    onPress: () => router.back(),
                 }
             ],
             { cancelable: false }
         );
-    }, [navigation]);
+    }, [router]);
 
 
     //Customise the title bar
@@ -50,7 +55,7 @@ export default function Workout() {
                 />
             ),
         });
-    }, [navigation]);
+    }, [navigation, showExitDialog]);
 
     return (
         <View style={styles.container}>
