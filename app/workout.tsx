@@ -1,16 +1,16 @@
-import { ScrollView, StyleSheet, Image } from 'react-native';
+import { ScrollView, StyleSheet, Image, TextInput, Pressable } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { Button } from 'react-native';
-import { useCallback, useLayoutEffect } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Alert } from 'react-native';
 import React from 'react';
-import { WorkoutDataModel } from '@/constants/DataModels';
 import Colors from '@/constants/Colors';
 import { DEMO_WORKOUTS } from '@/constants/Data';
 
 
 export default function Workout() {
+    const [activeSetRepsInput, setActiveSetRepsInput] = useState('25');
     const navigation = useNavigation();
     const router = useRouter();
     const params = useLocalSearchParams();
@@ -80,23 +80,38 @@ export default function Workout() {
                 </View>
             </View>
 
-            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            {/* Separator */}
+            <View style={styles.separatorHorizontal} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
 
-            <View style={styles.suggestions}>
-                <View style={styles.suggestionItem}>
-                    <Text style={styles.suggestionText}>Suggested</Text>
-                    <Text style={styles.weightText}>25 kg</Text>
-                    <Text style={styles.smallText}>(Last 40)</Text>
+            {/* Active Set Section */}
+            <View style={styles.activeSetSectionContainer}>
+                <View style={styles.activeRepsInputContainer}>
+                    <Text style={styles.suggestionText}>Reps</Text>
+                    <TextInput style={styles.weightText} onChangeText={setActiveSetRepsInput}
+                        value={activeSetRepsInput}
+                        placeholder="25kg"
+                        keyboardType="numeric" />
                 </View>
-                <View style={styles.suggestionItem}>
+                <View style={styles.separatorVertical} lightColor={Colors.light.separator} darkColor={Colors.dark.separator} />
+                <View style={styles.activeRepsInputContainer}>
                     <Text style={styles.suggestionText}>10-12 reps</Text>
                     <Text style={styles.smallText}>(Last 12)</Text>
                 </View>
-                <View style={styles.suggestionItemHighlight}>
-                    <Text style={styles.didItText}>Did It</Text>
-                </View>
+                <View style={styles.separatorVertical} lightColor={Colors.light.separator} darkColor={Colors.dark.separator} />
+
+                <Pressable onPress={() => alert('Done button pressed')}
+                    style={(state) =>
+                        state.pressed
+                            ? [styles.suggestionItemHighlight, styles.doneBtnPressed]
+                            : styles.suggestionItemHighlight
+                    }
+                >
+                    <Text style={styles.doneBtn}>DONE</Text>
+                </Pressable>
             </View>
 
+
+            {/* Plates Information */}
             <View style={styles.platesInfo}>
                 <Text style={styles.platesText}>Plates only, without bar weight</Text>
             </View>
@@ -128,11 +143,7 @@ const styles = StyleSheet.create({
     exerciseInfo: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        // backgroundColor: Colors.light.card,
-        // borderRadius: 10,
-        // borderWidth: 1,
         padding: 10,
-        // borderColor: Colors.light.border,
     },
     exerciseTitleContainer: {
         flexDirection: 'column',
@@ -145,38 +156,46 @@ const styles = StyleSheet.create({
         color: Colors.light.text,
         fontSize: 12,
     },
-    suggestions: {
+    activeSetSectionContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#2c2c2e',
+        backgroundColor: Colors.light.card,
         padding: 10,
         borderRadius: 10,
+        borderWidth: 1,
+        borderColor: Colors.light.border,
         marginBottom: 10,
+        height: '40%',
     },
-    suggestionItem: {
+    activeRepsInputContainer: {
+        backgroundColor: 'transparent',
         alignItems: 'center',
     },
     suggestionText: {
-        color: '#ffcc00',
+        color: Colors.light.tabIconDefault,
         fontSize: 14,
     },
     weightText: {
-        color: '#fff',
-        fontSize: 22,
+        color: Colors.light.text,
+        backfaceVisibility: 'hidden',
+        backgroundColor: 'transparent',
+        fontSize: 24,
     },
     smallText: {
-        color: '#a1a1a1',
+        color: Colors.light.smallText,
         fontSize: 12,
     },
     suggestionItemHighlight: {
-        backgroundColor: '#ffcc00',
+        backgroundColor: Colors.light.secondary,
         padding: 10,
         borderRadius: 10,
     },
-    didItText: {
-        color: '#000',
-        fontSize: 16,
+    doneBtn: {
+        color: Colors.light.text,
+    },
+    doneBtnPressed: {
+        opacity: 0.5,
     },
     platesInfo: {
         alignItems: 'center',
@@ -214,9 +233,14 @@ const styles = StyleSheet.create({
     logButton: {
         marginVertical: 20,
     },
-    separator: {
+    separatorHorizontal: {
         marginVertical: 30,
         height: 1,
         width: '100%',
+    },
+    separatorVertical: {
+        marginHorizontal: 30,
+        height: '100%',
+        width: 1,
     }
 });

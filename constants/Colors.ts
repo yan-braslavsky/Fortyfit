@@ -22,6 +22,8 @@ export default {
     primary: primaryColorLight,
     secondary: secondaryColorLight,
     ternary: ternaryColorLight,
+    smallText: '#a1a1a1',
+    separator : '#eee'
   },
   dark: {
     text: '#fff',
@@ -35,5 +37,7 @@ export default {
     primary: primaryColorDark,
     secondary: secondaryColorDark,
     ternary: ternaryColorDark,
+    smallText: '#000',
+    separator : "rgba(255,255,255,0.1)"
   },
 };
