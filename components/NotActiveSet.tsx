@@ -19,7 +19,7 @@ export default function NotActiveSet({ pressHandler }: { pressHandler?: () => vo
                     : { opacity: 1 }
             }
             onPress={localPressHandler}>
-            <View style={styles.suggestedSet}>
+            <View style={styles.container}>
                 <Text style={styles.suggestedSetText}>Suggested</Text>
                 <Text style={styles.setWeight}>15 reps</Text>
                 <Separator type={SeparatorType.Vertical} />
@@ -31,7 +31,7 @@ export default function NotActiveSet({ pressHandler }: { pressHandler?: () => vo
 }
 
 const styles = StyleSheet.create({
-    suggestedSet: {
+    container: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',

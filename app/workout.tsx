@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Image, TextInput, Pressable } from 'react-native';
+import {  StyleSheet, Image, TextInput } from 'react-native';
 import { Text, View } from 'react-native';
 import { Button } from 'react-native';
 import { useCallback, useLayoutEffect, useState } from 'react';
@@ -7,8 +7,9 @@ import { Alert } from 'react-native';
 import React from 'react';
 import Colors from '@/constants/Colors';
 import { DEMO_WORKOUTS } from '@/constants/Data';
-import Separator, {SeparatorType} from '@/components/Separator';
+import Separator, { SeparatorType } from '@/components/Separator';
 import NotActiveSet from '@/components/NotActiveSet';
+import DoneBtn from '@/components/DoneBtn';
 
 
 export default function Workout() {
@@ -17,7 +18,7 @@ export default function Workout() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const { workoutID } = params;
-  
+
 
     //TODO: Replace with global state
     const item = DEMO_WORKOUTS.find((item) => item.id === workoutID);
@@ -71,7 +72,8 @@ export default function Workout() {
     }, [navigation, showExitDialog]);
 
     return (
-        <ScrollView style={styles.container}>
+
+        <View style={styles.container}>
 
             {/* Exercise Information Section */}
             <View style={styles.exerciseInfo}>
@@ -94,40 +96,34 @@ export default function Workout() {
                         placeholder="25kg"
                         keyboardType="numeric" />
                 </View>
-                <Separator type={SeparatorType.Vertical}/>
+                <Separator type={SeparatorType.Vertical} />
                 <View style={styles.activeRepsInputContainer}>
                     <Text style={styles.suggestionText}>10-12 reps</Text>
                     <Text style={styles.smallText}>(Last 12)</Text>
                 </View>
-                <Separator type={SeparatorType.Vertical}/>
+                <Separator type={SeparatorType.Vertical} />
 
-                <Pressable onPress={() => alert('Done button pressed')}
-                    style={(state) =>
-                        state.pressed
-                            ? [styles.suggestionItemHighlight, styles.doneBtnPressed]
-                            : styles.suggestionItemHighlight
-                    }
-                >
-                    <Text style={styles.doneBtn}>DONE</Text>
-                </Pressable>
+                <DoneBtn pressHandler={() => alert('Done button pressed')} />
             </View>
 
 
-            {/* Rest of exercises text */}
+            {/* Remaining sets info */}
             <View style={styles.remainingRepsInfoContainer}>
                 <Text style={styles.remainingRepsInfoText}>Remaining Sets</Text>
             </View>
 
-            {[1, 2, 3].map((_, index) => (
-                <NotActiveSet key={index} pressHandler={()=>{Alert.alert('pressed index ' + index)}}/>
+            {Array.from({ length: 3 }, (_, i) => i + 1).map((_, index) => (
+                <NotActiveSet key={index} pressHandler={() => { Alert.alert('pressed index ' + index) }} />
             ))}
 
-            <View style={styles.logButton}>
+            <View style={styles.finishExerciseBtn}>
                 <Button title="Finish Exercise" onPress={() => {
                     showExitDialog();
                 }} />
             </View>
-        </ScrollView>
+
+        </View>
+
     );
 }
 
@@ -183,17 +179,8 @@ const styles = StyleSheet.create({
         color: Colors.light.smallText,
         fontSize: 12,
     },
-    suggestionItemHighlight: {
-        backgroundColor: Colors.light.secondary,
-        padding: 10,
-        borderRadius: 10,
-    },
-    doneBtn: {
-        color: Colors.light.text,
-    },
-    doneBtnPressed: {
-        opacity: 0.5,
-    },
+
+
     remainingRepsInfoContainer: {
         alignItems: 'center',
         marginBottom: 10,
@@ -202,9 +189,7 @@ const styles = StyleSheet.create({
         color: Colors.light.secondary,
         fontSize: 14,
     },
-    logButton: {
+    finishExerciseBtn: {
         marginVertical: 20,
-    },
-
-
+    }
 });
