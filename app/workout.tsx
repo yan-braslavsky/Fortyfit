@@ -8,6 +8,7 @@ import React from 'react';
 import Colors from '@/constants/Colors';
 import { DEMO_WORKOUTS } from '@/constants/Data';
 import Separator, {SeparatorType} from '@/components/Separator';
+import NotActiveSet from '@/components/NotActiveSet';
 
 
 export default function Workout() {
@@ -118,13 +119,7 @@ export default function Workout() {
             </View>
 
             {[1, 2, 3].map((_, index) => (
-                <View key={index} style={styles.suggestedSet}>
-                    <Text style={styles.suggestedSetText}>Suggested</Text>
-                    <Text style={styles.setWeight}>15 reps</Text>
-                    <Separator type={SeparatorType.Vertical}/>
-                    <Text style={styles.setReps}>10-12 reps</Text>
-                    <Text style={styles.setSmallText}>(Last 12)</Text>
-                </View>
+                <NotActiveSet key={index} pressHandler={()=>{Alert.alert('pressed index ' + index)}}/>
             ))}
 
             <View style={styles.logButton}>
@@ -207,33 +202,9 @@ const styles = StyleSheet.create({
         color: Colors.light.secondary,
         fontSize: 14,
     },
-    suggestedSet: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: Colors.light.backgroundColorHard,
-        padding: 10,
-        borderRadius: 10,
-        marginBottom: 10,
-    },
-    suggestedSetText: {
-        color: '#fff',
-        fontSize: 14,
-    },
-    setWeight: {
-        color: '#fff',
-        fontSize: 22,
-    },
-    setReps: {
-        color: '#fff',
-        fontSize: 14,
-    },
-    setSmallText: {
-        color: '#a1a1a1',
-        fontSize: 12,
-    },
     logButton: {
         marginVertical: 20,
     },
+
 
 });
