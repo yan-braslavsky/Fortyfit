@@ -1,4 +1,4 @@
-import {  StyleSheet, Image, TextInput } from 'react-native';
+import { StyleSheet, Image, TextInput } from 'react-native';
 import { Text, View } from 'react-native';
 import { Button } from 'react-native';
 import { useCallback, useLayoutEffect, useState } from 'react';
@@ -10,6 +10,7 @@ import { DEMO_WORKOUTS } from '@/constants/Data';
 import Separator, { SeparatorType } from '@/components/Separator';
 import NotActiveSet from '@/components/NotActiveSet';
 import DoneBtn from '@/components/DoneBtn';
+import ExerciseHeader from '@/components/ExerciseHeader';
 
 
 export default function Workout() {
@@ -72,19 +73,8 @@ export default function Workout() {
     }, [navigation, showExitDialog]);
 
     return (
-
         <View style={styles.container}>
-
-            {/* Exercise Information Section */}
-            <View style={styles.exerciseInfo}>
-                <Image source={{ uri: item.imageUrl }} style={{ width: 50, height: 50 }} />
-                <View style={styles.exerciseTitleContainer}>
-                    <Text style={styles.exerciseTitle}>Smith Machine Incline Bench Press</Text>
-                    <Text style={styles.exerciseSubtitle}>Aim for 25 reps each set</Text>
-                    <View />
-                </View>
-            </View>
-
+            <ExerciseHeader imageUrl={item.imageUrl} title={item.exercises[0].name} subtitle={item.exercises[0].description} />
             <Separator />
 
             {/* Active Set Section */}
@@ -123,7 +113,6 @@ export default function Workout() {
             </View>
 
         </View>
-
     );
 }
 
@@ -133,22 +122,7 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: Colors.light.background,
     },
-    exerciseInfo: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 10,
-    },
-    exerciseTitleContainer: {
-        flexDirection: 'column',
-    },
-    exerciseTitle: {
-        color: Colors.light.primary,
-        fontSize: 18,
-    },
-    exerciseSubtitle: {
-        color: Colors.light.text,
-        fontSize: 12,
-    },
+
     activeSetSectionContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
