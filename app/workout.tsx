@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, Image, TextInput, Pressable } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import { Text, View } from 'react-native';
 import { Button } from 'react-native';
 import { useCallback, useLayoutEffect, useState } from 'react';
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
@@ -7,6 +7,7 @@ import { Alert } from 'react-native';
 import React from 'react';
 import Colors from '@/constants/Colors';
 import { DEMO_WORKOUTS } from '@/constants/Data';
+import Separator, {SeparatorType} from '@/components/Separator';
 
 
 export default function Workout() {
@@ -81,8 +82,7 @@ export default function Workout() {
                 </View>
             </View>
 
-            {/* Separator */}
-            <View style={styles.separatorHorizontal} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            <Separator />
 
             {/* Active Set Section */}
             <View style={styles.activeSetSectionContainer}>
@@ -93,12 +93,12 @@ export default function Workout() {
                         placeholder="25kg"
                         keyboardType="numeric" />
                 </View>
-                <View style={styles.separatorVertical} lightColor={Colors.light.separator} darkColor={Colors.dark.separator} />
+                <Separator type={SeparatorType.Vertical}/>
                 <View style={styles.activeRepsInputContainer}>
                     <Text style={styles.suggestionText}>10-12 reps</Text>
                     <Text style={styles.smallText}>(Last 12)</Text>
                 </View>
-                <View style={styles.separatorVertical} lightColor={Colors.light.separator} darkColor={Colors.dark.separator} />
+                <Separator type={SeparatorType.Vertical}/>
 
                 <Pressable onPress={() => alert('Done button pressed')}
                     style={(state) =>
@@ -121,7 +121,7 @@ export default function Workout() {
                 <View key={index} style={styles.suggestedSet}>
                     <Text style={styles.suggestedSetText}>Suggested</Text>
                     <Text style={styles.setWeight}>15 reps</Text>
-                    <View style={styles.separatorVertical} lightColor={Colors.light.separator} darkColor={Colors.dark.separator} />
+                    <Separator type={SeparatorType.Vertical}/>
                     <Text style={styles.setReps}>10-12 reps</Text>
                     <Text style={styles.setSmallText}>(Last 12)</Text>
                 </View>
@@ -235,14 +235,5 @@ const styles = StyleSheet.create({
     logButton: {
         marginVertical: 20,
     },
-    separatorHorizontal: {
-        marginVertical: 30,
-        height: 1,
-        width: '100%',
-    },
-    separatorVertical: {
-        marginHorizontal: 30,
-        height: '100%',
-        width: 1,
-    }
+
 });

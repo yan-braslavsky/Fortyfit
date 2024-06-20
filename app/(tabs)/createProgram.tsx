@@ -1,11 +1,13 @@
 import { StyleSheet } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import { Text, View } from 'react-native';
+import React from 'react';
+import Separator, { SeparatorType } from '@/components/Separator';
 
 export default function CreateProgramTab() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create Program Tab</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+      <Separator type={SeparatorType.Horizontal} />
     </View>
   );
 }

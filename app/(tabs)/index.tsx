@@ -1,18 +1,19 @@
 import { StyleSheet, FlatList, Pressable } from 'react-native';
-import { Text, View } from '@/components/Themed';
 import { WorkoutDataModel } from '@/constants/DataModels';
 import { DEMO_WORKOUTS } from '@/constants/Data';
 import { Image } from 'react-native';
 import { Link } from 'expo-router';
 import React from 'react';
 import Colors from '@/constants/Colors';
+import { Text, View } from 'react-native';
+import Separator, { SeparatorType } from '@/components/Separator';
 
 export default function WorkoutListTabScreen(workouts: WorkoutDataModel[]) {
   workouts = DEMO_WORKOUTS;
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Select Your Workout</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+      <Separator type={SeparatorType.Horizontal} />
 
       <FlatList
         style={styles.flatList}

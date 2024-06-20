@@ -1,14 +1,8 @@
 const tintColorLight = '#2f95dc';
-const tintColorDark = '#fff';
-
 const primaryColorLight = '#2f95dc';
 const secondaryColorLight = '#ffcc00';
 const ternaryColorLight = '#ff4081';
 const darkColorLight = '#767679';
-
-const primaryColorDark = '#1f78b4';
-const secondaryColorDark = '#ffa500';
-const ternaryColorDark = '#ff4081';
 
 export default {
   light: {
@@ -24,23 +18,7 @@ export default {
     secondary: secondaryColorLight,
     ternary: ternaryColorLight,
     smallText: '#a1a1a1',
-    separator : '#eee',
+    separator: '#eee',
     backgroundColorHard: darkColorLight,
-  },
-  dark: {
-    text: '#fff',
-    background: '#000',
-    tint: tintColorDark,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorDark,
-    border: '#333',
-    card: '#1c1c1c',
-    notification: '#ff453a',
-    primary: primaryColorDark,
-    secondary: secondaryColorDark,
-    ternary: ternaryColorDark,
-    smallText: '#000',
-    separator : "rgba(255,255,255,0.1)",
-    backgroundColorHard: darkColorLight,
-  },
+  }
 };
