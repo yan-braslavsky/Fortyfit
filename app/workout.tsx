@@ -15,6 +15,7 @@ export default function Workout() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const { workoutID } = params;
+  
 
     //TODO: Replace with global state
     const item = DEMO_WORKOUTS.find((item) => item.id === workoutID);
@@ -111,15 +112,16 @@ export default function Workout() {
             </View>
 
 
-            {/* Plates Information */}
-            <View style={styles.platesInfo}>
-                <Text style={styles.platesText}>Plates only, without bar weight</Text>
+            {/* Rest of exercises text */}
+            <View style={styles.remainingRepsInfoContainer}>
+                <Text style={styles.remainingRepsInfoText}>Remaining Sets</Text>
             </View>
 
             {[1, 2, 3].map((_, index) => (
                 <View key={index} style={styles.suggestedSet}>
                     <Text style={styles.suggestedSetText}>Suggested</Text>
-                    <Text style={styles.setWeight}>25 kg</Text>
+                    <Text style={styles.setWeight}>15 reps</Text>
+                    <View style={styles.separatorVertical} lightColor={Colors.light.separator} darkColor={Colors.dark.separator} />
                     <Text style={styles.setReps}>10-12 reps</Text>
                     <Text style={styles.setSmallText}>(Last 12)</Text>
                 </View>
@@ -197,19 +199,19 @@ const styles = StyleSheet.create({
     doneBtnPressed: {
         opacity: 0.5,
     },
-    platesInfo: {
+    remainingRepsInfoContainer: {
         alignItems: 'center',
         marginBottom: 10,
     },
-    platesText: {
-        color: '#ffcc00',
+    remainingRepsInfoText: {
+        color: Colors.light.secondary,
         fontSize: 14,
     },
     suggestedSet: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#2c2c2e',
+        backgroundColor: Colors.light.backgroundColorHard,
         padding: 10,
         borderRadius: 10,
         marginBottom: 10,
