@@ -11,10 +11,13 @@ import Separator, { SeparatorType } from '@/components/Separator';
 import NotActiveSet from '@/components/NotActiveSet';
 import DoneBtn from '@/components/DoneBtn';
 import ExerciseHeader from '@/components/ExerciseHeader';
+import { FontAwesome } from '@expo/vector-icons';
+import { Pressable } from 'react-native';
+import ActiveSet from '@/components/ActiveSet';
 
 
 export default function Workout() {
-    const [activeSetRepsInput, setActiveSetRepsInput] = useState('25');
+
     const navigation = useNavigation();
     const router = useRouter();
     const params = useLocalSearchParams();
@@ -56,18 +59,28 @@ export default function Workout() {
         navigation.setOptions({
             title: 'Workout',
             headerLeft: () => (
-                <Button
-                    onPress={showExitDialog}
-                    title="Exit"
-                    color="#000"
-                />
+                <Pressable onPress={showExitDialog}>
+                    {({ pressed }) => (
+                        <FontAwesome
+                            name="close"
+                            size={25}
+                            color={Colors.light.text}
+                            style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                        />
+                    )}
+                </Pressable>
             ),
             headerRight: () => (
-                <Button
-                    onPress={() => alert('Exercises button pressed')}
-                    title="Exercises"
-                    color="#000"
-                />
+                <Pressable onPress={showExitDialog}>
+                    {({ pressed }) => (
+                        <FontAwesome
+                            name="list"
+                            size={25}
+                            color={Colors.light.text}
+                            style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                        />
+                    )}
+                </Pressable>
             ),
         });
     }, [navigation, showExitDialog]);
@@ -79,25 +92,7 @@ export default function Workout() {
                 <Separator />
 
                 {/* Active Set Section */}
-                <View style={styles.activeSetSectionContainer}>
-                    <View style={styles.activeRepsInputContainer}>
-                        <Text style={styles.suggestionText}>Reps</Text>
-                        <TextInput style={styles.weightText} onChangeText={setActiveSetRepsInput}
-                            value={activeSetRepsInput}
-                            placeholder="25kg"
-                            keyboardType="numeric" returnKeyType="done"
-                            onSubmitEditing={Keyboard.dismiss} />
-                    </View>
-                    <Separator type={SeparatorType.Vertical} />
-                    <View style={styles.activeRepsInputContainer}>
-                        <Text style={styles.suggestionText}>10-12 reps</Text>
-                        <Text style={styles.smallText}>(Last 12)</Text>
-                    </View>
-                    <Separator type={SeparatorType.Vertical} />
-
-                    <DoneBtn pressHandler={() => alert('Done button pressed')} />
-                </View>
-
+                <ActiveSet />
 
                 {/* Remaining sets info */}
                 <View style={styles.remainingRepsInfoContainer}>
@@ -124,38 +119,6 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
         backgroundColor: Colors.light.background,
-    },
-
-    activeSetSectionContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: Colors.light.card,
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: Colors.light.border,
-        marginBottom: 10,
-        height: '40%',
-    },
-    activeRepsInputContainer: {
-        backgroundColor: 'transparent',
-        alignItems: 'center',
-    },
-    suggestionText: {
-        color: Colors.light.tabIconDefault,
-        fontSize: 14,
-    },
-    weightText: {
-        color: Colors.light.text,
-        backfaceVisibility: 'hidden',
-        backgroundColor: 'transparent',
-        fontSize: 24,
-        fontWeight: 'bold',
-    },
-    smallText: {
-        color: Colors.light.smallText,
-        fontSize: 12,
     },
     remainingRepsInfoContainer: {
         alignItems: 'center',
