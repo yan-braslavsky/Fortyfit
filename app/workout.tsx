@@ -1,4 +1,4 @@
-import { StyleSheet, Image, TextInput } from 'react-native';
+import { StyleSheet, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Text, View } from 'react-native';
 import { Button } from 'react-native';
 import { useCallback, useLayoutEffect, useState } from 'react';
@@ -73,46 +73,49 @@ export default function Workout() {
     }, [navigation, showExitDialog]);
 
     return (
-        <View style={styles.container}>
-            <ExerciseHeader imageUrl={item.imageUrl} title={item.exercises[0].name} subtitle={item.exercises[0].description} />
-            <Separator />
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.container}>
+                <ExerciseHeader imageUrl={item.imageUrl} title={item.exercises[0].name} subtitle={item.exercises[0].description} />
+                <Separator />
 
-            {/* Active Set Section */}
-            <View style={styles.activeSetSectionContainer}>
-                <View style={styles.activeRepsInputContainer}>
-                    <Text style={styles.suggestionText}>Reps</Text>
-                    <TextInput style={styles.weightText} onChangeText={setActiveSetRepsInput}
-                        value={activeSetRepsInput}
-                        placeholder="25kg"
-                        keyboardType="numeric" />
+                {/* Active Set Section */}
+                <View style={styles.activeSetSectionContainer}>
+                    <View style={styles.activeRepsInputContainer}>
+                        <Text style={styles.suggestionText}>Reps</Text>
+                        <TextInput style={styles.weightText} onChangeText={setActiveSetRepsInput}
+                            value={activeSetRepsInput}
+                            placeholder="25kg"
+                            keyboardType="numeric" returnKeyType="done"
+                            onSubmitEditing={Keyboard.dismiss} />
+                    </View>
+                    <Separator type={SeparatorType.Vertical} />
+                    <View style={styles.activeRepsInputContainer}>
+                        <Text style={styles.suggestionText}>10-12 reps</Text>
+                        <Text style={styles.smallText}>(Last 12)</Text>
+                    </View>
+                    <Separator type={SeparatorType.Vertical} />
+
+                    <DoneBtn pressHandler={() => alert('Done button pressed')} />
                 </View>
-                <Separator type={SeparatorType.Vertical} />
-                <View style={styles.activeRepsInputContainer}>
-                    <Text style={styles.suggestionText}>10-12 reps</Text>
-                    <Text style={styles.smallText}>(Last 12)</Text>
+
+
+                {/* Remaining sets info */}
+                <View style={styles.remainingRepsInfoContainer}>
+                    <Text style={styles.remainingRepsInfoText}>Remaining Sets</Text>
                 </View>
-                <Separator type={SeparatorType.Vertical} />
 
-                <DoneBtn pressHandler={() => alert('Done button pressed')} />
+                {Array.from({ length: 3 }, (_, i) => i + 1).map((_, index) => (
+                    <NotActiveSet key={index} pressHandler={() => { Alert.alert('pressed index ' + index) }} />
+                ))}
+
+                <View style={styles.finishExerciseBtn}>
+                    <Button title="Finish Exercise" onPress={() => {
+                        showExitDialog();
+                    }} />
+                </View>
+
             </View>
-
-
-            {/* Remaining sets info */}
-            <View style={styles.remainingRepsInfoContainer}>
-                <Text style={styles.remainingRepsInfoText}>Remaining Sets</Text>
-            </View>
-
-            {Array.from({ length: 3 }, (_, i) => i + 1).map((_, index) => (
-                <NotActiveSet key={index} pressHandler={() => { Alert.alert('pressed index ' + index) }} />
-            ))}
-
-            <View style={styles.finishExerciseBtn}>
-                <Button title="Finish Exercise" onPress={() => {
-                    showExitDialog();
-                }} />
-            </View>
-
-        </View>
+        </TouchableWithoutFeedback>
     );
 }
 
@@ -148,13 +151,12 @@ const styles = StyleSheet.create({
         backfaceVisibility: 'hidden',
         backgroundColor: 'transparent',
         fontSize: 24,
+        fontWeight: 'bold',
     },
     smallText: {
         color: Colors.light.smallText,
         fontSize: 12,
     },
-
-
     remainingRepsInfoContainer: {
         alignItems: 'center',
         marginBottom: 10,
