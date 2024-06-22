@@ -27,11 +27,13 @@ export default function DoneBtn({ pressHandler }: { pressHandler?: () => void })
 const styles = StyleSheet.create({
     suggestionItemHighlight: {
         backgroundColor: Colors.light.secondary,
-        padding: 10,
+        padding: 20,
         borderRadius: 10,
     },
     doneBtn: {
         color: Colors.light.text,
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     doneBtnPressed: {
         opacity: 0.5,

@@ -6,16 +6,22 @@ import Colors from '@/constants/Colors';
 import { useState } from 'react'
 
 const ActiveSet = () => {
-    const [activeSetRepsInput, setActiveSetRepsInput] = useState('25');
+    const [activeSetRepsInput, setActiveSetRepsInput] = useState('');
     return (
         <View style={styles.container}>
             <View style={styles.inputTextContainer}>
                 <Text style={styles.suggestionText}>Reps</Text>
                 <TextInput style={styles.textInput} onChangeText={setActiveSetRepsInput}
                     value={activeSetRepsInput}
-                    placeholder="25kg"
+                    placeholder="12"
                     keyboardType="numeric" returnKeyType="done"
-                    onSubmitEditing={Keyboard.dismiss} />
+                    inputMode='numeric'
+                    onSubmitEditing={Keyboard.dismiss} 
+                    maxLength={2}
+                    cursorColor={Colors.light.secondary}
+                    selectionColor={Colors.light.secondary}
+                   
+                    />
             </View>
             <Separator type={SeparatorType.Vertical} />
             <View style={styles.inputTextContainer}>
@@ -45,22 +51,30 @@ const styles = StyleSheet.create({
         height: '40%',
     },
     inputTextContainer: {
+        flex: 1,
         backgroundColor: 'transparent',
         alignItems: 'center',
+        alignContent: 'center',
     },
     suggestionText: {
         color: Colors.light.tabIconDefault,
-        fontSize: 14,
+        fontSize: 20,
+        alignItems: 'center',
+        alignContent: 'center',
+        textAlign: 'center',
     },
     textInput: {
         color: Colors.light.text,
         backfaceVisibility: 'hidden',
         backgroundColor: 'transparent',
-        fontSize: 24,
+        fontSize: 32,
         fontWeight: 'bold',
+        alignItems: 'center',
+        alignContent: 'center',
+        textAlign: 'center',
     },
     smallText: {
         color: Colors.light.smallText,
-        fontSize: 12,
+        fontSize: 14,
     },
 })

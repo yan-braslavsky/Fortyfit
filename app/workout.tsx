@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
 import { Text, View } from 'react-native';
 import { Button } from 'react-native';
 import { useCallback, useLayoutEffect, useState } from 'react';
@@ -7,9 +7,8 @@ import { Alert } from 'react-native';
 import React from 'react';
 import Colors from '@/constants/Colors';
 import { DEMO_WORKOUTS } from '@/constants/Data';
-import Separator, { SeparatorType } from '@/components/Separator';
+import Separator from '@/components/Separator';
 import NotActiveSet from '@/components/NotActiveSet';
-import DoneBtn from '@/components/DoneBtn';
 import ExerciseHeader from '@/components/ExerciseHeader';
 import { FontAwesome } from '@expo/vector-icons';
 import { Pressable } from 'react-native';
@@ -87,29 +86,32 @@ export default function Workout() {
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={styles.container}>
-                <ExerciseHeader imageUrl={item.imageUrl} title={item.exercises[0].name} subtitle={item.exercises[0].description} />
-                <Separator />
+            <ScrollView contentContainerStyle={styles.scrollView}>
+                <View style={styles.container}>
+                    <ExerciseHeader imageUrl={item.imageUrl} title={item.exercises[0].name} subtitle={item.exercises[0].description} />
+                    <Separator />
 
-                {/* Active Set Section */}
-                <ActiveSet />
+                    {/* Active Set Section */}
+                    <ActiveSet />
 
-                {/* Remaining sets info */}
-                <View style={styles.remainingRepsInfoContainer}>
-                    <Text style={styles.remainingRepsInfoText}>Remaining Sets</Text>
+                    {/* Remaining sets info */}
+                    <View style={styles.remainingRepsInfoContainer}>
+                        <Text style={styles.remainingRepsInfoText}>Remaining Sets</Text>
+                    </View>
+
+                    {Array.from({ length: 3 }, (_, i) => i + 1).map((_, index) => (
+                        <NotActiveSet key={index} pressHandler={() => { Alert.alert('pressed index ' + index) }} />
+                    ))}
+
+
+                    <View style={styles.finishExerciseBtn}>
+                        <Button title="Finish Exercise" onPress={() => {
+                            showExitDialog();
+                        }} />
+                    </View>
+
                 </View>
-
-                {Array.from({ length: 3 }, (_, i) => i + 1).map((_, index) => (
-                    <NotActiveSet key={index} pressHandler={() => { Alert.alert('pressed index ' + index) }} />
-                ))}
-
-                <View style={styles.finishExerciseBtn}>
-                    <Button title="Finish Exercise" onPress={() => {
-                        showExitDialog();
-                    }} />
-                </View>
-
-            </View>
+            </ScrollView>
         </TouchableWithoutFeedback>
     );
 }
@@ -117,8 +119,12 @@ export default function Workout() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        height: '100%',
         padding: 10,
         backgroundColor: Colors.light.background,
+    },
+    scrollView: {
+        flexGrow: 1,
     },
     remainingRepsInfoContainer: {
         alignItems: 'center',
