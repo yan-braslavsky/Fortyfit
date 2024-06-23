@@ -1,7 +1,7 @@
 import { WorkoutDataModel, EquipmentModel, ExerciseSetDataModel, ExerciseDataModel } from './DataModels';
 
 const squatImageUrl = "https://w7.pngwing.com/pngs/489/476/png-transparent-exercise-streaching-legs-gym-fitness-workout-activity-glyph-icon-thumbnail.png";
-const pushupImageUrl = "https://cdn.iconscout.com/icon/premium/png-512-thumb/push-up-2627008-2174691.png";
+const pushupImageUrl = "https://w7.pngwing.com/pngs/381/172/png-transparent-computer-icons-push-up-exercise-others.png";
 const pullUpImageUrl = "https://www.shutterstock.com/shutterstock/photos/1517740955/display_1500/stock-vector-a-sport-man-taking-physical-activity-street-workout-training-1517740955.jpg";
 
 const ringsEquipment = new EquipmentModel(Math.random().toString(), 'Rings', "https://www.shutterstock.com/shutterstock/photos/1264166743/display_1500/stock-vector-gymnastic-rings-vector-icon-1264166743.jpg");

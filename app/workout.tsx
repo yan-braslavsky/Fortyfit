@@ -13,6 +13,7 @@ import ExerciseHeader from '@/components/ExerciseHeader';
 import { FontAwesome } from '@expo/vector-icons';
 import { Pressable } from 'react-native';
 import ActiveSet from '@/components/ActiveSet';
+import FinishedSet from '@/components/FinishedSet';
 
 
 export default function Workout() {
@@ -90,6 +91,8 @@ export default function Workout() {
                 <View style={styles.container}>
                     <ExerciseHeader imageUrl={item.imageUrl} title={item.exercises[0].name} subtitle={item.exercises[0].description} />
                     <Separator />
+
+                    <FinishedSet pressHandler={() => { Alert.alert('pressed') }} />
 
                     {/* Active Set Section */}
                     <ActiveSet />
