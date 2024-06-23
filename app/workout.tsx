@@ -113,7 +113,7 @@ export default function Workout() {
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <ScrollView contentContainerStyle={styles.scrollView}>
+            <ScrollView contentContainerStyle={styles.scrollView} automaticallyAdjustKeyboardInsets={true}>
                 <View style={styles.container}>
                     <ExerciseHeader imageUrl={workoutModel.imageUrl} title={workoutModel.exercises[0].name} subtitle={workoutModel.exercises[0].description} />
                     <Separator />
