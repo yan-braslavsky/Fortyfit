@@ -5,8 +5,14 @@ import Separator, { SeparatorType } from './Separator'
 import Colors from '@/constants/Colors';
 import { useState } from 'react'
 
-const ActiveSet = () => {
+const ActiveSet = ({ pressHandler, completedReps = 0 }: { pressHandler?: (completedReps: number) => void, completedReps: number }) => {
     const [activeSetRepsInput, setActiveSetRepsInput] = useState('');
+
+    function localPressHandler(): void {
+        if (pressHandler) {
+            pressHandler(parseInt(activeSetRepsInput, 10));
+        }
+    }
     return (
         <View style={styles.container}>
             <View style={styles.inputTextContainer}>
@@ -16,12 +22,12 @@ const ActiveSet = () => {
                     placeholder="12"
                     keyboardType="numeric" returnKeyType="done"
                     inputMode='numeric'
-                    onSubmitEditing={Keyboard.dismiss} 
+                    onSubmitEditing={Keyboard.dismiss}
                     maxLength={2}
                     cursorColor={Colors.light.secondary}
                     selectionColor={Colors.light.secondary}
-                   
-                    />
+
+                />
             </View>
             <Separator type={SeparatorType.Vertical} />
             <View style={styles.inputTextContainer}>
@@ -30,7 +36,7 @@ const ActiveSet = () => {
             </View>
             <Separator type={SeparatorType.Vertical} />
 
-            <DoneBtn pressHandler={() => alert('Done button pressed')} />
+            <DoneBtn pressHandler={localPressHandler} />
         </View>
     )
 }

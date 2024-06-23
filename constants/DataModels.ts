@@ -18,11 +18,11 @@ export class ExerciseSetDataModel {
     weight: number;
     reps: number;
 
-    constructor(id: string, name: string, weight: number, reps: number) {
+    constructor(id: string, name: string, weight: number, suggestedReps: number) {
         this.id = id;
         this.name = name;
         this.weight = weight;
-        this.reps = reps;
+        this.reps = suggestedReps;
     }
 }
 

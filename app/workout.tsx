@@ -14,6 +14,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Pressable } from 'react-native';
 import ActiveSet from '@/components/ActiveSet';
 import FinishedSet from '@/components/FinishedSet';
+import { ExerciseSetDataModel } from '@/constants/DataModels';
 
 
 export default function Workout() {
@@ -22,17 +23,23 @@ export default function Workout() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const { workoutID } = params;
+    const [activeSetIndex, setActiveSetIndex] = useState(0);
+    const numbers: number[] = [];
+    // const [finishedSetsIndexes, setFinishedSetsIndexes] = useState(numbers);
+    const [completedRepsForIndex, setCompletedRepsForIndex] = useState(new Map<number, number>());
 
 
     //TODO: Replace with global state
-    const item = DEMO_WORKOUTS.find((item) => item.id === workoutID);
-    if (!item) {
+    const workoutModel = DEMO_WORKOUTS.find((item) => item.id === workoutID);
+    if (!workoutModel) {
         return (
             <View>
                 <Text>Workout not found</Text>
             </View>
         );
     }
+
+    const currentExercise = workoutModel.exercises[0];
 
     const showExitDialog = useCallback(() => {
         Alert.alert(
@@ -85,27 +92,69 @@ export default function Workout() {
         });
     }, [navigation, showExitDialog]);
 
+    function setNextActiveIndex(index: number) {
+
+        //if all sets are completed
+        if (completedRepsForIndex.size === currentExercise.sets.length-1) {
+            showExitDialog();
+            return;
+        }
+
+        let nextIndex = index + 1;
+
+
+        //find the next index that is not in finishedSetsIndexes
+        while (completedRepsForIndex.has(nextIndex)) {
+            nextIndex = nextIndex >= currentExercise.sets.length ? 0 : nextIndex + 1;
+        }
+
+        setActiveSetIndex(nextIndex);
+    }
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ScrollView contentContainerStyle={styles.scrollView}>
                 <View style={styles.container}>
-                    <ExerciseHeader imageUrl={item.imageUrl} title={item.exercises[0].name} subtitle={item.exercises[0].description} />
+                    <ExerciseHeader imageUrl={workoutModel.imageUrl} title={workoutModel.exercises[0].name} subtitle={workoutModel.exercises[0].description} />
                     <Separator />
 
-                    <FinishedSet pressHandler={() => { Alert.alert('pressed') }} />
+                    {// Render sets
 
-                    {/* Active Set Section */}
-                    <ActiveSet />
 
-                    {/* Remaining sets info */}
-                    <View style={styles.remainingRepsInfoContainer}>
-                        <Text style={styles.remainingRepsInfoText}>Remaining Sets</Text>
-                    </View>
+                        currentExercise.sets.map((set: ExerciseSetDataModel, index: number) => {
 
-                    {Array.from({ length: 3 }, (_, i) => i + 1).map((_, index) => (
-                        <NotActiveSet key={index} pressHandler={() => { Alert.alert('pressed index ' + index) }} />
-                    ))}
+                            let completedReps = 0;
+                            if (index === activeSetIndex) {
 
+                                //In case reopening completed set
+                                if(completedRepsForIndex.has(index)){
+
+                                    //get updated set for index 
+                                    const updatedCompletedRepsForIndex = completedRepsForIndex.get(index);
+                                    completedReps = updatedCompletedRepsForIndex ? updatedCompletedRepsForIndex : 0;
+                                }
+
+                                return <ActiveSet completedReps={completedReps} key={index} pressHandler={(completedReps: number) => {
+
+                                    // Clone and update the completedRepsForIndex map
+                                    const updatedCompletedRepsForIndex = new Map(completedRepsForIndex);
+                                    updatedCompletedRepsForIndex.set(index, completedReps);
+
+                                    setCompletedRepsForIndex(updatedCompletedRepsForIndex);
+
+                                    //Make set inactive and make the next active
+                                    setNextActiveIndex(index);
+
+                                }} />
+                            } else if (completedRepsForIndex.has(index)) {
+                                completedReps = completedRepsForIndex.get(index) || 0;
+                                return <FinishedSet repsCompleted={completedReps} key={index} pressHandler={() => { setActiveSetIndex(index) }} />
+                            } else {
+                                //TODO pass params
+                                return <NotActiveSet suggestedReps={set.reps} key={index} pressHandler={() => { setActiveSetIndex(index) }} />
+                            }
+                        })
+                    }
 
                     <View style={styles.finishExerciseBtn}>
                         <Button title="Finish Exercise" onPress={() => {
@@ -133,10 +182,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 10,
     },
-    remainingRepsInfoText: {
-        color: Colors.light.secondary,
-        fontSize: 14,
-    },
+
     finishExerciseBtn: {
         marginVertical: 20,
     }

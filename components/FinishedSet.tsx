@@ -1,11 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import Separator, { SeparatorType } from '@/components/Separator'
-import Colors from '@/constants/Colors'
 import { Pressable } from 'react-native'
 import { FontAwesome } from '@expo/vector-icons'
 
-const FinishedSet = ({ pressHandler }: { pressHandler?: () => void }) => {
+const FinishedSet = ({ pressHandler, repsCompleted }: { pressHandler?: () => void, repsCompleted: number }) => {
     function localPressHandler(): void {
         if (pressHandler) {
             pressHandler();
@@ -22,7 +21,7 @@ const FinishedSet = ({ pressHandler }: { pressHandler?: () => void }) => {
             <View style={styles.container}>
                 <Text style={styles.statusText}>Completed</Text>
                 <Separator type={SeparatorType.Vertical} />
-                <Text style={styles.repsText}>8 reps</Text>
+                <Text style={styles.repsText}>{repsCompleted} reps</Text>
                 <Separator type={SeparatorType.Vertical} />
                 <Text style={styles.redoText}>REDO</Text>
                 <FontAwesome name="rotate-right" size={16} color={"white"} style={{

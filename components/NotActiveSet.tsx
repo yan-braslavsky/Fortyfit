@@ -3,7 +3,7 @@ import React from 'react'
 import Separator, { SeparatorType } from '@/components/Separator'
 import Colors from '@/constants/Colors'
 
-export default function NotActiveSet({ pressHandler }: { pressHandler?: () => void }) {
+export default function NotActiveSet({ pressHandler, suggestedReps = 0 }: { pressHandler?: () => void, suggestedReps?: number }) {
 
     function localPressHandler(): void {
         if (pressHandler) {
@@ -21,7 +21,7 @@ export default function NotActiveSet({ pressHandler }: { pressHandler?: () => vo
             onPress={localPressHandler}>
             <View style={styles.container}>
                 <Text style={styles.suggestedSetText}>Suggested</Text>
-                <Text style={styles.setWeight}>15 reps</Text>
+                <Text style={styles.setWeight}>{suggestedReps} reps</Text>
                 <Separator type={SeparatorType.Vertical} />
                 <Text style={styles.setReps}>10-12 reps</Text>
                 <Text style={styles.setSmallText}>(Last 12)</Text>
