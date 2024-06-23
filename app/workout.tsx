@@ -174,9 +174,11 @@ const styles = StyleSheet.create({
         height: '100%',
         padding: 10,
         backgroundColor: Colors.light.background,
+        borderRadius: 10,
     },
     scrollView: {
         flexGrow: 1,
+        padding: 5,
     },
     remainingRepsInfoContainer: {
         alignItems: 'center',
