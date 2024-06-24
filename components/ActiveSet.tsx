@@ -1,11 +1,11 @@
-import { StyleSheet, Text, View, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native'
-import React from 'react'
-import DoneBtn from './DoneBtn'
-import Separator, { SeparatorType } from './Separator'
 import Colors from '@/constants/Colors';
-import { useState } from 'react'
+import React, { useState } from 'react';
+import { Keyboard, StyleSheet, Text, TextInput, View, Image } from 'react-native';
+import DoneBtn from './DoneBtn';
+import Separator, { SeparatorType } from './Separator';
 
-const ActiveSet = ({ pressHandler, completedReps = 0 }: { pressHandler?: (completedReps: number) => void, completedReps: number }) => {
+const ActiveSet = ({ pressHandler, completedReps = 0, imageUrl }:
+    { pressHandler?: (completedReps: number) => void, completedReps: number, imageUrl: string }) => {
     const [activeSetRepsInput, setActiveSetRepsInput] = useState('');
 
     function localPressHandler(): void {
@@ -31,8 +31,9 @@ const ActiveSet = ({ pressHandler, completedReps = 0 }: { pressHandler?: (comple
             </View>
             <Separator type={SeparatorType.Vertical} />
             <View style={styles.inputTextContainer}>
-                <Text style={styles.suggestionText}>10-12 reps</Text>
-                <Text style={styles.smallText}>(Last 12)</Text>
+                {/* <Text style={styles.suggestionText}>10-12 reps</Text>
+                <Text style={styles.smallText}>(Last 12)</Text> */}
+                <Image source={{ uri: imageUrl }} style={{ width: 50, height: 50 }} />
             </View>
             <Separator type={SeparatorType.Vertical} />
 

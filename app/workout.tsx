@@ -94,7 +94,7 @@ export default function Workout() {
     function setNextActiveIndex(index: number) {
 
         //if all sets are completed
-        if (completedRepsForIndex.size === currentExercise.sets.length-1) {
+        if (completedRepsForIndex.size === currentExercise.sets.length - 1) {
             showExitDialog();
             return;
         }
@@ -126,14 +126,14 @@ export default function Workout() {
                             if (index === activeSetIndex) {
 
                                 //In case reopening completed set
-                                if(completedRepsForIndex.has(index)){
+                                if (completedRepsForIndex.has(index)) {
 
                                     //get updated set for index 
                                     const updatedCompletedRepsForIndex = completedRepsForIndex.get(index);
                                     completedReps = updatedCompletedRepsForIndex ? updatedCompletedRepsForIndex : 0;
                                 }
 
-                                return <ActiveSet completedReps={completedReps} key={index} pressHandler={(completedReps: number) => {
+                                return <ActiveSet imageUrl={currentExercise.imageUrl} completedReps={completedReps} key={index} pressHandler={(completedReps: number) => {
 
                                     // Clone and update the completedRepsForIndex map
                                     const updatedCompletedRepsForIndex = new Map(completedRepsForIndex);
@@ -147,12 +147,12 @@ export default function Workout() {
                                 }} />
                             } else if (completedRepsForIndex.has(index)) {
                                 completedReps = completedRepsForIndex.get(index) || 0;
-                                return <FinishedSet repsCompleted={completedReps} key={index} pressHandler={() => { 
+                                return <FinishedSet repsCompleted={completedReps} key={index} pressHandler={() => {
                                     //remove the set from completedRepsForIndex
                                     const updatedCompletedRepsForIndex = new Map(completedRepsForIndex);
                                     updatedCompletedRepsForIndex.delete(index);
                                     setCompletedRepsForIndex(updatedCompletedRepsForIndex);
-                                    setActiveSetIndex(index) 
+                                    setActiveSetIndex(index)
                                 }} />
                             } else {
                                 //TODO pass params
