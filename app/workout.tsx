@@ -25,7 +25,6 @@ export default function Workout() {
     const { workoutID } = params;
     const [activeSetIndex, setActiveSetIndex] = useState(0);
     const numbers: number[] = [];
-    // const [finishedSetsIndexes, setFinishedSetsIndexes] = useState(numbers);
     const [completedRepsForIndex, setCompletedRepsForIndex] = useState(new Map<number, number>());
 
 
@@ -148,7 +147,13 @@ export default function Workout() {
                                 }} />
                             } else if (completedRepsForIndex.has(index)) {
                                 completedReps = completedRepsForIndex.get(index) || 0;
-                                return <FinishedSet repsCompleted={completedReps} key={index} pressHandler={() => { setActiveSetIndex(index) }} />
+                                return <FinishedSet repsCompleted={completedReps} key={index} pressHandler={() => { 
+                                    //remove the set from completedRepsForIndex
+                                    const updatedCompletedRepsForIndex = new Map(completedRepsForIndex);
+                                    updatedCompletedRepsForIndex.delete(index);
+                                    setCompletedRepsForIndex(updatedCompletedRepsForIndex);
+                                    setActiveSetIndex(index) 
+                                }} />
                             } else {
                                 //TODO pass params
                                 return <NotActiveSet suggestedReps={set.reps} key={index} pressHandler={() => { setActiveSetIndex(index) }} />
