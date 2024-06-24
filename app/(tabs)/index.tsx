@@ -12,8 +12,6 @@ export default function WorkoutListTabScreen(workouts: WorkoutDataModel[]) {
   workouts = DEMO_WORKOUTS;
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Select Your Workout</Text>
-      <Separator type={SeparatorType.Horizontal} />
 
       <FlatList
         style={styles.flatList}
