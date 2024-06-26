@@ -3,6 +3,8 @@ const primaryColorLight = '#2f95dc';
 const secondaryColorLight = '#ffcc00';
 const ternaryColorLight = '#ff4081';
 const darkColorLight = '#767679';
+// Define a fallback color for secondary text
+const secondaryTextColor = '#666';
 
 export default {
   light: {
@@ -19,6 +21,7 @@ export default {
     ternary: ternaryColorLight,
     smallText: '#a1a1a1',
     separator: '#eee',
-    backgroundColorHard: darkColorLight,
+    darkColorLight: darkColorLight,
+    textSecondary: secondaryTextColor,
   }
 };
