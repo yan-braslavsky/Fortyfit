@@ -59,9 +59,9 @@ FitTrack is under active development. Contributions, issues, and feature request
 
 ## Contact
 
-Your Name - your.email@example.com
+Your Name - yan.braslavsky@gmail.com
 
-Project Link: https://github.com/yourusername/fittrack
+Project Link: https://github.com/yan-braslavsky/Fortyfit/
 
 
 This is the content for your README.md file. You can copy this Markdown directly into a file named README.md in the root directory of your GitHub repository. Remember to replace the placeholder image links with actual screenshots of your app, and update the personal information (like your name, email, and GitHub username) before pushing to your repository.
