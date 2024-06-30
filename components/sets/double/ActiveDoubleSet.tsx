@@ -1,11 +1,11 @@
 import Colors from '@/constants/Colors';
 import React, { useState } from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, View, Image } from 'react-native';
-import DoneBtn from './DoneBtn';
-import Separator, { SeparatorType } from './Separator';
+import DoneBtn from '../../DoneBtn';
+import Separator, { SeparatorType } from '../../Separator';
 
-const ActiveSet = ({ pressHandler, completedReps = 0, imageUrl }:
-    { pressHandler?: (completedReps: number) => void, completedReps: number, imageUrl: string }) => {
+export default function ActiveDoubleSet({ pressHandler, completedReps = 0, imageUrl }:
+    { pressHandler?: (completedReps: number) => void, completedReps: number, imageUrl: string }) {
     const [activeSetRepsInput, setActiveSetRepsInput] = useState('');
 
     function localPressHandler(): void {
@@ -42,7 +42,6 @@ const ActiveSet = ({ pressHandler, completedReps = 0, imageUrl }:
     )
 }
 
-export default ActiveSet
 
 const styles = StyleSheet.create({
     container: {
@@ -53,7 +52,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: Colors.light.border,
+        borderColor: Colors.light.background,
         marginBottom: 10,
         height: '40%',
     },
@@ -64,7 +63,7 @@ const styles = StyleSheet.create({
         alignContent: 'center',
     },
     suggestionText: {
-        color: Colors.light.tabIconDefault,
+        color: Colors.light.text,
         fontSize: 20,
         alignItems: 'center',
         alignContent: 'center',
@@ -81,7 +80,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     smallText: {
-        color: Colors.light.smallText,
+        color: Colors.light.text,
         fontSize: 14,
     },
 })

@@ -8,14 +8,13 @@ import React from 'react';
 import Colors from '@/constants/Colors';
 import { DEMO_WORKOUTS } from '@/constants/Data';
 import Separator from '@/components/Separator';
-import NotActiveSet from '@/components/NotActiveSet';
 import ExerciseHeader from '@/components/ExerciseHeader';
 import { FontAwesome } from '@expo/vector-icons';
 import { Pressable } from 'react-native';
-import ActiveSet from '@/components/ActiveSet';
-import FinishedSet from '@/components/FinishedSet';
 import { ExerciseSetDataModel } from '@/constants/DataModels';
-
+import ActiveSingleSet from '@/components/sets/single/ActiveSingleSet';
+import FinishedSingleSet from '@/components/sets/single/FinishedSingleSet';
+import NotActiveSingleSet from '@/components/sets/single/NotActiveSingleSet';
 
 export default function Workout() {
 
@@ -36,6 +35,11 @@ export default function Workout() {
             </View>
         );
     }
+
+    //TODO : check here if the set is single or double
+    const isDoubleSet = workoutModel.exercises[0].length == 2 ? true : false;
+    console.log(isDoubleSet);
+
 
     const currentExercise = workoutModel.exercises[0][0];
 
@@ -132,7 +136,7 @@ export default function Workout() {
                                     completedReps = updatedCompletedRepsForIndex ? updatedCompletedRepsForIndex : 0;
                                 }
 
-                                return <ActiveSet imageUrl={currentExercise.imageUrl} completedReps={completedReps} key={index} pressHandler={(completedReps: number) => {
+                                return <ActiveSingleSet imageUrl={currentExercise.imageUrl} completedReps={completedReps} key={index} pressHandler={(completedReps: number) => {
 
                                     // Clone and update the completedRepsForIndex map
                                     const updatedCompletedRepsForIndex = new Map(completedRepsForIndex);
@@ -146,7 +150,7 @@ export default function Workout() {
                                 }} />
                             } else if (completedRepsForIndex.has(index)) {
                                 completedReps = completedRepsForIndex.get(index) || 0;
-                                return <FinishedSet repsCompleted={completedReps} key={index} pressHandler={() => {
+                                return <FinishedSingleSet repsCompleted={completedReps} key={index} pressHandler={() => {
                                     //remove the set from completedRepsForIndex
                                     const updatedCompletedRepsForIndex = new Map(completedRepsForIndex);
                                     updatedCompletedRepsForIndex.delete(index);
@@ -155,7 +159,7 @@ export default function Workout() {
                                 }} />
                             } else {
                                 //TODO pass params
-                                return <NotActiveSet suggestedReps={set.reps} key={index} pressHandler={() => { setActiveSetIndex(index) }} />
+                                return <NotActiveSingleSet suggestedReps={set.reps} key={index} pressHandler={() => { setActiveSetIndex(index) }} />
                             }
                         })
                     }
@@ -190,7 +194,7 @@ const styles = StyleSheet.create({
 
     finishExerciseBtnContainer: {
         marginVertical: 20,
-        
+
     },
     finishExerciseBtn: {
         backgroundColor: Colors.light.primary,
@@ -198,5 +202,5 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 10,
     },
-  
+
 });
