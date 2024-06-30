@@ -22,14 +22,13 @@ Overall the app targets to keep people in their late 30s and 40s fit and active.
 
 ## Screenshots
 
-### Workout Selection Screen
-![Workout Selection Screen](https://github.com/yan-braslavsky/Fortyfit/assets/1155059/ff6d86d2-a71e-418a-98b6-fbdd91af2d15)
-*Choose from different workout types*
+| Workout Selection | Workout Screen | Profile Screen |
+| :---: | :---: | :---: |
+| ![Workout Selection Screen](https://github.com/yan-braslavsky/Fortyfit/assets/1155059/ff6d86d2-a71e-418a-98b6-fbdd91af2d15) |![Exercise Details Screen](https://github.com/yan-braslavsky/Fortyfit/assets/1155059/19b0dae5-c5ca-4257-ad76-17912c1b0f7f) | ![Profile](https://github.com/yan-braslavsky/Fortyfit/assets/1155059/d4fdc243-bf80-40e8-ad01-48542ff00249) |
+| *Image 1* | *Image 2* | *Image 3* |
 
 
-### Exercise Details Screen
-![Exercise Details Screen](https://github.com/yan-braslavsky/Fortyfit/assets/1155059/19b0dae5-c5ca-4257-ad76-17912c1b0f7f)
-*View details and track reps for each exercise*
+
 
 
 ## Installation
