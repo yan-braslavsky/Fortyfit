@@ -22,7 +22,7 @@ const calculateDuration = () => {
 };
 
 const WorkoutListItem = ({ item }: { item: WorkoutDataModel }) => {
-  const uniqueEquipment = new Set(item.exercises.flatMap(exercise => exercise.equipment.map(eq => eq.name)));
+  const uniqueEquipment = new Set(item.exercises.flatMap(exercise => exercise[0].equipment.map(eq => eq.name)));
   const duration = calculateDuration();
   const navigation = useNavigation();
 
@@ -51,7 +51,7 @@ const WorkoutListItem = ({ item }: { item: WorkoutDataModel }) => {
         <Image source={{ uri: item.imageUrl }} style={styles.workoutImage} />
         <View style={styles.workoutInfo}>
           <Text style={styles.title}>{item.name}</Text>
-          <Text style={styles.description}>{item.exercises[0].description}</Text>
+          <Text style={styles.description}>{item.exercises[0][0].description}</Text>
           <View style={styles.detailsContainer}>
             <View style={styles.detail}>
               <Ionicons name="time-outline" size={14} color={Colors.light.text} />

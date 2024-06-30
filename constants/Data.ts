@@ -14,66 +14,69 @@ export const DEMO_WORKOUTS = [
     new WorkoutDataModel(Math.random().toString(), 'Leg Day',
         squatImageUrl,
         [
-            //Squats
-            new ExerciseDataModel(Math.random().toString(), 'Squats', squatImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 25),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 25),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
-                ],
-                [/* No Equipment Needed */],
-                "Squats are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
-            ),
-            //Lunges
-            new ExerciseDataModel(Math.random().toString(), 'Lunges', squatImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 25),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 25),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
-                ],
-                [/* No Equipment Needed */],
-                "Lunges are a compound exercise that works the quadriceps, hamstrings, glutes, and calves. It also works the lower back and core."
-            ),
-            //Ball Curls
-            new ExerciseDataModel(Math.random().toString(), 'Ball Curls', squatImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 25),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 25),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
-                ],
-                [gymnasticBallEquipment],
-                "Ball Curls are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
-            ),
-            //Leg Press
-            new ExerciseDataModel(Math.random().toString(), 'Leg Press', squatImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 25),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 25),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
-                ],
-                [/* No Equipment Needed */],
-                "Leg Press is a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
-            ),
-            //Leg Extensions
-            new ExerciseDataModel(Math.random().toString(), 'Leg Extensions', squatImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 25),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 25),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
-                ],
-                [/* No Equipment Needed */],
-                "Leg Extensions are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
-            ),
-            //Toes to Bar
-            new ExerciseDataModel(Math.random().toString(), 'Toes to Bar', squatImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 25),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 25),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
-                ],
-                [ringsEquipment],
-                "Toes to Bar are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
-            )
+            // Pair: Squats and Lunges
+            [
+                new ExerciseDataModel(Math.random().toString(), 'Squats', squatImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 25),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 25),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
+                    ],
+                    [],
+                    "Squats are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
+                ),
+                new ExerciseDataModel(Math.random().toString(), 'Lunges', squatImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 25),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 25),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
+                    ],
+                    [],
+                    "Lunges are a compound exercise that works the quadriceps, hamstrings, glutes, and calves. It also works the lower back and core."
+                )
+            ],
+            // Pair: Ball Curls and Leg Press
+            [
+                new ExerciseDataModel(Math.random().toString(), 'Ball Curls', squatImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 25),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 25),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
+                    ],
+                    [gymnasticBallEquipment],
+                    "Ball Curls are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
+                ),
+                new ExerciseDataModel(Math.random().toString(), 'Leg Press', squatImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 25),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 25),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
+                    ],
+                    [],
+                    "Leg Press is a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
+                )
+            ],
+            // Pair: Leg Extensions and Toes to Bar
+            [
+                new ExerciseDataModel(Math.random().toString(), 'Leg Extensions', squatImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 25),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 25),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
+                    ],
+                    [],
+                    "Leg Extensions are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
+                ),
+                new ExerciseDataModel(Math.random().toString(), 'Toes to Bar', squatImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 25),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 25),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
+                    ],
+                    [ringsEquipment],
+                    "Toes to Bar are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
+                )
+            ]
         ]
     ),
 
@@ -81,46 +84,48 @@ export const DEMO_WORKOUTS = [
     new WorkoutDataModel(Math.random().toString(), 'Pull Day',
         pullUpImageUrl,
         [
-            //Pull-Ups
-            new ExerciseDataModel(Math.random().toString(), 'Pull-Ups', pullUpImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 10),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 10),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 10),
-                ],
-                [ringsEquipment],
-                "Pull-Ups are a compound exercise that works the biceps, back, and core."
-            ),
-            //Bent Over Rows
-            new ExerciseDataModel(Math.random().toString(), 'Bent Over Rows', pullUpImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 15),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 15),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 15),
-                ],
-                [/* No Equipment Needed */],
-                "Bent Over Rows are a compound exercise that works the biceps, back, and core."
-            ),
-            //Deadlifts
-            new ExerciseDataModel(Math.random().toString(), 'Deadlifts', pullUpImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 15),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 15),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 15),
-                ],
-                [/* No Equipment Needed */],
-                "Deadlifts are a compound exercise that works the biceps, back, and core."
-            ),
-            //Bicep Curls
-            new ExerciseDataModel(Math.random().toString(), 'Bicep Curls', pullUpImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 15),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 15),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 15),
-                ],
-                [/* No Equipment Needed */],
-                "Bicep Curls are a compound exercise that works the biceps, back, and core."
-            )
+            // Pair: Pull-Ups and Bent Over Rows
+            [
+                new ExerciseDataModel(Math.random().toString(), 'Pull-Ups', pullUpImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 10),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 10),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 10),
+                    ],
+                    [ringsEquipment],
+                    "Pull-Ups are a compound exercise that works the biceps, back, and core."
+                ),
+                new ExerciseDataModel(Math.random().toString(), 'Bent Over Rows', pullUpImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 15),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 15),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 15),
+                    ],
+                    [],
+                    "Bent Over Rows are a compound exercise that works the biceps, back, and core."
+                )
+            ],
+            // Pair: Deadlifts and Bicep Curls
+            [
+                new ExerciseDataModel(Math.random().toString(), 'Deadlifts', pullUpImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 15),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 15),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 15),
+                    ],
+                    [],
+                    "Deadlifts are a compound exercise that works the biceps, back, and core."
+                ),
+                new ExerciseDataModel(Math.random().toString(), 'Bicep Curls', pullUpImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 15),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 15),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 15),
+                    ],
+                    [],
+                    "Bicep Curls are a compound exercise that works the biceps, back, and core."
+                )
+            ]
         ]
     ),
 
@@ -128,46 +133,48 @@ export const DEMO_WORKOUTS = [
     new WorkoutDataModel(Math.random().toString(), 'Push Day',
         pushupImageUrl,
         [
-            //Push-Ups
-            new ExerciseDataModel(Math.random().toString(), 'Push-Ups', pushupImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 20),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 20),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 20),
-                ],
-                [/* No Equipment Needed */],
-                "Push-Ups are a compound exercise that works the chest, triceps, and shoulders."
-            ),
-            //Shoulder Press
-            new ExerciseDataModel(Math.random().toString(), 'Shoulder Press', pushupImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 15),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 15),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 15),
-                ],
-                [/* No Equipment Needed */],
-                "Shoulder Press is a compound exercise that works the chest, triceps, and shoulders."
-            ),
-            //Bench Press
-            new ExerciseDataModel(Math.random().toString(), 'Bench Press', pushupImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 15),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 15),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 15),
-                ],
-                [/* No Equipment Needed */],
-                "Bench Press is a compound exercise that works the chest, triceps, and shoulders."
-            ),
-            //Tricep Dips
-            new ExerciseDataModel(Math.random().toString(), 'Tricep Dips', pushupImageUrl, 60,
-                [
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 15),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 15),
-                    new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 15),
-                ],
-                [/* No Equipment Needed */],
-                "Tricep Dips are a compound exercise that works the chest, triceps, and shoulders."
-            )
+            // Pair: Push-Ups and Shoulder Press
+            [
+                new ExerciseDataModel(Math.random().toString(), 'Push-Ups', pushupImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 20),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 20),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 20),
+                    ],
+                    [],
+                    "Push-Ups are a compound exercise that works the chest, triceps, and shoulders."
+                ),
+                new ExerciseDataModel(Math.random().toString(), 'Shoulder Press', pushupImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 15),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 15),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 15),
+                    ],
+                    [],
+                    "Shoulder Press is a compound exercise that works the chest, triceps, and shoulders."
+                )
+            ],
+            // Pair: Bench Press and Tricep Dips
+            [
+                new ExerciseDataModel(Math.random().toString(), 'Bench Press', pushupImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 15),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 15),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 15),
+                    ],
+                    [],
+                    "Bench Press is a compound exercise that works the chest, triceps, and shoulders."
+                ),
+                new ExerciseDataModel(Math.random().toString(), 'Tricep Dips', pushupImageUrl, 60,
+                    [
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 1', 0, 15),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 2', 0, 15),
+                        new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 15),
+                    ],
+                    [],
+                    "Tricep Dips are a compound exercise that works the chest, triceps, and shoulders."
+                )
+            ]
         ]
     ),
 ];

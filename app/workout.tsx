@@ -24,7 +24,6 @@ export default function Workout() {
     const params = useLocalSearchParams();
     const { workoutID } = params;
     const [activeSetIndex, setActiveSetIndex] = useState(0);
-    const numbers: number[] = [];
     const [completedRepsForIndex, setCompletedRepsForIndex] = useState(new Map<number, number>());
 
 
@@ -38,7 +37,7 @@ export default function Workout() {
         );
     }
 
-    const currentExercise = workoutModel.exercises[0];
+    const currentExercise = workoutModel.exercises[0][0];
 
     const showExitDialog = useCallback(() => {
         Alert.alert(
@@ -114,7 +113,7 @@ export default function Workout() {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ScrollView contentContainerStyle={styles.scrollView} automaticallyAdjustKeyboardInsets={true}>
                 <View style={styles.container}>
-                    <ExerciseHeader imageUrl={workoutModel.imageUrl} title={workoutModel.exercises[0].name} subtitle={workoutModel.exercises[0].description} />
+                    <ExerciseHeader imageUrl={workoutModel.imageUrl} title={currentExercise.name} subtitle={currentExercise.description} />
                     <Separator />
 
                     {// Render sets
