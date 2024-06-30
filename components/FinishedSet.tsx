@@ -3,6 +3,7 @@ import React from 'react'
 import Separator, { SeparatorType } from '@/components/Separator'
 import { Pressable } from 'react-native'
 import { FontAwesome } from '@expo/vector-icons'
+import Colors from '@/constants/Colors'
 
 const FinishedSet = ({ pressHandler, repsCompleted }: { pressHandler?: () => void, repsCompleted: number }) => {
     function localPressHandler(): void {
@@ -24,7 +25,7 @@ const FinishedSet = ({ pressHandler, repsCompleted }: { pressHandler?: () => voi
                 <Text style={styles.repsText}>{repsCompleted} reps</Text>
                 <Separator type={SeparatorType.Vertical} />
                 <Text style={styles.redoText}>REDO</Text>
-                <FontAwesome name="rotate-right" size={16} color={"white"} style={{
+                <FontAwesome name="rotate-right" size={16} color={Colors.light.text} style={{
                     margin: 5
                 }} />
             </View>
@@ -39,24 +40,24 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#dbba36',
+        backgroundColor: Colors.light.ternary,
         padding: 10,
         borderRadius: 10,
         marginBottom: 10,
         opacity: 0.7
     },
     statusText: {
-        color: '#fff',
+        color: Colors.light.text,
         fontSize: 16,
         textAlign: 'left',
     },
     repsText: {
-        color: '#fff',
+        color: Colors.light.text,
         fontSize: 16,
         textAlign: 'left',
     },
     redoText: {
-        color: '#fff',
+        color: Colors.light.text,
         fontSize: 16,
         textAlign: 'left',
     },

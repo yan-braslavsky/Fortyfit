@@ -21,10 +21,10 @@ export default function NotActiveSet({ pressHandler, suggestedReps = 0 }: { pres
             onPress={localPressHandler}>
             <View style={styles.container}>
                 <Text style={styles.suggestedSetText}>Suggested</Text>
+                <Separator type={SeparatorType.Vertical} />
                 <Text style={styles.setWeight}>{suggestedReps} reps</Text>
                 <Separator type={SeparatorType.Vertical} />
                 <Text style={styles.setReps}>10-12 reps</Text>
-                <Text style={styles.setSmallText}>(Last 12)</Text>
             </View>
         </Pressable>
     )
@@ -35,25 +35,28 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: Colors.light.darkColorLight,
-        padding: 10,
+        backgroundColor: Colors.light.primary,
+        padding: 15,
         borderRadius: 10,
         marginBottom: 10,
     },
     suggestedSetText: {
-        color: '#fff',
-        fontSize: 14,
+        color: Colors.dark.quaternary,
+        fontSize: 16,
+        textAlign: 'left',
     },
     setWeight: {
-        color: '#fff',
-        fontSize: 22,
+        color: Colors.dark.quaternary,
+        fontSize: 16,
+        textAlign: 'left',
     },
     setReps: {
-        color: '#fff',
-        fontSize: 14,
+        color: Colors.dark.quaternary,
+        fontSize: 16,
+        textAlign: 'left',
     },
     setSmallText: {
-        color: '#a1a1a1',
+        color: Colors.dark.quaternary,
         fontSize: 12,
     },
 

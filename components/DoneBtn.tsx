@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     doneBtn: {
-        color: Colors.light.text,
+        color: Colors.dark.quaternary,
         fontSize: 16,
         fontWeight: 'bold',
     },

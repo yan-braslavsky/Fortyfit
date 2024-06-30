@@ -46,20 +46,7 @@ const WorkoutListItem = ({ item }: { item: WorkoutDataModel }) => {
         asChild
       > */}
 
-      <View style={{
-        flexDirection: 'row',
-        flex: 1,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderRadius: 10,
-        marginBottom: 10,
-        marginTop: 5,
-        borderWidth: 1,
-        backgroundColor: Colors.light.card,
-        borderColor: Colors.light.border,
-        minHeight: 200
-
-      }}>
+      <View style={styles.containerView}>
 
         <Image source={{ uri: item.imageUrl }} style={styles.workoutImage} />
         <View style={styles.workoutInfo}>
@@ -95,6 +82,21 @@ const WorkoutListItem = ({ item }: { item: WorkoutDataModel }) => {
 };
 
 const styles = StyleSheet.create({
+  containerView: {
+    flexDirection: 'row',
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: 10,
+    marginBottom: 10,
+    marginTop: 5,
+    borderWidth: 1,
+    backgroundColor: Colors.light.card,
+    borderColor: Colors.light.ternary,
+    padding: 10,
+    minHeight: 200
+
+  },
   listItemContainer: {
     // flexDirection: 'row',
     // alignItems: 'center',

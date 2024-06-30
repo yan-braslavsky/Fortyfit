@@ -1,27 +1,33 @@
-const tintColorLight = '#2f95dc';
-const primaryColorLight = '#2f95dc';
-const secondaryColorLight = '#ffcc00';
-const ternaryColorLight = '#ff4081';
-const darkColorLight = '#767679';
-// Define a fallback color for secondary text
-const secondaryTextColor = '#666';
-
-export default {
+// Colors.js
+const Colors = {
   light: {
-    text: '#000',
-    background: '#fff',
-    tint: tintColorLight,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorLight,
-    border: '#e1e1e1',
-    card: '#f8f8f8',
-    notification: '#ff3b30',
-    primary: primaryColorLight,
-    secondary: secondaryColorLight,
-    ternary: ternaryColorLight,
-    smallText: '#a1a1a1',
-    separator: '#eee',
-    darkColorLight: darkColorLight,
-    textSecondary: secondaryTextColor,
-  }
+    text: '#3E3E3E', // Dark gray
+    textSecondary: '#7E7E7E', // Medium gray
+    primary: '#D4A373', // Sandy brown
+    secondary: '#A97A50', // Copper
+    ternary: '#E6CBA8', // Light beige
+    quaternary: '#FFF1E1', // Very light beige
+    card: '#FFF9F3', // Off-white
+    background: '#F5F0E1', // Very light grayish beige
+    darkColorLight: '#E0D7C6', // Light taupe
+    tabBar: '#FFF9F3', // Off-white (matches card color for consistency)
+    tabBarIcon: '#A97A50', // Copper (matches secondary color)
+    tabBarInactiveBackgroundColor: '#FFF1E1', // Very light beige
+    tabBarActiveBackgroundColor: '#D4A373', // Sandy brown
+  },
+  dark: {
+    text: '#E0D7C6', // Light taupe
+    textSecondary: '#A97A50', // Copper
+    primary: '#D4A373', // Sandy brown
+    secondary: '#A97A50', // Copper
+    ternary: '#E6CBA8', // Light beige
+    quaternary: '#FFF1E1', // Very light beige
+    card: '#3E3E3E', // Dark gray
+    background: '#2A2A2A', // Very dark gray
+    darkColorLight: '#7E7E7E', // Medium gray
+    tabBar: '#3E3E3E', // Dark gray (matches card color for consistency)
+    tabBarIcon: '#E0D7C6', // Light taupe (matches text color)
+  },
 };
+
+export default Colors;

@@ -69,9 +69,9 @@ export default function Workout() {
                     {({ pressed }) => (
                         <FontAwesome
                             name="close"
-                            size={25}
-                            color={Colors.light.text}
-                            style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                            size={24}
+                            color={Colors.light.primary}
+                            style={{ opacity: pressed ? 0.5 : 1 }}
                         />
                     )}
                 </Pressable>
@@ -81,9 +81,9 @@ export default function Workout() {
                     {({ pressed }) => (
                         <FontAwesome
                             name="list"
-                            size={25}
-                            color={Colors.light.text}
-                            style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                            size={24}
+                            color={Colors.light.primary}
+                            style={{ opacity: pressed ? 0.5 : 1 }}
                         />
                     )}
                 </Pressable>
@@ -161,7 +161,7 @@ export default function Workout() {
                         })
                     }
 
-                    <View style={styles.finishExerciseBtn}>
+                    <View style={styles.finishExerciseBtnContainer}>
                         <Button title="Finish Exercise" onPress={() => {
                             showExitDialog();
                         }} />
@@ -178,7 +178,6 @@ const styles = StyleSheet.create({
         flex: 1,
         height: '100%',
         padding: 10,
-        backgroundColor: Colors.light.background,
         borderRadius: 10,
     },
     scrollView: {
@@ -190,7 +189,15 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
 
-    finishExerciseBtn: {
+    finishExerciseBtnContainer: {
         marginVertical: 20,
-    }
+        
+    },
+    finishExerciseBtn: {
+        backgroundColor: Colors.light.primary,
+        color: Colors.light.text,
+        padding: 10,
+        borderRadius: 10,
+    },
+  
 });

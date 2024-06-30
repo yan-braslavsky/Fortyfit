@@ -36,8 +36,11 @@ const styles = StyleSheet.create({
     exerciseTitle: {
         color: Colors.light.primary,
         fontSize: 18,
+        fontWeight: 'bold',
+        textTransform:'uppercase',
     },
     exerciseSubtitle: {
+        marginTop: 10,
         color: Colors.light.text,
         fontSize: 12,
         textAlign: 'left',
