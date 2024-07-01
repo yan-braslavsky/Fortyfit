@@ -12,9 +12,10 @@ import ExerciseHeader from '@/components/ExerciseHeader';
 import { FontAwesome } from '@expo/vector-icons';
 import { Pressable } from 'react-native';
 import { ExerciseSetDataModel } from '@/constants/DataModels';
-import ActiveSingleSet from '@/components/sets/single/ActiveSingleSet';
-import FinishedSingleSet from '@/components/sets/single/FinishedSingleSet';
-import NotActiveSingleSet from '@/components/sets/single/NotActiveSingleSet';
+import { ExerciseDataModel } from '@/constants/DataModels';
+import ActiveCompoundSet from '@/components/ActiveCompoundSet';
+import FinishedCompoundSet from '@/components/FinishedCompoundSet';
+import NotActiveCompoundSet from '@/components/NotActiveCompoundSet';
 
 export default function Workout() {
 
@@ -36,10 +37,13 @@ export default function Workout() {
         );
     }
 
-    //TODO : check here if the set is single or double
-    const isDoubleSet = workoutModel.exercises[0].length == 2 ? true : false;
-    console.log(isDoubleSet);
-
+    //iterate workoutModel.exercises
+    workoutModel.exercises.forEach((arrayOfExercises: ExerciseDataModel[], index) => {
+        console.log("\n---------\nMultiset " + index + "\n---------");
+        arrayOfExercises.forEach((exercise: ExerciseDataModel) => {
+            console.log(exercise.name);
+        });
+    });
 
     const currentExercise = workoutModel.exercises[0][0];
 
@@ -136,7 +140,7 @@ export default function Workout() {
                                     completedReps = updatedCompletedRepsForIndex ? updatedCompletedRepsForIndex : 0;
                                 }
 
-                                return <ActiveSingleSet imageUrl={currentExercise.imageUrl} completedReps={completedReps} key={index} pressHandler={(completedReps: number) => {
+                                return <ActiveCompoundSet imageUrl={currentExercise.imageUrl} completedReps={completedReps} key={index} pressHandler={(completedReps: number) => {
 
                                     // Clone and update the completedRepsForIndex map
                                     const updatedCompletedRepsForIndex = new Map(completedRepsForIndex);
@@ -150,7 +154,7 @@ export default function Workout() {
                                 }} />
                             } else if (completedRepsForIndex.has(index)) {
                                 completedReps = completedRepsForIndex.get(index) || 0;
-                                return <FinishedSingleSet repsCompleted={completedReps} key={index} pressHandler={() => {
+                                return <FinishedCompoundSet repsCompleted={completedReps} key={index} pressHandler={() => {
                                     //remove the set from completedRepsForIndex
                                     const updatedCompletedRepsForIndex = new Map(completedRepsForIndex);
                                     updatedCompletedRepsForIndex.delete(index);
@@ -159,7 +163,7 @@ export default function Workout() {
                                 }} />
                             } else {
                                 //TODO pass params
-                                return <NotActiveSingleSet suggestedReps={set.reps} key={index} pressHandler={() => { setActiveSetIndex(index) }} />
+                                return <NotActiveCompoundSet suggestedReps={set.reps} key={index} pressHandler={() => { setActiveSetIndex(index) }} />
                             }
                         })
                     }

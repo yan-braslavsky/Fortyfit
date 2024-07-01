@@ -3,7 +3,7 @@ export class WorkoutDataModel {
     readonly name: string;
     readonly imageUrl: string;
     //TODO: find another way to represent sets
-    readonly exercises: [ExerciseDataModel, ExerciseDataModel][]; // can be a single set or a superset
+    readonly exercises: ExerciseDataModel[][]; // can be a single set or a superset
 
     constructor(id: string, name: string, imageUrl: string, exercises: [ExerciseDataModel, ExerciseDataModel][]) {
         this.id = id;

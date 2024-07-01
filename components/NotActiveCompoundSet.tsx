@@ -3,7 +3,7 @@ import React from 'react'
 import Separator, { SeparatorType } from '@/components/Separator'
 import Colors from '@/constants/Colors'
 
-export default function NotActiveSet({ pressHandler, suggestedReps = 0 }: { pressHandler?: () => void, suggestedReps?: number }) {
+export default function NotActiveCompoundSet({ pressHandler, suggestedReps = 0 }: { pressHandler?: () => void, suggestedReps?: number }) {
 
     function localPressHandler(): void {
         if (pressHandler) {

@@ -1,10 +1,10 @@
 import Colors from '@/constants/Colors';
 import React, { useState } from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, View, Image } from 'react-native';
-import DoneBtn from '../../DoneBtn';
-import Separator, { SeparatorType } from '../../Separator';
+import DoneBtn from '@/components/DoneBtn';
+import Separator, { SeparatorType } from '@/components/Separator';
 
-export default function ActiveDoubleSet({ pressHandler, completedReps = 0, imageUrl }:
+export default function ActiveCompoundSet({ pressHandler, completedReps = 0, imageUrl }:
     { pressHandler?: (completedReps: number) => void, completedReps: number, imageUrl: string }) {
     const [activeSetRepsInput, setActiveSetRepsInput] = useState('');
 
@@ -41,7 +41,6 @@ export default function ActiveDoubleSet({ pressHandler, completedReps = 0, image
         </View>
     )
 }
-
 
 const styles = StyleSheet.create({
     container: {
