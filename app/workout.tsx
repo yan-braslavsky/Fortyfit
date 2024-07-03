@@ -13,7 +13,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Pressable } from 'react-native';
 import { ExerciseSetDataModel } from '@/constants/DataModels';
 import { ExerciseDataModel } from '@/constants/DataModels';
-import ActiveCompoundSet from '@/components/ActiveCompoundSet';
+import ActiveCompoundSet from '@/components/ActiveCompoundSet/ActiveCompoundSet';
 import FinishedCompoundSet from '@/components/FinishedCompoundSet';
 import NotActiveCompoundSet from '@/components/NotActiveCompoundSet';
 
@@ -36,14 +36,6 @@ export default function Workout() {
             </View>
         );
     }
-
-    //iterate workoutModel.exercises
-    workoutModel.exercises.forEach((arrayOfExercises: ExerciseDataModel[], index) => {
-        console.log("\n---------\nMultiset " + index + "\n---------");
-        arrayOfExercises.forEach((exercise: ExerciseDataModel) => {
-            console.log(exercise.name);
-        });
-    });
 
     const currentExercise = workoutModel.exercises[0][0];
 
