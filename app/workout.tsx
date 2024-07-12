@@ -6,7 +6,7 @@ import { DEMO_WORKOUTS } from '@/constants/Data';
 import Separator from '@/components/Separator';
 import ExerciseHeader from '@/components/ExerciseHeader';
 import { FontAwesome } from '@expo/vector-icons';
-import ActiveCompoundSet from '@/components/ActiveCompoundSet/ActiveCompoundSet';
+import ActiveCompoundSet from '@/components/ActiveCompoundSet';
 import FinishedCompoundSet from '@/components/FinishedCompoundSet';
 import NotActiveCompoundSet from '@/components/NotActiveCompoundSet';
 import { render } from '@testing-library/react-native';
@@ -97,7 +97,7 @@ export default function Workout() {
         return currentExercise.sets.map((set, index) => {
             const completedReps = completedRepsForIndex.get(index) || 0;
             if (index === activeSetIndex) {
-                return <ActiveCompoundSet key={index} imageUrl={currentExercise.imageUrl} completedReps={completedReps} pressHandler={(completedReps) => handleSetCompletion(index, completedReps)} />;
+                return <ActiveCompoundSet key={index} imageUrl={currentExercise.imageUrl} completedReps={completedReps} doneHandler={(completedReps) => handleSetCompletion(index, completedReps)} />;
             } else if (completedRepsForIndex.has(index)) {
                 return <FinishedCompoundSet key={index} repsCompleted={completedReps} pressHandler={() => handleSetReactivation(index)} />;
             } else {
