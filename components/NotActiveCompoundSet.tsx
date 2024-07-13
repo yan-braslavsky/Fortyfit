@@ -9,16 +9,18 @@ interface NotActiveCompoundSetProps {
     pressHandler?: () => void;
     suggestedRepsRange?: { min: number, max: number };
     equipmentImagesUrls?: string[];
+    style?: ViewStyle
 }
 
-const NotActiveCompoundSet: React.FC<NotActiveCompoundSetProps> = ({ numberOfExercises = 1, pressHandler, suggestedRepsRange, equipmentImagesUrls }) => {
+const NotActiveCompoundSet: React.FC<NotActiveCompoundSetProps> = ({ numberOfExercises = 1, pressHandler, suggestedRepsRange, equipmentImagesUrls, style }) => {
     const handlePress = (): void => {
         pressHandler?.();
     };
 
-    const getPressableStyle = (state: PressableStateCallbackType): ViewStyle => ({
-        opacity: state.pressed ? 0.5 : 1,
-    });
+    const getPressableStyle = (state: PressableStateCallbackType): ViewStyle => (
+        {
+            opacity: state.pressed ? 0.5 : 1,
+        });
 
     const exercisesText = numberOfExercises === 1 ? 'Exercise' : 'Exercises';
     const rangeText = suggestedRepsRange ? `${suggestedRepsRange.min}-${suggestedRepsRange.max}` : 'Max';
@@ -28,12 +30,15 @@ const NotActiveCompoundSet: React.FC<NotActiveCompoundSetProps> = ({ numberOfExe
     ));
 
     return (
-        <Pressable style={getPressableStyle} onPress={handlePress}>
-            <View style={styles.container}>
+        <Pressable  style={({ pressed }) => [
+            { opacity: pressed ? 0.5 : 1 }
+            ,style
+        ]} onPress={handlePress}>
+            <View style={[styles.container]}>
                 <Text style={styles.genericText}>{numberOfExercises + " " + exercisesText} </Text>
-                <Separator type={SeparatorType.Vertical} style={{marginHorizontal:0}} />
+                <Separator type={SeparatorType.Vertical} style={{ marginHorizontal: 0 }} />
                 <Text style={styles.genericText}>{rangeText} Reps</Text>
-                <Separator type={SeparatorType.Vertical} style={{marginHorizontal:0}} />
+                <Separator type={SeparatorType.Vertical} style={{ marginHorizontal: 0 }} />
                 {!equipmentImagesUrls && <Text style={styles.genericText}>No Equipment</Text>}
                 {equipmentImagesUrls && equipmentSection}
             </View>
@@ -48,6 +53,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: Colors.light.primary,
         padding: 20,
+        minHeight: 60,
         borderRadius: 10,
     },
     equipmentContainer: {

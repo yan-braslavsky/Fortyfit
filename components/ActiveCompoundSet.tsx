@@ -7,18 +7,20 @@ import Separator from '@/components/Separator';
 import Colors from '@/constants/Colors';
 import { SeparatorType } from '@/components/Separator';
 import ActiveSingleSetRow from './ActiveSingleSetRow';
+import { ViewStyle } from 'react-native';
 
 interface ActiveCompoundSetProps {
     onDonePress?: (completedSets: ActiveCompoundSetModel[]) => void;
     sets: ActiveCompoundSetModel[];
+    style?: ViewStyle
 }
 
-const ActiveCompoundSet: React.FC<ActiveCompoundSetProps> = ({ onDonePress, sets }) => {
+const ActiveCompoundSet: React.FC<ActiveCompoundSetProps> = ({ onDonePress, sets, style }) => {
 
     const viewModel = useActiveCompoundSetViewModel({ sets: sets, doneHandler: onDonePress });
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container,style]}>
             <View style={styles.rowsContainer}>
                 {sets.map(function (set: ActiveCompoundSetModel, index: number) {
                     return (
@@ -52,7 +54,6 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1,
         borderColor: Colors.light.background,
-        marginBottom: 10,
         height: 'auto',
     },
     rowsContainer: {

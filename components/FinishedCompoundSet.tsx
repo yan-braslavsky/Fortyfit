@@ -1,64 +1,66 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import Separator, { SeparatorType } from '@/components/Separator'
-import { Pressable } from 'react-native'
-import { FontAwesome } from '@expo/vector-icons'
-import Colors from '@/constants/Colors'
+import React from 'react';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import Colors from '@/constants/Colors';
+import Separator, { SeparatorType } from '@/components/Separator';
+import { ViewStyle } from 'react-native';
 
-export default function FinishedCompoundSet({ pressHandler, repsCompleted }: { pressHandler?: () => void, repsCompleted: number }) {
-    function localPressHandler(): void {
-        if (pressHandler) {
-            pressHandler();
-        }
-    }
-    return (
-        <Pressable
-            style={(state) =>
-                state.pressed
-                    ? { opacity: 0.5 }
-                    : { opacity: 1 }
-            }
-            onPress={localPressHandler}>
-            <View style={styles.container}>
-                <Text style={styles.statusText}>Completed</Text>
-                <Separator type={SeparatorType.Vertical} />
-                <Text style={styles.repsText}>{repsCompleted} reps</Text>
-                <Separator type={SeparatorType.Vertical} />
-                <Text style={styles.redoText}>REDO</Text>
-                <FontAwesome name="rotate-right" size={16} color={Colors.light.text} style={{
-                    margin: 5
-                }} />
-            </View>
-        </Pressable>
-    )
+interface FinishedCompoundSetProps {
+    pressHandler?: () => void;
+    repsCompleted: number[];
+    style?: ViewStyle
 }
 
-
+const FinishedCompoundSet: React.FC<FinishedCompoundSetProps> = ({ pressHandler, repsCompleted, style }) => {
+    return (
+        <Pressable
+            style={({ pressed }) => [
+                styles.container,
+                { opacity: pressed ? 0.5 : 1 }
+                , style
+            ]}
+            onPress={pressHandler}>
+            <View style={styles.content}>
+                <Text style={styles.statusText}>Completed</Text>
+                <Separator type={SeparatorType.Vertical} style={{ marginHorizontal: 0 }} />
+                <Text style={styles.repsText}>{repsCompleted.join(',')} Reps</Text>
+                <Separator type={SeparatorType.Vertical} style={{ marginHorizontal: 0 }} />
+                <Text style={styles.redoText}>REDO</Text>
+                <FontAwesome name="rotate-right" size={18} color={Colors.light.text} style={styles.icon} />
+            </View>
+        </Pressable>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
+        backgroundColor: Colors.light.ternary,
+        borderRadius: 10,
+        minHeight: 60,
+        opacity: 0.7,
+    },
+    content: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: Colors.light.ternary,
-        padding: 10,
-        borderRadius: 10,
-        marginBottom: 10,
-        opacity: 0.7
+        padding: 20,
     },
     statusText: {
         color: Colors.light.text,
         fontSize: 16,
-        textAlign: 'left',
     },
     repsText: {
         color: Colors.light.text,
         fontSize: 16,
-        textAlign: 'left',
     },
     redoText: {
         color: Colors.light.text,
         fontSize: 16,
-        textAlign: 'left',
     },
-})
+    icon: {
+        width: 20,
+        height: 20,
+    },
+});
+
+export default FinishedCompoundSet;
