@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import React from 'react';
 
 
@@ -7,10 +7,10 @@ export enum SeparatorType {
     Vertical
 }
 
-export default function Separator({ type = SeparatorType.Horizontal }: { type?: SeparatorType }) {
+export default function Separator({ type = SeparatorType.Horizontal, style }: { type?: SeparatorType; style?: ViewStyle }) {
     return (
-        <View style={(type === SeparatorType.Horizontal) ? styles.separatorHorizontal : styles.separatorVertical} />
-    )
+        <View style={[type === SeparatorType.Horizontal ? styles.separatorHorizontal : styles.separatorVertical, style]} />
+    );
 }
 
 const styles = StyleSheet.create({

@@ -20,14 +20,19 @@ const ActiveCompoundSet: React.FC<ActiveCompoundSetProps> = ({ onDonePress, sets
     return (
         <View style={styles.container}>
             <View style={styles.rowsContainer}>
-                {sets.map((set: ActiveCompoundSetModel, index: number) => (
-                    <ActiveSingleSetRow key={index}
-                        activeSetRepsPlaceholderValue={set.recomendedReps.toString()}
-                        activeSetRepsInputValue={set.completedReps?.toString()}
-                        imageUrl={set.imageUrl}
-                        onRepsChange={(reps) => viewModel.repsChangeForSet(reps, set)}
-                    />
-                ))}
+                {sets.map(function (set: ActiveCompoundSetModel, index: number) {
+                    return (
+                        <View key={index + 50}>
+                            {(index > 0) && <Separator type={SeparatorType.Horizontal} style={{ marginHorizontal: 0, marginVertical: 15 }} />}
+                            <ActiveSingleSetRow
+                                activeSetRepsPlaceholderValue={set.recomendedReps.toString()}
+                                activeSetRepsInputValue={set.completedReps?.toString()}
+                                imageUrl={set.imageUrl}
+                                onRepsChange={(reps) => viewModel.repsChangeForSet(reps, set)}
+                            />
+                        </View>
+                    );
+                })}
             </View>
             <Separator type={SeparatorType.Vertical} />
             <DoneBtn pressHandler={viewModel.handleDonePress} />

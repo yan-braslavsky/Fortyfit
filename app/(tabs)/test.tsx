@@ -31,7 +31,7 @@ export default function Test() {
         {
             recomendedReps: 15,
             imageUrl: pullUpImageUrl
-        },
+        }
     ];
 
     return (

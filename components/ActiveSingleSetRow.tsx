@@ -59,10 +59,10 @@ const ImageContainer: React.FC<{ imageUrl: string; }> = ({ imageUrl }) => (
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        // justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
-        marginTop: 10,
+        // marginBottom: 10,
+        // marginTop: 10,
     },
     inputTextContainer: {
         flex: 1,
