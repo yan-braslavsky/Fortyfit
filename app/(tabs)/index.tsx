@@ -53,7 +53,6 @@ export default function Test() {
 
             /> */}
 
-
             <ActiveCompoundSet key="demoKey"
                 style={{ margin: 10 }}
                 onDonePress={(completedSets) => {
@@ -70,7 +69,7 @@ export default function Test() {
                 pressHandler={() => console.log('Pressed')}
                 numberOfExercises={3}
                 suggestedRepsRange={{ min: 8, max: 12 }}
-                equipmentImagesUrls={[squatImageUrl, pushupImageUrl, pullUpImageUrl]}
+                equipmentImagesUrls={[voleyBallImageUrl, gymnasticRingsImageUrl, resistanceBandsImageUrl]}
             />
 
             <FinishedCompoundSet
