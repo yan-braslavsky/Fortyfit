@@ -67,7 +67,7 @@ export default function Test() {
                 pressHandler={() => console.log('Pressed')}
                 numberOfExercises={3}
                 suggestedRepsRange={{ min: 8, max: 12 }}
-                equipmentImagesUrls={[voleyBallImageUrl, gymnasticRingsImageUrl, resistanceBandsImageUrl]}
+                equipmentImagesUrls={[squatImageUrl, pushupImageUrl, pullUpImageUrl]}
             />
         </View>
     );
