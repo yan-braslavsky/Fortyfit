@@ -13,8 +13,6 @@ interface ActiveSingleSetRowProps {
 }
 
 const ActiveSingleSetRow: React.FC<ActiveSingleSetRowProps> = ({ activeSetRepsInputValue, activeSetRepsPlaceholderValue, imageUrl, onRepsChange }) => {
-
-
     return (
         <View style={styles.container}>
             <RepsInput placeholder={activeSetRepsPlaceholderValue} activeSetRepsInputValue={activeSetRepsInputValue} onRepsChange={onRepsChange} />
@@ -59,10 +57,7 @@ const ImageContainer: React.FC<{ imageUrl: string; }> = ({ imageUrl }) => (
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        // justifyContent: 'space-between',
         alignItems: 'center',
-        // marginBottom: 10,
-        // marginTop: 10,
     },
     inputTextContainer: {
         flex: 1,

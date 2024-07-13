@@ -1,9 +1,10 @@
 import { Stack, useNavigation } from 'expo-router';
 import { Text, View } from 'react-native';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import ActiveCompoundSet from '@/components/ActiveCompoundSet';
 import ActiveSingleSetRow from '@/components/ActiveSingleSetRow';
 import ActiveCompoundSetModel from '@/models/ActiveCompoundSetModel';
+import NotActiveCompoundSet from '@/components/NotActiveCompoundSet';
 
 export default function Test() {
     const navigation = useNavigation();
@@ -12,6 +13,9 @@ export default function Test() {
     const pushupImageUrl = "https://w7.pngwing.com/pngs/381/172/png-transparent-computer-icons-push-up-exercise-others.png";
     const pullUpImageUrl = "https://www.shutterstock.com/shutterstock/photos/1517740955/display_1500/stock-vector-a-sport-man-taking-physical-activity-street-workout-training-1517740955.jpg";
 
+    const voleyBallImageUrl = "https://pngimg.com/d/volleyball_PNG51.png";
+    const gymnasticRingsImageUrl = "https://cdn-icons-png.flaticon.com/512/1545/1545659.png";
+    const resistanceBandsImageUrl = "https://static.thenounproject.com/png/2491861-200.png";
 
     useEffect(() => {
         navigation.setOptions({ headerShown: false });
@@ -47,7 +51,9 @@ export default function Test() {
             onRepsChange={(reps) => console.log(reps)}
 
             /> */}
-            <ActiveCompoundSet key="demoKey"
+
+
+            {/* <ActiveCompoundSet key="demoKey"
                 onDonePress={(completedSets) => {
                     //Just print the results for now
                     const completedRepsArray = completedSets.map(set => set.completedReps);
@@ -55,6 +61,13 @@ export default function Test() {
                 }
                 }
                 sets={sets}
+            /> */}
+
+            <NotActiveCompoundSet
+                pressHandler={() => console.log('Pressed')}
+                numberOfExercises={3}
+                suggestedRepsRange={{ min: 8, max: 12 }}
+                equipmentImagesUrls={[voleyBallImageUrl, gymnasticRingsImageUrl, resistanceBandsImageUrl]}
             />
         </View>
     );
