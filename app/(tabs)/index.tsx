@@ -1,11 +1,12 @@
 import { Stack, useNavigation } from 'expo-router';
-import { Text, View } from 'react-native';
+import { Text, View, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
 import React, { useEffect } from 'react';
 import ActiveCompoundSet from '@/components/ActiveCompoundSet';
-import ActiveSingleSetRow from '@/components/ActiveSingleSetRow';
 import ActiveCompoundSetModel from '@/models/ActiveCompoundSetModel';
 import NotActiveCompoundSet from '@/components/NotActiveCompoundSet';
 import FinishedCompoundSet from '@/components/FinishedCompoundSet';
+import ExerciseHeader from '@/components/ExerciseHeader';
+import Colors from '@/constants/Colors';
 
 export default function Test() {
     const navigation = useNavigation();
@@ -40,43 +41,73 @@ export default function Test() {
     ];
 
     return (
-        <View style={{
-            flex: 1,
-            justifyContent: 'center',
-        }}>
-            {/* <ActiveSingleSetRow 
-            
-            imageUrl="https://www.shutterstock.com/shutterstock/photos/1517740955/display_1500/stock-vector-a-sport-man-taking-physical-activity-street-workout-training-1517740955.jpg"
-            // activeSetRepsInputValue="5"
-            activeSetRepsPlaceholderValue="7"
-            onRepsChange={(reps) => console.log(reps)}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <ScrollView style={{
+                flex: 1,
+                flexGrow: 1,
+                padding: 5,
+                marginVertical: 20,
+                marginTop: 80,
+            }}>
+                <View style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                }}>
 
-            /> */}
 
-            <ActiveCompoundSet key="demoKey"
-                style={{ margin: 10 }}
-                onDonePress={(completedSets) => {
-                    //Just print the results for now
-                    const completedRepsArray = completedSets.map(set => set.completedReps);
-                    console.log('Completed sets:', completedRepsArray.join(', ').toString());
-                }
-                }
-                sets={sets}
-            />
+                    <View style={{
+                        borderWidth: 1,
+                        borderColor: Colors.light.text,
+                        borderRadius: 10,
+                        margin: 10,
+                        padding: 5
+                    }}>
+                        <ExerciseHeader
+                            imageUrl={pullUpImageUrl}
+                            title="Pull Up"
+                            subtitle="Back, Biceps"
+                            equipmentImagesUrls={[voleyBallImageUrl, gymnasticRingsImageUrl, resistanceBandsImageUrl]}
+                        />
+                        <ExerciseHeader
+                            imageUrl={pushupImageUrl}
+                            title="Push Up"
+                            subtitle="Chest, Triceps"
 
-            <NotActiveCompoundSet
-                style={{ margin: 10 }}
-                pressHandler={() => console.log('Pressed')}
-                numberOfExercises={3}
-                suggestedRepsRange={{ min: 8, max: 12 }}
-                equipmentImagesUrls={[voleyBallImageUrl, gymnasticRingsImageUrl, resistanceBandsImageUrl]}
-            />
+                        />
+                        <ExerciseHeader
+                            imageUrl={squatImageUrl}
+                            title="Squat"
+                            subtitle="Legs, Glutes"
+                            equipmentImagesUrls={[resistanceBandsImageUrl]}
+                        />
+                    </View>
 
-            <FinishedCompoundSet
-                style={{ margin: 10 }}
-                pressHandler={() => console.log('Pressed')}
-                repsCompleted={[10, 12, 8]}
-            />
-        </View>
+                    <ActiveCompoundSet key="demoKey"
+                        style={{ margin: 10 }}
+                        onDonePress={(completedSets) => {
+                            //Just print the results for now
+                            const completedRepsArray = completedSets.map(set => set.completedReps);
+                            console.log('Completed sets:', completedRepsArray.join(', ').toString());
+                        }
+                        }
+                        sets={sets}
+                    />
+
+                    <NotActiveCompoundSet
+                        style={{ margin: 10 }}
+                        pressHandler={() => console.log('Pressed')}
+                        numberOfExercises={3}
+                        suggestedRepsRange={{ min: 8, max: 12 }}
+                        equipmentImagesUrls={[voleyBallImageUrl, gymnasticRingsImageUrl, resistanceBandsImageUrl]}
+                    />
+
+                    <FinishedCompoundSet
+                        style={{ margin: 10 }}
+                        pressHandler={() => console.log('Pressed')}
+                        repsCompleted={[10, 12, 8]}
+                    />
+                </View>
+            </ScrollView>
+        </TouchableWithoutFeedback>
     );
 }
