@@ -5,8 +5,9 @@ import ActiveCompoundSet from '@/components/ActiveCompoundSet';
 import ActiveCompoundSetModel from '@/models/ActiveCompoundSetModel';
 import NotActiveCompoundSet from '@/components/NotActiveCompoundSet';
 import FinishedCompoundSet from '@/components/FinishedCompoundSet';
-import ExerciseHeader from '@/components/ExerciseHeader';
+import ExerciseHeader from '@/components/ExerciseHeaderCompound';
 import Colors from '@/constants/Colors';
+import ExerciseHeaderCompound from '@/components/ExerciseHeaderCompound';
 
 export default function Test() {
     const navigation = useNavigation();
@@ -40,6 +41,27 @@ export default function Test() {
         }
     ];
 
+    const demoExerciseHeaderModels = [
+        {
+            imageUrl: squatImageUrl,
+            title: 'Squat',
+            subtitle: 'Legs',
+            equipmentImagesUrls: [voleyBallImageUrl, gymnasticRingsImageUrl, resistanceBandsImageUrl]
+        },
+        {
+            imageUrl: pushupImageUrl,
+            title: 'Pushup',
+            subtitle: 'Chest',
+            equipmentImagesUrls: [voleyBallImageUrl, gymnasticRingsImageUrl, resistanceBandsImageUrl]
+        },
+        {
+            imageUrl: pullUpImageUrl,
+            title: 'Pull Up',
+            subtitle: 'Back',
+            equipmentImagesUrls: [voleyBallImageUrl, gymnasticRingsImageUrl, resistanceBandsImageUrl]
+        }
+    ];
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ScrollView style={{
@@ -53,33 +75,22 @@ export default function Test() {
                     flex: 1,
                     justifyContent: 'center',
                 }}>
+                    <Text style={{
+                        textAlign: 'center',
+                        fontSize: 24,
+                        color: Colors.light.primary,
+                    }}>Test</Text>
 
 
                     <View style={{
-                        borderWidth: 1,
-                        borderColor: Colors.light.text,
-                        borderRadius: 10,
-                        margin: 10,
-                        padding: 5
+                        flex: 1,
+                        justifyContent: 'center',
                     }}>
-                        <ExerciseHeader
-                            imageUrl={pullUpImageUrl}
-                            title="Pull Up"
-                            subtitle="Back, Biceps"
-                            equipmentImagesUrls={[voleyBallImageUrl, gymnasticRingsImageUrl, resistanceBandsImageUrl]}
-                        />
-                        <ExerciseHeader
-                            imageUrl={pushupImageUrl}
-                            title="Push Up"
-                            subtitle="Chest, Triceps"
 
+                        <ExerciseHeaderCompound
+                            exerciseHeaderModels={demoExerciseHeaderModels}
                         />
-                        <ExerciseHeader
-                            imageUrl={squatImageUrl}
-                            title="Squat"
-                            subtitle="Legs, Glutes"
-                            equipmentImagesUrls={[resistanceBandsImageUrl]}
-                        />
+
                     </View>
 
                     <ActiveCompoundSet key="demoKey"
@@ -108,6 +119,6 @@ export default function Test() {
                     />
                 </View>
             </ScrollView>
-        </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback >
     );
 }

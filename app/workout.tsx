@@ -4,7 +4,7 @@ import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import Colors from '@/constants/Colors';
 import { DEMO_WORKOUTS } from '@/constants/Data';
 import Separator from '@/components/Separator';
-import ExerciseHeader from '@/components/ExerciseHeader';
+import ExerciseHeader from '@/components/ExerciseHeaderCompound';
 import { FontAwesome } from '@expo/vector-icons';
 import ActiveCompoundSet from '@/components/ActiveCompoundSet';
 import FinishedCompoundSet from '@/components/FinishedCompoundSet';

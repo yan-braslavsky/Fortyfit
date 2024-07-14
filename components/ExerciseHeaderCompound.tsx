@@ -1,16 +1,38 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import Colors from '@/constants/Colors';
-import Separator, { SeparatorType } from './Separator';
+import ExerciseHeaderModel from '@/models/ExerciseHeaderModel';
 
-interface ExerciseHeaderProps {
-    imageUrl: string;
-    title: string;
-    subtitle: string;
-    equipmentImagesUrls?: string[];
+
+interface ExerciseHeaderCompoundProps {
+    exerciseHeaderModels: ExerciseHeaderModel[];
 }
 
-const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({ imageUrl, title, subtitle, equipmentImagesUrls }) => {
+const ExerciseHeaderCompound: React.FC<ExerciseHeaderCompoundProps> = ({ exerciseHeaderModels }) => {
+    return (
+
+
+        <View style={{
+            borderWidth: 1,
+            borderColor: Colors.light.text,
+            borderRadius: 10,
+            padding: 5
+        }}>
+            {exerciseHeaderModels.map((exerciseHeaderModel, index) => (
+                <ExerciseHeader
+                    key={index}
+                    imageUrl={exerciseHeaderModel.imageUrl}
+                    title={exerciseHeaderModel.title}
+                    subtitle={exerciseHeaderModel.subtitle}
+                    equipmentImagesUrls={exerciseHeaderModel.equipmentImagesUrls}
+                />
+            ))}
+        </View>
+    )
+};
+
+
+const ExerciseHeader: React.FC<ExerciseHeaderModel> = ({ imageUrl, title, subtitle, equipmentImagesUrls }) => {
     return (
         <View style={styles.container}>
 
@@ -31,7 +53,7 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({ imageUrl, title, subtit
     );
 };
 
-export default ExerciseHeader;
+export default ExerciseHeaderCompound;
 
 const styles = StyleSheet.create({
     container: {
