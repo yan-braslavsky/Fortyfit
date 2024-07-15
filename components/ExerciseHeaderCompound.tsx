@@ -38,7 +38,7 @@ const ExerciseHeader: React.FC<ExerciseHeaderModel> = ({ imageUrl, title, subtit
 
             <View style={styles.exerciseTitleContainer}>
                 <Text style={styles.exerciseTitle}>{title}</Text>
-                <Text style={styles.exerciseSubtitle}>{subtitle}</Text>
+                <Text style={styles.exerciseSubtitle} ellipsizeMode='tail' numberOfLines={1}>{subtitle}</Text>
             </View>
             <View style={styles.imageContainer}>
                 <Image source={{ uri: imageUrl }} style={styles.image} />
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     },
     exerciseTitleContainer: {
         flexDirection: 'column',
-        width: 100,
+        width: 150,
     },
     exerciseTitle: {
         color: Colors.light.primary,

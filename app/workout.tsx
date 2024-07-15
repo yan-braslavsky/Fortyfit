@@ -4,14 +4,12 @@ import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import Colors from '@/constants/Colors';
 import { DEMO_WORKOUTS } from '@/constants/Data';
 import Separator from '@/components/Separator';
-import ExerciseHeader from '@/components/ExerciseHeaderCompound';
 import { FontAwesome } from '@expo/vector-icons';
 import ActiveCompoundSet from '@/components/ActiveCompoundSet';
 import FinishedCompoundSet from '@/components/FinishedCompoundSet';
 import NotActiveCompoundSet from '@/components/NotActiveCompoundSet';
-import { render } from '@testing-library/react-native';
-import { ExerciseDataModel, WorkoutDataModel } from '@/constants/DataModels';
-import { ExerciseSetDataModel } from '@/constants/DataModels';
+import { WorkoutDataModel } from '@/constants/DataModels';
+import ExerciseHeaderCompound from '@/components/ExerciseHeaderCompound';
 
 export default function Workout() {
     const navigation = useNavigation();
@@ -71,38 +69,33 @@ export default function Workout() {
 
     //Go over all exercises in the workout and render their headers
     function renderCompoundExerciseHeader(workout: WorkoutDataModel): React.ReactNode {
-        return workout.exercises.map((exercise, index) => (
-            <ExerciseHeader key={index} imageUrl={exercise[0].imageUrl} title={exercise[0].name} subtitle={exercise[0].description} />
-        ));
+        const distinctExercises = workout.exercises.flatMap(exercises => exercises[0]);
+        const models = distinctExercises.map(exercise => ({
+            imageUrl: exercise.imageUrl,
+            title: exercise.name,
+            subtitle: exercise.muscleGroups.join(","),
+            equipmentImagesUrls: exercise.equipment.map(equipment => equipment.imageUrl),
+        }));
+
+        return (<ExerciseHeaderCompound exerciseHeaderModels={models} />);
     }
 
     function renderExerciseSet(workout: WorkoutDataModel): React.ReactNode {
-        //TODO : need to change data models and make them more atomic.
-        //Create an interface for the Active set that will be transformed from the model
-
-        // //create array of exercise sets
-        // let exerciseSets:ExerciseSetDataModel[][] = new Array();
-
-        // return workout.exercises.map((exercises, index) => {
-        //     //first exercise set
-        //     exercises[0].sets
-
-        //     //Render Active Set
-        //     exercises.forEach((exercise) => {
-        //         exercise.sets
-        //     });
-            
-        //     <ActiveCompoundSet key={index} exercises={exercises} pressHandler={(completedReps) => handleSetCompletion(index, completedReps)} />;
-        // }); 
         return currentExercise.sets.map((set, index) => {
             const completedReps = completedRepsForIndex.get(index) || 0;
             if (index === activeSetIndex) {
-                return <ActiveCompoundSet key={index} imageUrl={currentExercise.imageUrl} completedReps={completedReps} doneHandler={(completedReps) => handleSetCompletion(index, completedReps)} />;
-            } else if (completedRepsForIndex.has(index)) {
-                return <FinishedCompoundSet key={index} repsCompleted={completedReps} pressHandler={() => handleSetReactivation(index)} />;
-            } else {
-                return <NotActiveCompoundSet key={index} suggestedReps={set.reps} pressHandler={() => setActiveSetIndex(index)} />;
-            }
+                return <ActiveCompoundSet key={index} 
+                onDonePress={(completedReps) => handleSetCompletion(index, completedReps)} 
+                sets={currentExercise.sets.map(set => ({ recomendedReps: set.reps, imageUrl: currentExercise.imageUrl }))}
+                />;
+            } 
+            
+            // else if (completedRepsForIndex.has(index)) {
+            //     return <FinishedCompoundSet key={index} />;
+            //     pressHandler={() => handleSetReactivation(index)} />;
+            // } else {
+            //     return <NotActiveCompoundSet key={index} suggestedReps={set.reps} pressHandler={() => setActiveSetIndex(index)} />;
+            // }
         });
     }
 
@@ -132,13 +125,13 @@ const HeaderIcon = ({ name, onPress }) => (
 
 const styles = StyleSheet.create({
     scrollView: {
-        flex:1,
+        flex: 1,
         flexGrow: 1,
         padding: 5,
     },
     container: {
         // flex: 1, Good for iOS, not good for Android
-        flex:1,
+        flex: 1,
         padding: 10,
         borderRadius: 10,
     },

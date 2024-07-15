@@ -1,4 +1,4 @@
-import { WorkoutDataModel, EquipmentModel, ExerciseSetDataModel, ExerciseDataModel } from './DataModels';
+import { WorkoutDataModel, EquipmentModel, ExerciseSetDataModel, ExerciseDataModel, MuscleGroup } from './DataModels';
 
 const squatImageUrl = "https://w7.pngwing.com/pngs/489/476/png-transparent-exercise-streaching-legs-gym-fitness-workout-activity-glyph-icon-thumbnail.png";
 const pushupImageUrl = "https://w7.pngwing.com/pngs/381/172/png-transparent-computer-icons-push-up-exercise-others.png";
@@ -23,7 +23,8 @@ export const DEMO_WORKOUTS = [
                         new ExerciseSetDataModel(Math.random().toString(), 'Set 3', 0, 25),
                     ],
                     [],
-                    "Squats are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
+                    "Squats are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core.",
+                    [MuscleGroup.Legs, MuscleGroup.FullBody]
                 ),
                 new ExerciseDataModel(Math.random().toString(), 'Lunges', squatImageUrl, 60,
                     [
@@ -33,6 +34,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [],
                     "Lunges are a compound exercise that works the quadriceps, hamstrings, glutes, and calves. It also works the lower back and core."
+                    , [MuscleGroup.Legs, MuscleGroup.FullBody]
                 )
             ],
             // Pair: Ball Curls and Leg Press
@@ -45,6 +47,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [gymnasticBallEquipment],
                     "Ball Curls are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
+                    , [MuscleGroup.Legs, MuscleGroup.FullBody]
                 ),
                 new ExerciseDataModel(Math.random().toString(), 'Leg Press', squatImageUrl, 60,
                     [
@@ -54,6 +57,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [],
                     "Leg Press is a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
+                    , [MuscleGroup.Legs, MuscleGroup.FullBody]
                 )
             ],
             // Pair: Leg Extensions and Toes to Bar
@@ -66,6 +70,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [],
                     "Leg Extensions are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
+                    , [MuscleGroup.Legs, MuscleGroup.FullBody]
                 ),
                 new ExerciseDataModel(Math.random().toString(), 'Toes to Bar', squatImageUrl, 60,
                     [
@@ -75,6 +80,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [ringsEquipment],
                     "Toes to Bar are a compound exercise that works the quadriceps, hamstrings, and glutes. It also works the calves, lower back, and core."
+                    , [MuscleGroup.Abs, MuscleGroup.FullBody]
                 )
             ]
         ]
@@ -94,6 +100,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [ringsEquipment],
                     "Pull-Ups are a compound exercise that works the biceps, back, and core."
+                    , [MuscleGroup.Back, MuscleGroup.FullBody]
                 ),
                 new ExerciseDataModel(Math.random().toString(), 'Bent Over Rows', pullUpImageUrl, 60,
                     [
@@ -103,6 +110,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [],
                     "Bent Over Rows are a compound exercise that works the biceps, back, and core."
+                    , [MuscleGroup.Back, MuscleGroup.FullBody]
                 )
             ],
             // Pair: Deadlifts and Bicep Curls
@@ -115,6 +123,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [],
                     "Deadlifts are a compound exercise that works the biceps, back, and core."
+                    , [MuscleGroup.Back, MuscleGroup.FullBody]
                 ),
                 new ExerciseDataModel(Math.random().toString(), 'Bicep Curls', pullUpImageUrl, 60,
                     [
@@ -124,6 +133,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [],
                     "Bicep Curls are a compound exercise that works the biceps, back, and core."
+                    , [MuscleGroup.Back, MuscleGroup.FullBody]
                 )
             ]
         ]
@@ -143,6 +153,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [],
                     "Push-Ups are a compound exercise that works the chest, triceps, and shoulders."
+                    , [MuscleGroup.Chest, MuscleGroup.FullBody]
                 ),
                 new ExerciseDataModel(Math.random().toString(), 'Shoulder Press', pushupImageUrl, 60,
                     [
@@ -152,6 +163,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [],
                     "Shoulder Press is a compound exercise that works the chest, triceps, and shoulders."
+                    , [MuscleGroup.Chest, MuscleGroup.FullBody]
                 )
             ],
             // Pair: Bench Press and Tricep Dips
@@ -164,6 +176,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [],
                     "Bench Press is a compound exercise that works the chest, triceps, and shoulders."
+                    , [MuscleGroup.Chest, MuscleGroup.FullBody]
                 ),
                 new ExerciseDataModel(Math.random().toString(), 'Tricep Dips', pushupImageUrl, 60,
                     [
@@ -173,6 +186,7 @@ export const DEMO_WORKOUTS = [
                     ],
                     [],
                     "Tricep Dips are a compound exercise that works the chest, triceps, and shoulders."
+                    , [MuscleGroup.Chest, MuscleGroup.FullBody]
                 )
             ]
         ]
