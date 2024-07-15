@@ -1,46 +1,55 @@
-import Colors from '@/constants/Colors';
-import React, { useState } from 'react';
-import { Keyboard, StyleSheet, Text, TextInput, View, Image } from 'react-native';
+import React from 'react';
+import { useActiveCompoundSetViewModel } from '@/viewmodels/ActiveCompoundSetViewModel';
+import { StyleSheet, View } from 'react-native';
 import DoneBtn from '@/components/DoneBtn';
-import Separator, { SeparatorType } from '@/components/Separator';
+import Separator from '@/components/Separator';
+import Colors from '@/constants/Colors';
+import { SeparatorType } from '@/components/Separator';
+import ActiveSingleSetRow from './ActiveSingleSetRow';
+import { ViewStyle } from 'react-native';
+import SingleSetModel from '@/models/SingleSetModel';
 
-export default function ActiveCompoundSet({ pressHandler, completedReps = 0, imageUrl }:
-    { pressHandler?: (completedReps: number) => void, completedReps: number, imageUrl: string }) {
-    const [activeSetRepsInput, setActiveSetRepsInput] = useState('');
-
-    function localPressHandler(): void {
-        if (pressHandler) {
-            pressHandler(parseInt(activeSetRepsInput, 10));
-        }
-    }
-    return (
-        <View style={styles.container}>
-            <View style={styles.inputTextContainer}>
-                <Text style={styles.suggestionText}>Reps</Text>
-                <TextInput style={styles.textInput} onChangeText={setActiveSetRepsInput}
-                    value={activeSetRepsInput}
-                    placeholder="12"
-                    keyboardType="numeric" returnKeyType="done"
-                    inputMode='numeric'
-                    onSubmitEditing={Keyboard.dismiss}
-                    maxLength={2}
-                    cursorColor={Colors.light.secondary}
-                    selectionColor={Colors.light.secondary}
-
-                />
-            </View>
-            <Separator type={SeparatorType.Vertical} />
-            <View style={styles.inputTextContainer}>
-                {/* <Text style={styles.suggestionText}>10-12 reps</Text>
-                <Text style={styles.smallText}>(Last 12)</Text> */}
-                <Image source={{ uri: imageUrl }} style={{ width: 50, height: 50 }} />
-            </View>
-            <Separator type={SeparatorType.Vertical} />
-
-            <DoneBtn pressHandler={localPressHandler} />
-        </View>
-    )
+interface ActiveCompoundSetProps {
+    id: string;
+    onDonePress?: (id: string, completedSets: SingleSetModel[]) => void;
+    sets: SingleSetModel[];
+    style?: ViewStyle
 }
+
+const ActiveCompoundSet: React.FC<ActiveCompoundSetProps> = ({ id, onDonePress, sets, style }) => {
+
+    const viewModel = useActiveCompoundSetViewModel({
+        sets: sets, doneHandler: (completedSets: SingleSetModel[]) => {
+            if (onDonePress) {
+                onDonePress(id, completedSets);
+            }
+        }
+    });
+
+    return (
+        <View style={[styles.container, style]}>
+            <View style={styles.rowsContainer}>
+                {sets.map(function (set: SingleSetModel, index: number) {
+                    return (
+                        <View key={index + 50}>
+                            {(index > 0) && <Separator type={SeparatorType.Horizontal} style={{ marginHorizontal: 0, marginVertical: 15 }} />}
+                            <ActiveSingleSetRow
+                                activeSetRepsPlaceholderValue={set.recomendedRepsRange.max.toString()}
+                                activeSetRepsInputValue={set.completedReps?.toString()}
+                                imageUrl={set.imageUrl}
+                                onRepsChange={(reps) => viewModel.repsChangeForSet(reps, set)}
+                            />
+                        </View>
+                    );
+                })}
+            </View>
+            <Separator type={SeparatorType.Vertical} />
+            <DoneBtn pressHandler={viewModel.handleDonePress} />
+        </View>
+    );
+}
+
+export default ActiveCompoundSet;
 
 const styles = StyleSheet.create({
     container: {
@@ -52,34 +61,10 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1,
         borderColor: Colors.light.background,
-        marginBottom: 10,
-        height: '40%',
+        height: 'auto',
     },
-    inputTextContainer: {
+    rowsContainer: {
         flex: 1,
-        backgroundColor: 'transparent',
-        alignItems: 'center',
-        alignContent: 'center',
-    },
-    suggestionText: {
-        color: Colors.light.text,
-        fontSize: 20,
-        alignItems: 'center',
-        alignContent: 'center',
-        textAlign: 'center',
-    },
-    textInput: {
-        color: Colors.light.text,
-        backfaceVisibility: 'hidden',
-        backgroundColor: 'transparent',
-        fontSize: 32,
-        fontWeight: 'bold',
-        alignItems: 'center',
-        alignContent: 'center',
-        textAlign: 'center',
-    },
-    smallText: {
-        color: Colors.light.text,
-        fontSize: 14,
-    },
-})
+        flexDirection: 'column',
+    }
+});

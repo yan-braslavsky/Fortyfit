@@ -1,179 +1,75 @@
-import { StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
-import { Text, View } from 'react-native';
-import { Button } from 'react-native';
-import { useCallback, useLayoutEffect, useState } from 'react';
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { Alert } from 'react-native';
 import React from 'react';
-import Colors from '@/constants/Colors';
-import { DEMO_WORKOUTS } from '@/constants/Data';
-import Separator from '@/components/Separator';
-import ExerciseHeader from '@/components/ExerciseHeader';
-import { FontAwesome } from '@expo/vector-icons';
-import { Pressable } from 'react-native';
-import { ExerciseSetDataModel } from '@/constants/DataModels';
-import { ExerciseDataModel } from '@/constants/DataModels';
+import { StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, View, Button } from 'react-native';
+import { useLocalSearchParams } from "expo-router";
+import ExerciseHeaderCompound from '@/components/ExerciseHeaderCompound';
 import ActiveCompoundSet from '@/components/ActiveCompoundSet';
 import FinishedCompoundSet from '@/components/FinishedCompoundSet';
 import NotActiveCompoundSet from '@/components/NotActiveCompoundSet';
+import Separator from '@/components/Separator';
+import { useWorkoutViewModel } from '@/viewmodels/WorkoutViewModel';
+import { ExerciseStatus } from '@/models/WorkoutModel';
 
 export default function Workout() {
 
-    const navigation = useNavigation();
-    const router = useRouter();
-    const params = useLocalSearchParams();
-    const { workoutID } = params;
-    const [activeSetIndex, setActiveSetIndex] = useState(0);
-    const [completedRepsForIndex, setCompletedRepsForIndex] = useState(new Map<number, number>());
+    const { workoutID } = useLocalSearchParams();
+    const {
+        workoutModel,
+        handleSetCompletion,
+        handleSetActivation,
+    } = useWorkoutViewModel();
 
-
-    //TODO: Replace with global state
-    const workoutModel = DEMO_WORKOUTS.find((item) => item.id === workoutID);
-    if (!workoutModel) {
-        return (
-            <View>
-                <Text>Workout not found</Text>
-            </View>
-        );
-    }
-
-    //iterate workoutModel.exercises
-    workoutModel.exercises.forEach((arrayOfExercises: ExerciseDataModel[], index) => {
-        console.log("\n---------\nMultiset " + index + "\n---------");
-        arrayOfExercises.forEach((exercise: ExerciseDataModel) => {
-            console.log(exercise.name);
-        });
-    });
-
-    const currentExercise = workoutModel.exercises[0][0];
-
-    const showExitDialog = useCallback(() => {
-        Alert.alert(
-            "Exit",
-            "Are you sure you want to exit?",
-            [
-                {
-                    text: "No",
-                    onPress: () => console.log("No Pressed"),
-                    style: "cancel"
-                },
-                {
-                    text: "Yes",
-                    onPress: () => router.back(),
-                }
-            ],
-            { cancelable: false }
-        );
-    }, [router]);
-
-
-    //Customise the title bar
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            title: 'Workout',
-            headerLeft: () => (
-                <Pressable onPress={showExitDialog}>
-                    {({ pressed }) => (
-                        <FontAwesome
-                            name="close"
-                            size={24}
-                            color={Colors.light.primary}
-                            style={{ opacity: pressed ? 0.5 : 1 }}
+    const renderExercises = () => {
+        return workoutModel.compoundSets.map(compoundSet => {
+            switch (compoundSet.status) {
+                case ExerciseStatus.Active:
+                    return (
+                        <ActiveCompoundSet
+                            key={compoundSet.id}
+                            id={compoundSet.id}
+                            sets={compoundSet.singleSets}
+                            onDonePress={handleSetCompletion}
                         />
-                    )}
-                </Pressable>
-            ),
-            headerRight: () => (
-                <Pressable onPress={showExitDialog}>
-                    {({ pressed }) => (
-                        <FontAwesome
-                            name="list"
-                            size={24}
-                            color={Colors.light.primary}
-                            style={{ opacity: pressed ? 0.5 : 1 }}
+                    );
+                case ExerciseStatus.Finished:
+                    return (
+                        <FinishedCompoundSet
+                            key={compoundSet.id}
+                            id={compoundSet.id}
+                            pressHandler={handleSetActivation}
+                            repsCompleted={compoundSet.singleSets.map(set => set.completedReps || 0)}
                         />
-                    )}
-                </Pressable>
-            ),
+                    );
+                case ExerciseStatus.NotActive:
+                    return (
+                        <NotActiveCompoundSet
+                            key={compoundSet.id}
+                            id={compoundSet.id}
+                            pressHandler={handleSetActivation}
+                            numberOfExercises={compoundSet.singleSets.length}
+                            suggestedRepsRange={{
+                                min: Math.min(...compoundSet.singleSets.map(set => set.recomendedRepsRange.min)),
+                                max: Math.max(...compoundSet.singleSets.map(set => set.recomendedRepsRange.max)),
+                            }}
+                        />
+                    );
+                default:
+                    return null;
+            }
         });
-    }, [navigation, showExitDialog]);
-
-    function setNextActiveIndex(index: number) {
-
-        //if all sets are completed
-        if (completedRepsForIndex.size === currentExercise.sets.length - 1) {
-            showExitDialog();
-            return;
-        }
-
-        let nextIndex = index + 1;
-
-
-        //find the next index that is not in finishedSetsIndexes
-        while (completedRepsForIndex.has(nextIndex)) {
-            nextIndex = nextIndex >= currentExercise.sets.length ? 0 : nextIndex + 1;
-        }
-
-        setActiveSetIndex(nextIndex);
-    }
+    };
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <ScrollView contentContainerStyle={styles.scrollView} automaticallyAdjustKeyboardInsets={true}>
+            <ScrollView contentContainerStyle={styles.scrollView}>
                 <View style={styles.container}>
-                    <ExerciseHeader imageUrl={workoutModel.imageUrl} title={currentExercise.name} subtitle={currentExercise.description} />
+                    <ExerciseHeaderCompound exerciseHeaderModels={workoutModel.exerciseHeaderModels} />
                     <Separator />
-
-                    {// Render sets
-
-
-                        currentExercise.sets.map((set: ExerciseSetDataModel, index: number) => {
-
-                            let completedReps = 0;
-                            if (index === activeSetIndex) {
-
-                                //In case reopening completed set
-                                if (completedRepsForIndex.has(index)) {
-
-                                    //get updated set for index 
-                                    const updatedCompletedRepsForIndex = completedRepsForIndex.get(index);
-                                    completedReps = updatedCompletedRepsForIndex ? updatedCompletedRepsForIndex : 0;
-                                }
-
-                                return <ActiveCompoundSet imageUrl={currentExercise.imageUrl} completedReps={completedReps} key={index} pressHandler={(completedReps: number) => {
-
-                                    // Clone and update the completedRepsForIndex map
-                                    const updatedCompletedRepsForIndex = new Map(completedRepsForIndex);
-                                    updatedCompletedRepsForIndex.set(index, completedReps);
-
-                                    setCompletedRepsForIndex(updatedCompletedRepsForIndex);
-
-                                    //Make set inactive and make the next active
-                                    setNextActiveIndex(index);
-
-                                }} />
-                            } else if (completedRepsForIndex.has(index)) {
-                                completedReps = completedRepsForIndex.get(index) || 0;
-                                return <FinishedCompoundSet repsCompleted={completedReps} key={index} pressHandler={() => {
-                                    //remove the set from completedRepsForIndex
-                                    const updatedCompletedRepsForIndex = new Map(completedRepsForIndex);
-                                    updatedCompletedRepsForIndex.delete(index);
-                                    setCompletedRepsForIndex(updatedCompletedRepsForIndex);
-                                    setActiveSetIndex(index)
-                                }} />
-                            } else {
-                                //TODO pass params
-                                return <NotActiveCompoundSet suggestedReps={set.reps} key={index} pressHandler={() => { setActiveSetIndex(index) }} />
-                            }
-                        })
-                    }
-
-                    <View style={styles.finishExerciseBtnContainer}>
-                        <Button title="Finish Exercise" onPress={() => {
-                            showExitDialog();
-                        }} />
+                    <View style={styles.exercisesContainer}>
+                        {renderExercises()}
                     </View>
-
+                    <View style={styles.finishExerciseBtnContainer}>
+                        <Button title="Finish Exercise" onPress={() => {/* handle finish */ }} />
+                    </View>
                 </View>
             </ScrollView>
         </TouchableWithoutFeedback>
@@ -181,30 +77,8 @@ export default function Workout() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        height: '100%',
-        padding: 10,
-        borderRadius: 10,
-    },
-    scrollView: {
-        flexGrow: 1,
-        padding: 5,
-    },
-    remainingRepsInfoContainer: {
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-
-    finishExerciseBtnContainer: {
-        marginVertical: 20,
-
-    },
-    finishExerciseBtn: {
-        backgroundColor: Colors.light.primary,
-        color: Colors.light.text,
-        padding: 10,
-        borderRadius: 10,
-    },
-
+    scrollView: { flexGrow: 1, padding: 5 },
+    container: { flex: 1, padding: 10, borderRadius: 10 },
+    exercisesContainer: { flex: 1, flexDirection: 'column' },
+    finishExerciseBtnContainer: { marginVertical: 20 },
 });
