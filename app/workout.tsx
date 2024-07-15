@@ -98,12 +98,12 @@ export default function Workout() {
     //Handle initial state and data
     const workoutModel = React.useMemo(() => generateDemoWorkoutModel(), []);
     const [activeCompoundSetId, setActiveCompoundSetId] = useState(null as string | null);
-    
-    // useEffect(() => {
-    //     //TODO : Implement this
-    //     workoutModel.compoundSets[0].status = ExerciseStatus.Active;
-    // }
-    // , []);
+
+    useEffect(() => {
+        //TODO : Implement this
+        handleSetActivation(workoutModel.compoundSets[0].id);
+    }
+    , []);
 
     const showExitDialog = useCallback(() => {
         Alert.alert("Exit", "Are you sure you want to exit?", [
@@ -121,31 +121,45 @@ export default function Workout() {
     }, [navigation, showExitDialog]);
 
     const setNextActiveExercise = () => {
-        //TODO : Implement this
+        //Go over all sets and find the first one that is not finished
+        const nextActiveSet = workoutModel.compoundSets.find(set => set.status === ExerciseStatus.NotActive);
+        if (!nextActiveSet) {
+            //If there are no more exercises, go back
+            showExitDialog();
+            //TODO : Update the results in Data Base and navigate to the next workout
+            return;
+        }
+
+        handleSetActivation(nextActiveSet.id);
     };
 
     const handleSetCompletion = (id: string, completedSets: SingleSetModel[]) => {
-        //TODO : Implement this
-    };
-
-    const handleSetReactivation = (id: string) => {
-        //TODO : Implement this
+        //find clicked set and update the completed sets with their reps
+        const completedSet = findSetById(id)!;
+        completedSet.singleSets = completedSets;
+        completedSet.status = ExerciseStatus.Finished;
+        setNextActiveExercise();
     };
 
     const handleSetActivation = (id: string) => {
-
         //find current and clicked sets
-        const currentActiveSet = workoutModel.compoundSets.find(set => set.id === activeCompoundSetId);
-        const nextActiveSet = workoutModel.compoundSets.find(set => set.id === id)!;
+        const currentActiveSet = findSetById(activeCompoundSetId!);
+        const nextActiveSet = findSetById(id)!;
 
         //change current active to non active and next to active
-        if(currentActiveSet) currentActiveSet.status = ExerciseStatus.NotActive;
+        if (currentActiveSet) {
+            currentActiveSet.status = ExerciseStatus.Finished;
+        }
         nextActiveSet.status = ExerciseStatus.Active;
 
         //update state to trigger re-render
         setActiveCompoundSetId(id);
     };
 
+
+    function findSetById(id: string) {
+        return workoutModel.compoundSets.find(set => set.id === id);
+    }
 
     function renderActiveExercise(compoundSet: CompoundSet): React.ReactNode {
         return (
@@ -163,7 +177,7 @@ export default function Workout() {
             <FinishedCompoundSet
                 key={compoundSet.id}
                 id={compoundSet.id}
-                pressHandler={handleSetReactivation}
+                pressHandler={handleSetActivation}
                 repsCompleted={compoundSet.singleSets.map(set => set.completedReps || 0)}
             />
         )
@@ -227,7 +241,6 @@ const HeaderIcon = ({ name, onPress }) => (
 
 const styles = StyleSheet.create({
     scrollView: {
-        flex: 1,
         flexGrow: 1,
         padding: 5,
     },
