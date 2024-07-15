@@ -6,12 +6,13 @@ import Separator, { SeparatorType } from '@/components/Separator';
 import { ViewStyle } from 'react-native';
 
 interface FinishedCompoundSetProps {
-    pressHandler?: () => void;
+    id: string;
+    pressHandler?: (id:string) => void;
     repsCompleted: number[];
     style?: ViewStyle
 }
 
-const FinishedCompoundSet: React.FC<FinishedCompoundSetProps> = ({ pressHandler, repsCompleted, style }) => {
+const FinishedCompoundSet: React.FC<FinishedCompoundSetProps> = ({ id, pressHandler, repsCompleted, style }) => {
     return (
         <Pressable
             style={({ pressed }) => [
@@ -19,7 +20,11 @@ const FinishedCompoundSet: React.FC<FinishedCompoundSetProps> = ({ pressHandler,
                 { opacity: pressed ? 0.5 : 1 }
                 , style
             ]}
-            onPress={pressHandler}>
+            onPress={()=>{
+                if(pressHandler){
+                    pressHandler(id);
+                }
+            }}>
             <View style={styles.content}>
                 <Text style={styles.statusText}>Completed</Text>
                 <Separator type={SeparatorType.Vertical} style={{ marginHorizontal: 0 }} />

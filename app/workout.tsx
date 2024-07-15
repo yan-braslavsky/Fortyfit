@@ -1,28 +1,109 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, Alert, Pressable, View, Text, Button } from 'react-native';
 import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import Colors from '@/constants/Colors';
-import { DEMO_WORKOUTS } from '@/constants/Data';
 import Separator from '@/components/Separator';
 import { FontAwesome } from '@expo/vector-icons';
 import ActiveCompoundSet from '@/components/ActiveCompoundSet';
+import ExerciseHeaderCompound from '@/components/ExerciseHeaderCompound';
+import ExerciseHeaderModel from '@/models/ExerciseHeaderModel';
+import { getRandomImage } from '@/constants/DemoImageUrls';
+import { generateRandomId } from '@/constants/Utilities';
 import FinishedCompoundSet from '@/components/FinishedCompoundSet';
 import NotActiveCompoundSet from '@/components/NotActiveCompoundSet';
-import { WorkoutDataModel } from '@/constants/DataModels';
-import ExerciseHeaderCompound from '@/components/ExerciseHeaderCompound';
+import SingleSetModel from '@/models/SingleSetModel';
+
+enum ExerciseStatus {
+    Active,
+    Finished,
+    NotActive
+}
+
+interface CompoundSet {
+    id: string;
+    singleSets: SingleSetModel[]
+    status: ExerciseStatus
+}
+
+interface WorkoutModel {
+    workoutID: string;
+    exerciseHeaderModels: ExerciseHeaderModel[]
+    compoundSets: CompoundSet[]
+}
+
+function generateRandomCompoundSet(): CompoundSet {
+    return {
+        id: generateRandomId(),
+        singleSets: [
+            {
+                id: generateRandomId(),
+                recomendedRepsRange: { min: 6, max: 8 },
+                imageUrl: getRandomImage()
+            },
+            {
+                id: generateRandomId(),
+                recomendedRepsRange: { min: 8, max: 10 },
+                imageUrl: getRandomImage()
+            },
+            {
+                id: generateRandomId(),
+                recomendedRepsRange: { min: 10, max: 15 },
+                imageUrl: getRandomImage()
+            }
+        ],
+        status: ExerciseStatus.NotActive
+    }
+}
+
+function generateDemoWorkoutModel(): WorkoutModel {
+    return {
+        workoutID: generateRandomId(),
+        exerciseHeaderModels: [
+            {
+                imageUrl: getRandomImage(),
+                title: 'Squat',
+                subtitle: 'Legs',
+                equipmentImagesUrls: [getRandomImage(), getRandomImage()]
+            },
+            {
+                imageUrl: getRandomImage(),
+                title: 'Pushup',
+                subtitle: 'Chest',
+                equipmentImagesUrls: [getRandomImage(), getRandomImage(), getRandomImage()]
+            },
+            {
+                imageUrl: getRandomImage(),
+                title: 'Pull Up',
+                subtitle: 'Back',
+                equipmentImagesUrls: []
+            }
+        ],
+        compoundSets: [
+            generateRandomCompoundSet(),
+            generateRandomCompoundSet(),
+            generateRandomCompoundSet(),
+        ]
+    }
+}
+
 
 export default function Workout() {
     const navigation = useNavigation();
     const router = useRouter();
     const { workoutID } = useLocalSearchParams();
-    const [activeSetIndex, setActiveSetIndex] = useState(0);
-    const [completedRepsForIndex, setCompletedRepsForIndex] = useState(new Map<number, number>());
+    //TODO : use file base routing params for that
+    // console.log("Id of the selected workout " + workoutID);
 
-    //TODO : Load those from the server
-    const workoutModel = DEMO_WORKOUTS.find((item) => item.id === workoutID);
-    if (!workoutModel) return <View><Text>Workout not found</Text></View>;
 
-    const currentExercise = workoutModel.exercises[0][0];
+    //Handle initial state and data
+    const workoutModel = React.useMemo(() => generateDemoWorkoutModel(), []);
+    const [activeCompoundSetId, setActiveCompoundSetId] = useState(null as string | null);
+    
+    // useEffect(() => {
+    //     //TODO : Implement this
+    //     workoutModel.compoundSets[0].status = ExerciseStatus.Active;
+    // }
+    // , []);
 
     const showExitDialog = useCallback(() => {
         Alert.alert("Exit", "Are you sure you want to exit?", [
@@ -39,73 +120,94 @@ export default function Workout() {
         });
     }, [navigation, showExitDialog]);
 
-    const setNextActiveIndex = (index: number) => {
-        if (completedRepsForIndex.size === currentExercise.sets.length - 1) {
-            showExitDialog();
-            return;
-        }
-
-        let nextIndex = index + 1;
-        while (completedRepsForIndex.has(nextIndex)) {
-            nextIndex = nextIndex >= currentExercise.sets.length ? 0 : nextIndex + 1;
-        }
-
-        setActiveSetIndex(nextIndex);
+    const setNextActiveExercise = () => {
+        //TODO : Implement this
     };
 
-    const handleSetCompletion = (index: number, completedReps: number) => {
-        const updatedCompletedRepsForIndex = new Map(completedRepsForIndex);
-        updatedCompletedRepsForIndex.set(index, completedReps);
-        setCompletedRepsForIndex(updatedCompletedRepsForIndex);
-        setNextActiveIndex(index);
+    const handleSetCompletion = (id: string, completedSets: SingleSetModel[]) => {
+        //TODO : Implement this
     };
 
-    const handleSetReactivation = (index: number) => {
-        const updatedCompletedRepsForIndex = new Map(completedRepsForIndex);
-        updatedCompletedRepsForIndex.delete(index);
-        setCompletedRepsForIndex(updatedCompletedRepsForIndex);
-        setActiveSetIndex(index);
+    const handleSetReactivation = (id: string) => {
+        //TODO : Implement this
     };
 
-    //Go over all exercises in the workout and render their headers
-    function renderCompoundExerciseHeader(workout: WorkoutDataModel): React.ReactNode {
-        const distinctExercises = workout.exercises.flatMap(exercises => exercises[0]);
-        const models = distinctExercises.map(exercise => ({
-            imageUrl: exercise.imageUrl,
-            title: exercise.name,
-            subtitle: exercise.muscleGroups.join(","),
-            equipmentImagesUrls: exercise.equipment.map(equipment => equipment.imageUrl),
-        }));
+    const handleSetActivation = (id: string) => {
 
-        return (<ExerciseHeaderCompound exerciseHeaderModels={models} />);
+        //find current and clicked sets
+        const currentActiveSet = workoutModel.compoundSets.find(set => set.id === activeCompoundSetId);
+        const nextActiveSet = workoutModel.compoundSets.find(set => set.id === id)!;
+
+        //change current active to non active and next to active
+        if(currentActiveSet) currentActiveSet.status = ExerciseStatus.NotActive;
+        nextActiveSet.status = ExerciseStatus.Active;
+
+        //update state to trigger re-render
+        setActiveCompoundSetId(id);
+    };
+
+
+    function renderActiveExercise(compoundSet: CompoundSet): React.ReactNode {
+        return (
+            <ActiveCompoundSet
+                key={compoundSet.id}
+                id={compoundSet.id}
+                sets={compoundSet.singleSets}
+                onDonePress={handleSetCompletion}
+            />
+        )
     }
 
-    function renderExerciseSet(workout: WorkoutDataModel): React.ReactNode {
-        return currentExercise.sets.map((set, index) => {
-            const completedReps = completedRepsForIndex.get(index) || 0;
-            if (index === activeSetIndex) {
-                return <ActiveCompoundSet key={index} 
-                onDonePress={(completedReps) => handleSetCompletion(index, completedReps)} 
-                sets={currentExercise.sets.map(set => ({ recomendedReps: set.reps, imageUrl: currentExercise.imageUrl }))}
-                />;
-            } 
-            
-            // else if (completedRepsForIndex.has(index)) {
-            //     return <FinishedCompoundSet key={index} />;
-            //     pressHandler={() => handleSetReactivation(index)} />;
-            // } else {
-            //     return <NotActiveCompoundSet key={index} suggestedReps={set.reps} pressHandler={() => setActiveSetIndex(index)} />;
-            // }
-        });
+    function renderFinishedExercise(compoundSet: CompoundSet): React.ReactNode {
+        return (
+            <FinishedCompoundSet
+                key={compoundSet.id}
+                id={compoundSet.id}
+                pressHandler={handleSetReactivation}
+                repsCompleted={compoundSet.singleSets.map(set => set.completedReps || 0)}
+            />
+        )
+    }
+
+    function renderNotActiveExercise(compoundSet: CompoundSet): React.ReactNode {
+        const minRepRange = compoundSet.singleSets.reduce((min, set) => Math.min(min, set.recomendedRepsRange.min), 100);
+        const maxRepRange = compoundSet.singleSets.reduce((max, set) => Math.max(max, set.recomendedRepsRange.max), 0);
+        return (
+            <NotActiveCompoundSet
+                key={compoundSet.id}
+                id={compoundSet.id}
+                pressHandler={handleSetActivation}
+                numberOfExercises={compoundSet.singleSets.length}
+                suggestedRepsRange={{ min: minRepRange, max: maxRepRange }}
+
+            />
+        )
+    }
+
+    function renderExercises(workout: WorkoutModel): React.ReactNode {
+        return workout.compoundSets.map((compoundSet) => {
+            switch (compoundSet.status) {
+                case ExerciseStatus.Active:
+                    return renderActiveExercise(compoundSet);
+                case ExerciseStatus.Finished:
+                    return renderFinishedExercise(compoundSet);
+                case ExerciseStatus.NotActive:
+                    return renderNotActiveExercise(compoundSet);
+                default:
+                    return null;
+            }
+        })
     }
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ScrollView contentContainerStyle={styles.scrollView}>
                 <View style={styles.container}>
-                    {renderCompoundExerciseHeader(workoutModel)}
+                    <ExerciseHeaderCompound exerciseHeaderModels={workoutModel.exerciseHeaderModels} />
                     <Separator />
-                    {renderExerciseSet(workoutModel)}
+                    <View style={styles.exercisesContainer}>
+                        {renderExercises(workoutModel)}
+                    </View>
                     <View style={styles.finishExerciseBtnContainer}>
                         <Button title="Finish Exercise" onPress={showExitDialog} />
                     </View>
@@ -134,6 +236,10 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
         borderRadius: 10,
+    },
+    exercisesContainer: {
+        flex: 1,
+        flexDirection: 'column',
     },
     finishExerciseBtnContainer: {
         marginVertical: 20,

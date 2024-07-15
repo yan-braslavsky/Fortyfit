@@ -5,16 +5,17 @@ import Colors from '@/constants/Colors';
 import { Image } from 'react-native';
 
 interface NotActiveCompoundSetProps {
+    id: string,
     numberOfExercises?: number;
-    pressHandler?: () => void;
+    pressHandler?: (id: string) => void;
     suggestedRepsRange?: { min: number, max: number };
     equipmentImagesUrls?: string[];
     style?: ViewStyle
 }
 
-const NotActiveCompoundSet: React.FC<NotActiveCompoundSetProps> = ({ numberOfExercises = 1, pressHandler, suggestedRepsRange, equipmentImagesUrls, style }) => {
+const NotActiveCompoundSet: React.FC<NotActiveCompoundSetProps> = ({ id, numberOfExercises = 1, pressHandler, suggestedRepsRange, equipmentImagesUrls, style }) => {
     const handlePress = (): void => {
-        pressHandler?.();
+        pressHandler?.(id);
     };
 
     const getPressableStyle = (state: PressableStateCallbackType): ViewStyle => (
@@ -30,9 +31,9 @@ const NotActiveCompoundSet: React.FC<NotActiveCompoundSetProps> = ({ numberOfExe
     ));
 
     return (
-        <Pressable  style={({ pressed }) => [
+        <Pressable style={({ pressed }) => [
             { opacity: pressed ? 0.5 : 1 }
-            ,style
+            , style
         ]} onPress={handlePress}>
             <View style={[styles.container]}>
                 <Text style={styles.genericText}>{numberOfExercises + " " + exercisesText} </Text>
