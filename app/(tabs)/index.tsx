@@ -6,9 +6,9 @@ import NotActiveCompoundSet from '@/components/NotActiveCompoundSet';
 import FinishedCompoundSet from '@/components/FinishedCompoundSet';
 import Colors from '@/constants/Colors';
 import ExerciseHeaderCompound from '@/components/ExerciseHeaderCompound';
-import SingleSetModel from '@/models/CompoundSetModel';
 import { voleyBallImageUrl, gymnasticRingsImageUrl, resistanceBandsImageUrl, squatImageUrl, pushupImageUrl, pullUpImageUrl } from '@/constants/DemoImageUrls';
 import { generateRandomId } from '@/constants/Utilities';
+import SingleSetModel from '@/models/SingleSetModel';
 
 
 export default function Test() {
