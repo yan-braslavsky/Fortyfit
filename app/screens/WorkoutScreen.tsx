@@ -8,9 +8,12 @@ import NotActiveCompoundSet from '@/components/NotActiveCompoundSet';
 import Separator from '@/components/Separator';
 import { useWorkoutViewModel } from '@/viewmodels/WorkoutViewModel';
 import { ExerciseStatus } from '@/models/WorkoutModel';
+import TimerOverlay from '@/components/TimerOverlay';
+import { useState } from 'react';
 
 export default function WorkoutScreen() {
 
+    const [showTimer, setShowTimer] = useState(true);
     const { workoutID } = useLocalSearchParams();
     const {
         workoutModel,
@@ -59,6 +62,12 @@ export default function WorkoutScreen() {
         });
     };
 
+    const handleTimerDismiss = () => {
+        setShowTimer(false);
+        // You might want to add logic here to handle what happens when the timer is dismissed
+        // For example, marking a set as complete or moving to the next exercise
+      };
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ScrollView contentContainerStyle={styles.scrollView}>
@@ -72,7 +81,12 @@ export default function WorkoutScreen() {
                         <Button title="Finish Exercise" onPress={showExitDialog} />
                     </View>
                 </View>
+        <TimerOverlay
+          onDismiss={handleTimerDismiss}
+          theme="light" // or 'dark' based on your app's theme
+        />
             </ScrollView>
+           
         </TouchableWithoutFeedback>
     );
 }
