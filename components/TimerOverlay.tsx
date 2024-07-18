@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, AppState, AppStateStatus } from 'react-native';
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
@@ -14,21 +14,43 @@ TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
 });
 
 type TimerOverlayProps = {
-    onDismiss: () => void;
+    isActiveOnStart?: boolean;
+    initialTime?: number;
+    backgroundNotifications?: boolean;
+    onTimerEnd?: () => void;
+    onTimeChange?: (timeLeft: number) => void;
+    onDismiss?: () => void;
     theme?: ColorsTheme;
 };
 
-const TimerOverlay: React.FC<TimerOverlayProps> = ({ onDismiss, theme = ColorsTheme.Light }) => {
-    const [timeLeft, setTimeLeft] = useState<number>(60);
-    const [isActive, setIsActive] = useState<boolean>(true);
+export interface TimerOverlayRef {
+    show: () => void;
+    hide: () => void;
+    increaseTime: (amount: number) => void;
+    decreaseTime: (amount: number) => void;
+    reset: () => void;
+}
+
+const TimerOverlay = forwardRef<TimerOverlayRef, TimerOverlayProps>(({
+    isActiveOnStart: initialVisible = true,
+    initialTime = 60,
+    backgroundNotifications = false,
+    onTimerEnd,
+    onTimeChange,
+    onDismiss,
+    theme = ColorsTheme.Light,
+}, ref) => {
+    const [timeLeft, setTimeLeft] = useState<number>(initialTime);
+    const [isActive, setIsActive] = useState<boolean>(initialVisible);
     const appState = useRef<AppStateStatus>(AppState.currentState);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
-
     const colors = Colors.getColorsByTheme(theme);
 
     useEffect(() => {
-        setupNotifications();
-        registerBackgroundFetch();
+        if (backgroundNotifications) {
+            setupNotifications();
+            registerBackgroundFetch();
+        }
         const subscription = AppState.addEventListener('change', handleAppStateChange);
 
         return () => {
@@ -36,26 +58,38 @@ const TimerOverlay: React.FC<TimerOverlayProps> = ({ onDismiss, theme = ColorsTh
             if (timerRef.current) clearInterval(timerRef.current);
             Notifications.dismissAllNotificationsAsync();
         };
-    }, []);
+    }, [backgroundNotifications]);
 
     useEffect(() => {
         if (isActive && timeLeft > 0) {
             timerRef.current = setInterval(() => {
                 setTimeLeft(prevTime => {
                     const newTime = prevTime - 1;
-                    updateNotification(newTime);
+                    onTimeChange?.(newTime);
+                    if (backgroundNotifications) updateNotification(newTime);
+                    if (newTime === 0) {
+                        onTimerEnd?.();
+                    }
                     return newTime;
                 });
             }, 1000);
         } else if (timeLeft === 0) {
             if (timerRef.current) clearInterval(timerRef.current);
-            onDismiss();
+            onDismiss?.();
         }
 
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
         };
-    }, [isActive, timeLeft, onDismiss]);
+    }, [isActive, timeLeft, onTimerEnd, onDismiss, onTimeChange, backgroundNotifications]);
+
+    useImperativeHandle(ref, () => ({
+        show: () => setIsActive(true),
+        hide: () => setIsActive(false),
+        increaseTime: (amount: number) => setTimeLeft(time => time + amount),
+        decreaseTime: (amount: number) => setTimeLeft(time => Math.max(0, time - amount)),
+        reset: () => setTimeLeft(initialTime),
+    }), [initialTime]);
 
     const setupNotifications = useCallback(async () => {
         await Notifications.setNotificationHandler({
@@ -102,9 +136,9 @@ const TimerOverlay: React.FC<TimerOverlayProps> = ({ onDismiss, theme = ColorsTh
 
     const handleNotificationResponse = useCallback((response: Notifications.NotificationResponse) => {
         const { actionIdentifier } = response;
-        if (actionIdentifier === 'increase') increaseTime();
-        else if (actionIdentifier === 'decrease') decreaseTime();
-        else if (actionIdentifier === 'dismiss') onDismiss();
+        if (actionIdentifier === 'increase') increaseTime(15);
+        else if (actionIdentifier === 'decrease') decreaseTime(15);
+        else if (actionIdentifier === 'dismiss') onDismiss?.();
     }, [onDismiss]);
 
     const formatTime = (time: number): string => {
@@ -113,8 +147,8 @@ const TimerOverlay: React.FC<TimerOverlayProps> = ({ onDismiss, theme = ColorsTh
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };
 
-    const increaseTime = useCallback(() => setTimeLeft(time => time + 15), []);
-    const decreaseTime = useCallback(() => setTimeLeft(time => Math.max(0, time - 15)), []);
+    const increaseTime = useCallback((amount: number) => setTimeLeft(time => time + amount), []);
+    const decreaseTime = useCallback((amount: number) => setTimeLeft(time => Math.max(0, time - amount)), []);
 
     const styles = StyleSheet.create({
         overlay: {
@@ -170,19 +204,19 @@ const TimerOverlay: React.FC<TimerOverlayProps> = ({ onDismiss, theme = ColorsTh
             <View style={styles.container}>
                 <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={[styles.button, styles.largeButton]} onPress={decreaseTime}>
+                    <TouchableOpacity style={[styles.button, styles.largeButton]} onPress={() => decreaseTime(15)}>
                         <Text style={styles.buttonText}>-</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.button, styles.smallButton]} onPress={onDismiss}>
                         <Text style={styles.buttonText}>Dismiss</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, styles.largeButton]} onPress={increaseTime}>
+                    <TouchableOpacity style={[styles.button, styles.largeButton]} onPress={() => increaseTime(15)}>
                         <Text style={styles.buttonText}>+</Text>
                     </TouchableOpacity>
                 </View>
             </View>
         </View>
     );
-};
+});
 
 export default TimerOverlay;

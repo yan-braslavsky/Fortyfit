@@ -9,44 +9,47 @@ import Separator from '@/components/Separator';
 import { useWorkoutViewModel } from '@/viewmodels/WorkoutViewModel';
 import { ExerciseStatus } from '@/models/WorkoutModel';
 import TimerOverlay from '@/components/TimerOverlay';
-import { useState } from 'react';
 
 export default function WorkoutScreen() {
-
-    const [showTimer, setShowTimer] = useState(true);
-    const { workoutID } = useLocalSearchParams();
+    const { id } = useLocalSearchParams();
     const {
         workoutModel,
         handleSetCompletion,
         handleSetActivation,
-        showExitDialog
-    } = useWorkoutViewModel();
+        handleTimerEnd,
+        showExitDialog,
+        timerRef,
+        isTimerVisible
+    } = useWorkoutViewModel(id as string);
 
     const renderExercises = () => {
-        return workoutModel.compoundSets.map(compoundSet => {
+        return workoutModel.compoundSets.map((compoundSet, index) => {
+            const key = `${compoundSet.id}-${compoundSet.status}`;
             switch (compoundSet.status) {
                 case ExerciseStatus.Active:
                     return (
                         <ActiveCompoundSet
-                            key={compoundSet.id}
+                            key={key}
                             id={compoundSet.id}
                             sets={compoundSet.singleSets}
                             onDonePress={handleSetCompletion}
+                            style={styles.compoundSet}
                         />
                     );
                 case ExerciseStatus.Finished:
                     return (
                         <FinishedCompoundSet
-                            key={compoundSet.id}
+                            key={key}
                             id={compoundSet.id}
                             pressHandler={handleSetActivation}
                             repsCompleted={compoundSet.singleSets.map(set => set.completedReps || 0)}
+                            style={styles.compoundSet}
                         />
                     );
                 case ExerciseStatus.NotActive:
                     return (
                         <NotActiveCompoundSet
-                            key={compoundSet.id}
+                            key={key}
                             id={compoundSet.id}
                             pressHandler={handleSetActivation}
                             numberOfExercises={compoundSet.singleSets.length}
@@ -54,6 +57,7 @@ export default function WorkoutScreen() {
                                 min: Math.min(...compoundSet.singleSets.map(set => set.recomendedRepsRange.min)),
                                 max: Math.max(...compoundSet.singleSets.map(set => set.recomendedRepsRange.max)),
                             }}
+                            style={styles.compoundSet}
                         />
                     );
                 default:
@@ -61,12 +65,6 @@ export default function WorkoutScreen() {
             }
         });
     };
-
-    const handleTimerDismiss = () => {
-        setShowTimer(false);
-        // You might want to add logic here to handle what happens when the timer is dismissed
-        // For example, marking a set as complete or moving to the next exercise
-      };
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -81,19 +79,42 @@ export default function WorkoutScreen() {
                         <Button title="Finish Exercise" onPress={showExitDialog} />
                     </View>
                 </View>
-        <TimerOverlay
-          onDismiss={handleTimerDismiss}
-          theme="light" // or 'dark' based on your app's theme
-        />
+
+                {isTimerVisible && (
+                    <TimerOverlay
+                        ref={timerRef}
+                        onDismiss={handleTimerEnd}
+                        isActiveOnStart={true}
+                        initialTime={45}
+                        backgroundNotifications={false}
+                        onTimerEnd={handleTimerEnd}
+                        onTimeChange={time => console.log(`Time left: ${time}`)}
+                    />
+                )}
             </ScrollView>
-           
         </TouchableWithoutFeedback>
     );
 }
 
 const styles = StyleSheet.create({
-    scrollView: { flexGrow: 1, padding: 5 },
-    container: { flex: 1, padding: 10, borderRadius: 10 },
-    exercisesContainer: { flex: 1, flexDirection: 'column',justifyContent: 'space-between',},
-    finishExerciseBtnContainer: { marginVertical: 20 },
+    scrollView: { 
+        flexGrow: 1, 
+        padding: 5 
+    },
+    container: { 
+        flex: 1, 
+        padding: 10, 
+        borderRadius: 10 
+    },
+    exercisesContainer: { 
+        flex: 1, 
+        flexDirection: 'column', 
+        justifyContent: 'flex-start',
+    },
+    compoundSet: {
+        marginBottom: 10,
+    },
+    finishExerciseBtnContainer: { 
+        marginVertical: 20 
+    },
 });
