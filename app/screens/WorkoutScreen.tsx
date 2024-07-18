@@ -80,6 +80,6 @@ export default function WorkoutScreen() {
 const styles = StyleSheet.create({
     scrollView: { flexGrow: 1, padding: 5 },
     container: { flex: 1, padding: 10, borderRadius: 10 },
-    exercisesContainer: { flex: 1, flexDirection: 'column' },
+    exercisesContainer: { flex: 1, flexDirection: 'column',justifyContent: 'space-between',},
     finishExerciseBtnContainer: { marginVertical: 20 },
 });
