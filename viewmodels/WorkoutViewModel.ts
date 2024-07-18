@@ -1,69 +1,120 @@
-import { useEffect, useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Alert } from 'react-native';
-import SingleSetModel from '@/models/SingleSetModel';
+import { WorkoutModel, CompoundSet, ExerciseStatus } from '@/models/WorkoutModel';
 import { generateDemoWorkoutModel } from '@/constants/DataGenerationUtils';
-import { ExerciseStatus } from '@/models/WorkoutModel';
-import { WorkoutModel } from '@/models/WorkoutModel';
+import SingleSetModel from '@/models/SingleSetModel';
+import { TimerOverlayRef } from '@/components/TimerOverlay';
 import { router } from 'expo-router';
 
-
-export const useWorkoutViewModel = () => {
+export const useWorkoutViewModel = (workoutId: string) => {
     const [workoutModel, setWorkoutModel] = useState<WorkoutModel>(generateDemoWorkoutModel());
-    const [activeCompoundSetId, setActiveCompoundSetId] = useState<string | null>(null);
+    const [activeCompoundSetIndex, setActiveCompoundSetIndex] = useState<number | null>(null);
+    const [isTimerVisible, setIsTimerVisible] = useState(false);
+    const timerRef = useRef<TimerOverlayRef>(null);
 
-    useEffect(() => {
-        handleSetActivation(workoutModel.compoundSets[0].id);
-    }, []);
+    console.log('Current Workout ID:', workoutId);
 
-    const handleSetActivation = (id: string) => {
-        const currentActiveSet = findSetById(activeCompoundSetId);
-        const nextActiveSet = findSetById(id)!;
-
-        if (currentActiveSet) {
-            currentActiveSet.status = ExerciseStatus.Finished;
-        }
-        nextActiveSet.status = ExerciseStatus.Active;
-        setActiveCompoundSetId(id);
-    };
-
-    const handleSetCompletion = (id: string, completedSets: SingleSetModel[]) => {
-        const completedSet = findSetById(id)!;
-        completedSet.singleSets = completedSets;
-        completedSet.status = ExerciseStatus.Finished;
-        setNextActiveExercise();
-    };
-
-    const setNextActiveExercise = () => {
-        const nextActiveSet = workoutModel.compoundSets.find(set => set.status === ExerciseStatus.NotActive);
-        if (!nextActiveSet) {
-            showExitDialog();
-            return;
-        }
-        handleSetActivation(nextActiveSet.id);
-    };
-
-    const findSetById = (id: string | null) => {
-        return workoutModel.compoundSets.find(set => set.id === id);
-    };
-
-    const showExitDialog = () => {
-        Alert.alert("Exit", "Are you sure you want to exit?", [
-            { text: "No", style: "cancel" },
-            {
-                text: "Yes", onPress: () => {
-                    //TODO: maybe we want to go to the next exercise
-                    router.back();
-                }
+    const findNextUnfinishedSetIndex = useCallback((startIndex: number): number | null => {
+        const totalSets = workoutModel.compoundSets.length;
+        for (let i = 1; i <= totalSets; i++) {
+            const nextIndex = (startIndex + i) % totalSets;
+            if (workoutModel.compoundSets[nextIndex].status !== ExerciseStatus.Finished) {
+                return nextIndex;
             }
-        ], { cancelable: false });
-    }
+        }
+        return null;
+    }, [workoutModel.compoundSets]);
+
+    const handleSetCompletion = useCallback((id: string, completedSets: SingleSetModel[]) => {
+        setWorkoutModel((prevModel) => {
+            const updatedCompoundSets = prevModel.compoundSets.map((compoundSet) => {
+                if (compoundSet.id === id) {
+                    return {
+                        ...compoundSet,
+                        singleSets: completedSets,
+                        status: ExerciseStatus.Finished,
+                    };
+                }
+                return compoundSet;
+            });
+
+            return { ...prevModel, compoundSets: updatedCompoundSets };
+        });
+
+        setIsTimerVisible(true);
+        timerRef.current?.show();
+
+        if (activeCompoundSetIndex !== null) {
+            const nextIndex = findNextUnfinishedSetIndex(activeCompoundSetIndex);
+            setActiveCompoundSetIndex(nextIndex);
+        }
+    }, [activeCompoundSetIndex, findNextUnfinishedSetIndex]);
+
+    const handleSetActivation = useCallback((id: string) => {
+        setWorkoutModel((prevModel) => {
+            const updatedCompoundSets = prevModel.compoundSets.map((compoundSet) => {
+                if (compoundSet.id === id) {
+                    return { ...compoundSet, status: ExerciseStatus.Active };
+                } else if (compoundSet.status === ExerciseStatus.Active) {
+                    return { ...compoundSet, status: ExerciseStatus.NotActive };
+                }
+                return compoundSet;
+            });
+
+            return { ...prevModel, compoundSets: updatedCompoundSets };
+        });
+
+        const index = workoutModel.compoundSets.findIndex((set) => set.id === id);
+        setActiveCompoundSetIndex(index);
+    }, [workoutModel]);
+
+    const handleTimerEnd = useCallback(() => {
+        setIsTimerVisible(false);
+        timerRef.current?.hide();
+
+        if (activeCompoundSetIndex !== null) {
+            const nextIndex = findNextUnfinishedSetIndex(activeCompoundSetIndex);
+            if (nextIndex !== null) {
+                handleSetActivation(workoutModel.compoundSets[nextIndex].id);
+            } else {
+                showExitDialog();
+            }
+        }
+    }, [workoutModel, activeCompoundSetIndex, findNextUnfinishedSetIndex, handleSetActivation]);
+
+    const showExitDialog = useCallback(() => {
+        Alert.alert(
+            "Workout Completed",
+            "What would you like to do next?",
+            [
+                {
+                    text: "Start Another Workout",
+                    onPress: () => {
+                        const newWorkoutId = `workout-${Date.now()}`;
+                        router.push({
+                            pathname: "/workout/[id]",
+                            params: { id: newWorkoutId }
+                        });
+                    }
+                },
+                {
+                    text: "Return to Workout Selection",
+                    onPress: () => {
+                        // Return all the way back popping the entire stack
+                        router.dismissAll();
+                    }
+                }
+            ]
+        );
+    }, []);
 
     return {
         workoutModel,
-        handleSetActivation,
         handleSetCompletion,
-        showExitDialog
+        handleSetActivation,
+        handleTimerEnd,
+        showExitDialog,
+        timerRef,
+        isTimerVisible,
     };
 };
-
-

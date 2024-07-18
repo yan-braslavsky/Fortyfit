@@ -1,5 +1,9 @@
-// Colors.js
-const Colors = {
+export enum ColorsTheme {
+  Light = "light",
+  Dark = "dark",
+}
+
+export const Colors = {
   light: {
     text: '#3E3E3E', // Dark gray
     textSecondary: '#7E7E7E', // Medium gray
@@ -28,6 +32,10 @@ const Colors = {
     tabBar: '#3E3E3E', // Dark gray (matches card color for consistency)
     tabBarIcon: '#E0D7C6', // Light taupe (matches text color)
   },
+
+  getColorsByTheme(theme:ThemeMode) {
+    return Colors[theme];
+  }
 };
 
 export default Colors;
