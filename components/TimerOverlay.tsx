@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, AppState } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, AppState, AppStateStatus } from 'react-native';
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 import * as Notifications from 'expo-notifications';
-import Colors from '@/constants/Colors';
+import { Colors, ColorsTheme } from '@/constants/Colors';
 
 const BACKGROUND_FETCH_TASK = 'background-fetch-task';
 
@@ -13,13 +13,18 @@ TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
     return BackgroundFetch.BackgroundFetchResult.NewData;
 });
 
-const TimerOverlay = ({ onDismiss, theme = 'light' }) => {
-    const [timeLeft, setTimeLeft] = useState(60);
-    const [isActive, setIsActive] = useState(true);
-    const appState = useRef(AppState.currentState);
-    const timerRef = useRef(null);
+type TimerOverlayProps = {
+    onDismiss: () => void;
+    theme?: ColorsTheme;
+};
 
-    const colors = Colors[theme];
+const TimerOverlay: React.FC<TimerOverlayProps> = ({ onDismiss, theme = ColorsTheme.Light }) => {
+    const [timeLeft, setTimeLeft] = useState<number>(60);
+    const [isActive, setIsActive] = useState<boolean>(true);
+    const appState = useRef<AppStateStatus>(AppState.currentState);
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    const colors = Colors.getColorsByTheme(theme);
 
     useEffect(() => {
         setupNotifications();
@@ -52,7 +57,7 @@ const TimerOverlay = ({ onDismiss, theme = 'light' }) => {
         };
     }, [isActive, timeLeft, onDismiss]);
 
-    const setupNotifications = async () => {
+    const setupNotifications = useCallback(async () => {
         await Notifications.setNotificationHandler({
             handleNotification: async () => ({
                 shouldShowAlert: true,
@@ -62,9 +67,9 @@ const TimerOverlay = ({ onDismiss, theme = 'light' }) => {
         });
 
         Notifications.addNotificationResponseReceivedListener(handleNotificationResponse);
-    };
+    }, []);
 
-    const registerBackgroundFetch = async () => {
+    const registerBackgroundFetch = useCallback(async () => {
         try {
             await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
                 minimumInterval: 15 * 60,
@@ -75,9 +80,9 @@ const TimerOverlay = ({ onDismiss, theme = 'light' }) => {
         } catch (err) {
             console.log("Background fetch failed to register", err);
         }
-    };
+    }, []);
 
-    const updateNotification = async (time) => {
+    const updateNotification = useCallback(async (time: number) => {
         await Notifications.scheduleNotificationAsync({
             content: {
                 title: 'Workout Timer',
@@ -86,30 +91,30 @@ const TimerOverlay = ({ onDismiss, theme = 'light' }) => {
             },
             trigger: null,
         });
-    };
+    }, []);
 
-    const handleAppStateChange = (nextAppState) => {
+    const handleAppStateChange = useCallback((nextAppState: AppStateStatus) => {
         if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
             Notifications.dismissAllNotificationsAsync();
         }
         appState.current = nextAppState;
-    };
+    }, []);
 
-    const handleNotificationResponse = (response) => {
+    const handleNotificationResponse = useCallback((response: Notifications.NotificationResponse) => {
         const { actionIdentifier } = response;
         if (actionIdentifier === 'increase') increaseTime();
         else if (actionIdentifier === 'decrease') decreaseTime();
         else if (actionIdentifier === 'dismiss') onDismiss();
-    };
+    }, [onDismiss]);
 
-    const formatTime = (time) => {
+    const formatTime = (time: number): string => {
         const minutes = Math.floor(time / 60);
         const seconds = time % 60;
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };
 
-    const increaseTime = () => setTimeLeft(time => time + 15);
-    const decreaseTime = () => setTimeLeft(time => Math.max(0, time - 15));
+    const increaseTime = useCallback(() => setTimeLeft(time => time + 15), []);
+    const decreaseTime = useCallback(() => setTimeLeft(time => Math.max(0, time - 15)), []);
 
     const styles = StyleSheet.create({
         overlay: {
