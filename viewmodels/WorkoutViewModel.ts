@@ -4,6 +4,7 @@ import SingleSetModel from '@/models/SingleSetModel';
 import { generateDemoWorkoutModel } from '@/constants/DataGenerationUtils';
 import { ExerciseStatus } from '@/models/WorkoutModel';
 import { WorkoutModel } from '@/models/WorkoutModel';
+import { router } from 'expo-router';
 
 
 export const useWorkoutViewModel = () => {
@@ -35,10 +36,7 @@ export const useWorkoutViewModel = () => {
     const setNextActiveExercise = () => {
         const nextActiveSet = workoutModel.compoundSets.find(set => set.status === ExerciseStatus.NotActive);
         if (!nextActiveSet) {
-            Alert.alert("Exit", "Are you sure you want to exit?", [
-                { text: "No", style: "cancel" },
-                { text: "Yes", onPress: () => {/* navigate back */ } }
-            ], { cancelable: false });
+            showExitDialog();
             return;
         }
         handleSetActivation(nextActiveSet.id);
@@ -48,9 +46,24 @@ export const useWorkoutViewModel = () => {
         return workoutModel.compoundSets.find(set => set.id === id);
     };
 
+    const showExitDialog = () => {
+        Alert.alert("Exit", "Are you sure you want to exit?", [
+            { text: "No", style: "cancel" },
+            {
+                text: "Yes", onPress: () => {
+                    //TODO: maybe we want to go to the next exercise
+                    router.back();
+                }
+            }
+        ], { cancelable: false });
+    }
+
     return {
         workoutModel,
         handleSetActivation,
         handleSetCompletion,
+        showExitDialog
     };
 };
+
+
