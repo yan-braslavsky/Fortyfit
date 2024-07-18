@@ -1,14 +1,15 @@
 import React from 'react';
-import { StyleSheet, FlatList, View, useColorScheme } from 'react-native';
+import { StyleSheet, FlatList, View } from 'react-native';
 import { WorkoutDataModel } from '@/constants/DataModels';
 import { DEMO_WORKOUTS } from '@/constants/Data';
 import WorkoutListItem from '@/components/WorkoutListItem';
 import { router } from 'expo-router';
-import Colors, { ColorsTheme } from '@/constants/Colors';
+import { useTheme } from '@/contexts/ThemeContext';
+import Colors from '@/constants/Colors';
 
 export default function WorkoutSelectionScreen() {
-  const colorScheme = useColorScheme() as ColorsTheme;
-  const colors = Colors.getColorsByTheme(colorScheme);
+  const { theme } = useTheme();
+  const colors = Colors[theme];
 
   const handleWorkoutSelection = (workoutId: string) => {
     router.push({

@@ -2,19 +2,19 @@ import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import Colors from '@/constants/Colors';
 import ExerciseHeaderModel from '@/models/ExerciseHeaderModel';
-
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface ExerciseHeaderCompoundProps {
     exerciseHeaderModels: ExerciseHeaderModel[];
 }
 
 const ExerciseHeaderCompound: React.FC<ExerciseHeaderCompoundProps> = ({ exerciseHeaderModels }) => {
+    const { theme } = useTheme();
+    const colors = Colors[theme];
     return (
-
-
         <View style={{
             borderWidth: 1,
-            borderColor: Colors.light.text,
+            borderColor: colors.text,
             borderRadius: 10,
             padding: 5
         }}>
@@ -25,17 +25,21 @@ const ExerciseHeaderCompound: React.FC<ExerciseHeaderCompoundProps> = ({ exercis
                     title={exerciseHeaderModel.title}
                     subtitle={exerciseHeaderModel.subtitle}
                     equipmentImagesUrls={exerciseHeaderModel.equipmentImagesUrls}
+                    colors={colors}
                 />
             ))}
         </View>
     )
 };
 
+interface ExerciseHeaderProps extends ExerciseHeaderModel {
+    colors: any;
+}
 
-const ExerciseHeader: React.FC<ExerciseHeaderModel> = ({ imageUrl, title, subtitle, equipmentImagesUrls }) => {
+const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({ imageUrl, title, subtitle, equipmentImagesUrls, colors }) => {
+    const styles = getStyles(colors);
     return (
         <View style={styles.container}>
-
             <View style={styles.exerciseTitleContainer}>
                 <Text style={styles.exerciseTitle}>{title}</Text>
                 <Text style={styles.exerciseSubtitle} ellipsizeMode='tail' numberOfLines={1}>{subtitle}</Text>
@@ -55,7 +59,7 @@ const ExerciseHeader: React.FC<ExerciseHeaderModel> = ({ imageUrl, title, subtit
 
 export default ExerciseHeaderCompound;
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any) => StyleSheet.create({
     container: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -69,26 +73,26 @@ const styles = StyleSheet.create({
     image: {
         width: 50,
         height: 50,
-        backgroundColor: Colors.light.background,
+        backgroundColor: colors.background,
     },
     exerciseTitleContainer: {
         flexDirection: 'column',
         width: 150,
     },
     exerciseTitle: {
-        color: Colors.light.primary,
+        color: colors.primary,
         fontSize: 18,
         fontWeight: 'bold',
         textTransform: 'uppercase',
     },
     noEquipmentText: {
-        color: Colors.light.text,
+        color: colors.text,
         fontSize: 16,
         textAlign: 'left',
     },
     exerciseSubtitle: {
         marginTop: 10,
-        color: Colors.light.text,
+        color: colors.text,
         fontSize: 12,
         textAlign: 'left',
     },

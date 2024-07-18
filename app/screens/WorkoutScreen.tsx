@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, View, Button, useColorScheme } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, View, Button } from 'react-native';
 import { useLocalSearchParams } from "expo-router";
 import ExerciseHeaderCompound from '@/components/ExerciseHeaderCompound';
 import ActiveCompoundSet from '@/components/ActiveCompoundSet';
@@ -9,12 +9,13 @@ import Separator from '@/components/Separator';
 import { useWorkoutViewModel } from '@/viewmodels/WorkoutViewModel';
 import { ExerciseStatus } from '@/models/WorkoutModel';
 import TimerOverlay from '@/components/TimerOverlay';
-import Colors, { ColorsTheme } from '@/constants/Colors';
+import { useTheme } from '@/contexts/ThemeContext';
+import Colors from '@/constants/Colors';
 
 export default function WorkoutScreen() {
     const { id } = useLocalSearchParams();
-    const colorScheme = useColorScheme() as ColorsTheme;
-    const colors = Colors.getColorsByTheme(colorScheme);
+    const { theme } = useTheme();
+    const colors = Colors[theme];
     const {
         workoutModel,
         handleSetCompletion,
@@ -92,7 +93,7 @@ export default function WorkoutScreen() {
                         backgroundNotifications={false}
                         onTimerEnd={handleTimerEnd}
                         onTimeChange={time => console.log(`Time left: ${time}`)}
-                        theme={colorScheme}
+                        theme={theme}
                     />
                 )}
             </ScrollView>

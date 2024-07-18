@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { FontAwesome5 } from '@expo/vector-icons';
-import Colors from '@/constants/Colors';
 import { useTheme } from '@/contexts/ThemeContext';
+import Colors from '@/constants/Colors';
 import ThemeToggleButton from '@/components/ThemeToggleButton';
 
 export default function TabsLayout() {

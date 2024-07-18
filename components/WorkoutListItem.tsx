@@ -1,64 +1,64 @@
 import React from 'react';
 import { StyleSheet, Pressable, Image, Text, View } from 'react-native';
-import Colors from '@/constants/Colors';
 import { WorkoutDataModel } from '@/constants/DataModels';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '@/contexts/ThemeContext';
+import Colors from '@/constants/Colors';
 
 interface WorkoutListItemProps {
   item: WorkoutDataModel;
   onPress: () => void;
 }
 
-const equipmentIconMapping = {
-  'Rings': { icon: <FontAwesome5 name="ring" size={14} color={Colors.light.text} />, color: Colors.light.primary },
-  'Gymnastic Ball': { icon: <FontAwesome5 name="volleyball-ball" size={14} color={Colors.light.text} />, color: Colors.light.secondary },
-  'Dumbbell': { icon: <FontAwesome name="dumbbell" size={14} color={Colors.light.text} />, color: Colors.light.ternary },
-  'Barbell': { icon: <FontAwesome5 name="weight-hanging" size={14} color={Colors.light.text} />, color: Colors.light.quaternary },
-  'Resistance Band': { icon: <Ionicons name="ios-fitness" size={14} color={Colors.light.text} />, color: Colors.light.textSecondary },
-};
-
-const calculateDuration = () => {
-  return Math.floor(Math.random() * 60);
-};
-
 const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
+  const { theme } = useTheme();
+  const colors = Colors[theme];
+
+  const equipmentIconMapping = {
+    'Rings': { icon: <FontAwesome5 name="ring" size={14} color={colors.text} />, color: colors.primary },
+    'Gymnastic Ball': { icon: <FontAwesome5 name="volleyball-ball" size={14} color={colors.text} />, color: colors.secondary },
+    'Dumbbell': { icon: <FontAwesome name="dumbbell" size={14} color={colors.text} />, color: colors.ternary },
+    'Barbell': { icon: <FontAwesome5 name="weight-hanging" size={14} color={colors.text} />, color: colors.quaternary },
+    'Resistance Band': { icon: <Ionicons name="ios-fitness" size={14} color={colors.text} />, color: colors.textSecondary },
+  };
+
   const uniqueEquipment = new Set(item.exercises.flatMap(exercise => exercise[0].equipment.map(eq => eq.name)));
-  const duration = calculateDuration();
+  const duration = Math.floor(Math.random() * 60);
 
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) =>
-        pressed
-          ? [styles.listItemContainer, styles.listItemContainerPressed]
-          : styles.listItemContainer
-      }
+      style={({ pressed }) => [
+        styles.listItemContainer,
+        { backgroundColor: colors.card },
+        pressed && styles.listItemContainerPressed
+      ]}
     >
       <View style={styles.containerView}>
         <Image source={{ uri: item.imageUrl }} style={styles.workoutImage} />
         <View style={styles.workoutInfo}>
-          <Text style={styles.title}>{item.name}</Text>
-          <Text style={styles.description}>{item.exercises[0][0].description}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{item.name}</Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>{item.exercises[0][0].description}</Text>
           <View style={styles.detailsContainer}>
             <View style={styles.detail}>
-              <Ionicons name="time-outline" size={14} color={Colors.light.text} />
-              <Text style={styles.detailText}>{duration} mins</Text>
+              <Ionicons name="time-outline" size={14} color={colors.text} />
+              <Text style={[styles.detailText, { color: colors.text }]}>{duration} mins</Text>
             </View>
             <View style={styles.detail}>
-              <MaterialIcons name="fitness-center" size={14} color={Colors.light.text} />
-              <Text style={styles.detailText}>{item.exercises.length} exercises</Text>
+              <MaterialIcons name="fitness-center" size={14} color={colors.text} />
+              <Text style={[styles.detailText, { color: colors.text }]}>{item.exercises.length} exercises</Text>
             </View>
           </View>
           <View style={styles.equipmentContainer}>
             {Array.from(uniqueEquipment).map((equipment, index) => {
-              const { icon, color } = equipmentIconMapping[equipment] || { icon: <MaterialIcons name="fitness-center" size={14} color={Colors.light.text} />, color: Colors.light.secondary };
+              const { icon, color } = equipmentIconMapping[equipment] || { icon: <MaterialIcons name="fitness-center" size={14} color={colors.text} />, color: colors.secondary };
               return (
                 <View key={index} style={[styles.equipmentBadge, { backgroundColor: color }]}>
                   {icon}
-                  <Text style={styles.equipmentText}>{equipment}</Text>
+                  <Text style={[styles.equipmentText, { color: colors.text }]}>{equipment}</Text>
                 </View>
               );
             })}
@@ -70,25 +70,22 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
 };
 
 const styles = StyleSheet.create({
+  listItemContainer: {
+    borderRadius: 10,
+    marginBottom: 10,
+    marginTop: 5,
+    borderWidth: 1,
+    padding: 10,
+    minHeight: 200
+  },
+  listItemContainerPressed: {
+    opacity: 0.75,
+  },
   containerView: {
     flexDirection: 'row',
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderRadius: 10,
-    marginBottom: 10,
-    marginTop: 5,
-    borderWidth: 1,
-    backgroundColor: Colors.light.card,
-    borderColor: Colors.light.ternary,
-    padding: 10,
-    minHeight: 200
-  },
-  listItemContainer: {
-    // Styles for the container when not pressed
-  },
-  listItemContainerPressed: {
-    opacity: 0.75,
   },
   workoutImage: {
     width: 70,
@@ -102,11 +99,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.light.text,
   },
   description: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
     marginVertical: 4,
   },
   detailsContainer: {
@@ -120,7 +115,6 @@ const styles = StyleSheet.create({
   },
   detailText: {
     marginLeft: 4,
-    color: Colors.light.text,
     fontSize: 12,
   },
   equipmentContainer: {
@@ -138,7 +132,6 @@ const styles = StyleSheet.create({
   },
   equipmentText: {
     marginLeft: 4,
-    color: Colors.light.text,
     fontSize: 12,
   },
 });
