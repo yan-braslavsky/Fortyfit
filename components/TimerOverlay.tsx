@@ -121,12 +121,14 @@ const TimerOverlay = ({ onDismiss, theme = 'light' }) => {
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
             justifyContent: 'center',
             alignItems: 'center',
+            alignContent: 'center',
         },
         container: {
             backgroundColor: colors.card,
             padding: 40,
             borderRadius: 20,
             alignItems: 'center',
+            width: '90%',
         },
         timerText: {
             fontSize: 72,
@@ -140,6 +142,9 @@ const TimerOverlay = ({ onDismiss, theme = 'light' }) => {
             marginHorizontal: 15,
             padding: 20,
             borderRadius: 10,
+            alignContent: 'center',
+            alignItems: 'center',
+            justifyContent: 'center',
         },
         largeButton: {
             backgroundColor: colors.primary,
@@ -151,6 +156,7 @@ const TimerOverlay = ({ onDismiss, theme = 'light' }) => {
         buttonText: {
             fontSize: 24,
             color: colors.text,
+            textAlign: 'center',
         },
     });
 
