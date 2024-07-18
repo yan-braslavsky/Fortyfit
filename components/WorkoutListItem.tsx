@@ -7,6 +7,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { routes } from '@/app/index';
 
 const equipmentIconMapping = {
   'Rings': { icon: <FontAwesome5 name="ring" size={14} color={Colors.light.text} />, color: Colors.light.primary },
@@ -29,8 +30,7 @@ const WorkoutListItem = ({ item }: { item: WorkoutDataModel }) => {
   return (
     <Pressable
       onPress={() => {
-        navigation.navigate('workout', { workoutID: item.id });
-
+        router.push(routes.workout, { workoutID: item.id });
       }}
       style={({ pressed }) =>
         pressed

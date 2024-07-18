@@ -11,7 +11,7 @@ import { generateRandomId } from '@/constants/Utilities';
 import SingleSetModel from '@/models/SingleSetModel';
 
 
-export default function Test() {
+export default function TestScreen() {
     const navigation = useNavigation();
 
     useEffect(() => {

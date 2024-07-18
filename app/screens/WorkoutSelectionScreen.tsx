@@ -5,7 +5,7 @@ import { DEMO_WORKOUTS } from '@/constants/Data';
 import Colors from '@/constants/Colors';
 import WorkoutListItem from '@/components/WorkoutListItem';
 
-export default function WorkoutListTabScreen() {
+export default function WorkoutSelectionScreen() {
   return (
     <View style={styles.container}>
       <FlatList

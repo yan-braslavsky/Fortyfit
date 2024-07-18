@@ -9,13 +9,14 @@ import Separator from '@/components/Separator';
 import { useWorkoutViewModel } from '@/viewmodels/WorkoutViewModel';
 import { ExerciseStatus } from '@/models/WorkoutModel';
 
-export default function Workout() {
+export default function WorkoutScreen() {
 
     const { workoutID } = useLocalSearchParams();
     const {
         workoutModel,
         handleSetCompletion,
         handleSetActivation,
+        showExitDialog
     } = useWorkoutViewModel();
 
     const renderExercises = () => {
@@ -68,7 +69,7 @@ export default function Workout() {
                         {renderExercises()}
                     </View>
                     <View style={styles.finishExerciseBtnContainer}>
-                        <Button title="Finish Exercise" onPress={() => {/* handle finish */ }} />
+                        <Button title="Finish Exercise" onPress={showExitDialog} />
                     </View>
                 </View>
             </ScrollView>
