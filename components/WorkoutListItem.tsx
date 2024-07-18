@@ -1,13 +1,16 @@
 import React from 'react';
 import { StyleSheet, Pressable, Image, Text, View } from 'react-native';
-import { Link, router, useNavigation } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { WorkoutDataModel } from '@/constants/DataModels';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { routes } from '@/app/index';
+
+interface WorkoutListItemProps {
+  item: WorkoutDataModel;
+  onPress: () => void;
+}
 
 const equipmentIconMapping = {
   'Rings': { icon: <FontAwesome5 name="ring" size={14} color={Colors.light.text} />, color: Colors.light.primary },
@@ -15,39 +18,26 @@ const equipmentIconMapping = {
   'Dumbbell': { icon: <FontAwesome name="dumbbell" size={14} color={Colors.light.text} />, color: Colors.light.ternary },
   'Barbell': { icon: <FontAwesome5 name="weight-hanging" size={14} color={Colors.light.text} />, color: Colors.light.quaternary },
   'Resistance Band': { icon: <Ionicons name="ios-fitness" size={14} color={Colors.light.text} />, color: Colors.light.textSecondary },
-  // Add more equipment and icons as needed
 };
 
 const calculateDuration = () => {
   return Math.floor(Math.random() * 60);
 };
 
-const WorkoutListItem = ({ item }: { item: WorkoutDataModel }) => {
+const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
   const uniqueEquipment = new Set(item.exercises.flatMap(exercise => exercise[0].equipment.map(eq => eq.name)));
   const duration = calculateDuration();
-  const navigation = useNavigation();
 
   return (
     <Pressable
-      onPress={() => {
-        router.push(routes.workout, { workoutID: item.id });
-      }}
+      onPress={onPress}
       style={({ pressed }) =>
         pressed
           ? [styles.listItemContainer, styles.listItemContainerPressed]
           : styles.listItemContainer
       }
     >
-      {/* <Link
-        href={{
-          pathname: "/workout",
-          params: { workoutID: item.id },
-        }}
-        asChild
-      > */}
-
       <View style={styles.containerView}>
-
         <Image source={{ uri: item.imageUrl }} style={styles.workoutImage} />
         <View style={styles.workoutInfo}>
           <Text style={styles.title}>{item.name}</Text>
@@ -75,8 +65,6 @@ const WorkoutListItem = ({ item }: { item: WorkoutDataModel }) => {
           </View>
         </View>
       </View>
-
-      {/* </Link> */}
     </Pressable>
   );
 };
@@ -95,20 +83,9 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.ternary,
     padding: 10,
     minHeight: 200
-
   },
   listItemContainer: {
-    // flexDirection: 'row',
-    // alignItems: 'center',
-    // backgroundColor: Colors.light.card,
-    // borderRadius: 12,
-    // marginBottom: 16,
-    // padding: 16,
-    // shadowColor: Colors.light.darkColorLight,
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.1,
-    // shadowRadius: 4,
-    // elevation: 3,
+    // Styles for the container when not pressed
   },
   listItemContainerPressed: {
     opacity: 0.75,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, View, Button } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, View, Button, useColorScheme } from 'react-native';
 import { useLocalSearchParams } from "expo-router";
 import ExerciseHeaderCompound from '@/components/ExerciseHeaderCompound';
 import ActiveCompoundSet from '@/components/ActiveCompoundSet';
@@ -9,9 +9,12 @@ import Separator from '@/components/Separator';
 import { useWorkoutViewModel } from '@/viewmodels/WorkoutViewModel';
 import { ExerciseStatus } from '@/models/WorkoutModel';
 import TimerOverlay from '@/components/TimerOverlay';
+import Colors, { ColorsTheme } from '@/constants/Colors';
 
 export default function WorkoutScreen() {
     const { id } = useLocalSearchParams();
+    const colorScheme = useColorScheme() as ColorsTheme;
+    const colors = Colors.getColorsByTheme(colorScheme);
     const {
         workoutModel,
         handleSetCompletion,
@@ -68,15 +71,15 @@ export default function WorkoutScreen() {
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <ScrollView contentContainerStyle={styles.scrollView}>
-                <View style={styles.container}>
+            <ScrollView contentContainerStyle={[styles.scrollView, { backgroundColor: colors.listBackground }]}>
+                <View style={[styles.container, { backgroundColor: colors.background }]}>
                     <ExerciseHeaderCompound exerciseHeaderModels={workoutModel.exerciseHeaderModels} />
                     <Separator />
                     <View style={styles.exercisesContainer}>
                         {renderExercises()}
                     </View>
                     <View style={styles.finishExerciseBtnContainer}>
-                        <Button title="Finish Exercise" onPress={showExitDialog} />
+                        <Button title="Finish Exercise" onPress={showExitDialog} color={colors.primary} />
                     </View>
                 </View>
 
@@ -89,6 +92,7 @@ export default function WorkoutScreen() {
                         backgroundNotifications={false}
                         onTimerEnd={handleTimerEnd}
                         onTimeChange={time => console.log(`Time left: ${time}`)}
+                        theme={colorScheme}
                     />
                 )}
             </ScrollView>

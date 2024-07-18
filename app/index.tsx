@@ -8,5 +8,5 @@ export const routes = {
 }
 
 export default function Index() {
-    return <Redirect href={routes.workoutSelection} />;
+  return <Redirect href="/(tabs)" />;
 }

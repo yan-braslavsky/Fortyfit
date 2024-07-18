@@ -1,14 +1,13 @@
 import { Stack } from 'expo-router';
-import { routes } from '@/app/index';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
-export default function Layout() {
-  return <Stack>
-    <Stack.Screen name={routes.workoutSelection}  />
-    <Stack.Screen name={routes.workout} options={{
-      // presentation: 'fullScreenModal',
-      // headerTitleAlign: 'center'
-    }} />
-  </Stack>
+export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="workout/[id]" options={{ presentation: 'modal' }} />
+      </Stack>
+    </ThemeProvider>
+  );
 }
-
-
