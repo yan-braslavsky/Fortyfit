@@ -65,4 +65,10 @@ jobs:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
-        run: eas submit --platform all --non-interactive --latest
+        run: |
+          eas submit --platform ios \
+            --apple-id "$EXPO_APPLE_ID" \
+            --asc-app-id "$EXPO_ASC_APP_ID" \
+            --team-id "$EXPO_APPLE_TEAM_ID" \
+            --non-interactive --latest
+          eas submit --platform android --non-interactive --latest
