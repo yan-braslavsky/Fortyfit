@@ -1,18 +1,32 @@
 {
     "cli": {
-        "version": ">= 3.13.3"
+      "version": ">= 3.13.3",
+      "appVersionSource": "remote"
     },
     "build": {
-        "development": {
-            "developmentClient": true,
-            "distribution": "internal"
-        },
-        "preview": {
-            "distribution": "internal"
-        },
-        "production": {}
+      "development": {
+        "developmentClient": true,
+        "distribution": "internal"
+      },
+      "preview": {
+        "distribution": "internal"
+      },
+      "production": {
+        "android": {
+          "buildType": "app-bundle"
+        }
+      }
     },
     "submit": {
-        "production": {}
+      "production": {
+        "android": {
+          "serviceAccountKeyPath": "./path-to-your-google-service-account-key.json"
+        },
+        "ios": {
+          "appleId": "your-apple-id@example.com",
+          "ascAppId": "your-app-store-connect-app-id",
+          "appleTeamId": "your-apple-team-id"
+        }
+      }
     }
-}
+  }

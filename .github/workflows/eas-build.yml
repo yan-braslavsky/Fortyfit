@@ -21,10 +21,19 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm install
+          npm ci
       - name: Run tests
         run: npm test -- --ci --coverage --maxWorkers=2
       - name: Build on EAS
-        run: eas build --platform all --non-interactive
+        env:
+          EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
+          EXPO_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.EXPO_ANDROID_KEYSTORE_PASSWORD }}
+          EXPO_ANDROID_KEY_PASSWORD: ${{ secrets.EXPO_ANDROID_KEY_PASSWORD }}
+          EXPO_ANDROID_KEYSTORE_ALIAS: ${{ secrets.EXPO_ANDROID_KEYSTORE_ALIAS }}
+        run: |
+          echo $EXPO_ANDROID_KEYSTORE_BASE64 | base64 --decode > android/app/keystore.jks
+          eas build --platform all --non-interactive --no-wait
       - name: Submit to app stores
-        run: eas submit --platform all --non-interactive
+        run: eas submit --platform all --non-interactive --latest
