@@ -1,0 +1,17 @@
+{
+    "cli": {
+      "version": ">= 3.13.3"
+    },
+    "build": {
+      "production": {
+        "android": {
+          "buildType": "app-bundle",
+          "credentialsSource": "local",
+          "gradleCommand": ":app:bundleRelease"
+        }
+      }
+    },
+    "env": {
+      "ANDROID_KEYSTORE_PATH": "eas-builds/android-keystore.jks"
+    }
+  }

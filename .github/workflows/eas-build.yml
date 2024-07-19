@@ -26,14 +26,18 @@ jobs:
           npm ci
       - name: Run tests
         run: npm test -- --ci --coverage --maxWorkers=2
-      - name: Build on EAS
+      - name: Setup EAS Build
         env:
           EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          mkdir -p eas-builds
+          echo $EXPO_ANDROID_KEYSTORE_BASE64 | base64 --decode > eas-builds/android-keystore.jks
+      - name: Build on EAS
+        env:
           EXPO_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.EXPO_ANDROID_KEYSTORE_PASSWORD }}
           EXPO_ANDROID_KEY_PASSWORD: ${{ secrets.EXPO_ANDROID_KEY_PASSWORD }}
           EXPO_ANDROID_KEYSTORE_ALIAS: ${{ secrets.EXPO_ANDROID_KEYSTORE_ALIAS }}
         run: |
-          echo $EXPO_ANDROID_KEYSTORE_BASE64 | base64 --decode > android/app/keystore.jks
           eas build --platform all --non-interactive --no-wait
       - name: Submit to app stores
         run: eas submit --platform all --non-interactive --latest
