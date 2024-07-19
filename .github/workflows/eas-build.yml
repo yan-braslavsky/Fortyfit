@@ -60,26 +60,29 @@ jobs:
           }' > credentials.json
       - name: Build on EAS
         run: eas build --platform all --non-interactive --no-wait
+      - name: Install jq
+        run: sudo apt-get install jq
       - name: Submit to app stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
         run: |
-          echo '{
-            "cli": {
-              "version": ">= 3.13.3",
-              "appVersionSource": "remote"
-            },
-            "submit": {
-              "production": {
-                "ios": {
-                  "appleId": "'$EXPO_APPLE_ID'",
-                  "ascAppId": "'$EXPO_ASC_APP_ID'",
-                  "appleTeamId": "'$EXPO_APPLE_TEAM_ID'"
-                }
-              }
-            }
-          }' > eas-submit.json
-          eas submit --platform ios --non-interactive --latest --config eas-submit.json
+          # Backup original eas.json
+          cp eas.json eas.json.bak
+          
+          # Update eas.json with submission configuration
+          jq '.submit.production.ios = {
+            "appleId": "'"$EXPO_APPLE_ID"'",
+            "ascAppId": "'"$EXPO_ASC_APP_ID"'",
+            "appleTeamId": "'"$EXPO_APPLE_TEAM_ID"'"
+          }' eas.json > temp.json && mv temp.json eas.json
+          
+          # Submit for iOS
+          eas submit --platform ios --non-interactive --latest
+          
+          # Submit for Android
           eas submit --platform android --non-interactive --latest
+          
+          # Restore original eas.json
+          mv eas.json.bak eas.json
