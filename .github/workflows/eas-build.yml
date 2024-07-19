@@ -59,7 +59,7 @@ jobs:
             }
           }' > credentials.json
       - name: Build on EAS
-        run: eas build --platform all --non-interactive --no-wait
+        run: eas build --platform all --non-interactive --wait
       - name: Install jq
         run: sudo apt-get install jq
       - name: Submit to app stores
@@ -79,10 +79,10 @@ jobs:
           }' eas.json > temp.json && mv temp.json eas.json
           
           # Submit for iOS
-          eas submit --platform ios --non-interactive --latest
+          eas submit --platform ios --latest
           
           # Submit for Android
-          eas submit --platform android --non-interactive --latest
+          eas submit --platform android --latest
           
           # Restore original eas.json
           mv eas.json.bak eas.json
