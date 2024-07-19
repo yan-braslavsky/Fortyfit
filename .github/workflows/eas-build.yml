@@ -1,4 +1,3 @@
-# .github/workflows/eas-build.yml
 name: EAS Build
 on:
   push:
@@ -29,27 +28,3 @@ jobs:
         run: eas build --platform all --non-interactive
       - name: Submit to app stores
         run: eas submit --platform all --non-interactive
-
-  create-badges:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create Build Badge
-        uses: schneegans/dynamic-badges-action@v1.6.0
-        with:
-          auth: ${{ secrets.GIST_SECRET }}
-          gistID: <your-gist-id>
-          filename: build-badge.json
-          label: Build
-          message: Passing
-          color: green
-
-      - name: Create Test Badge
-        uses: schneegans/dynamic-badges-action@v1.6.0
-        with:
-          auth: ${{ secrets.GIST_SECRET }}
-          gistID: <your-gist-id>
-          filename: test-badge.json
-          label: Tests
-          message: Passing
-          color: green
