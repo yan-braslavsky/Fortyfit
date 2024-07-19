@@ -35,6 +35,5 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add '.github/badges/*'
-          git commit -m "Update badges" || exit 0
-          git push
+          git add '.github/badges/*.svg'
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update badges" && git push)
