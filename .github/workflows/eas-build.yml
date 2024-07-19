@@ -1,0 +1,55 @@
+# .github/workflows/eas-build.yml
+name: EAS Build
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Install and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: npm
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm test
+      - name: Build on EAS
+        run: eas build --platform all --non-interactive
+      - name: Submit to app stores
+        run: eas submit --platform all --non-interactive
+
+  create-badges:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Build Badge
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: <your-gist-id>
+          filename: build-badge.json
+          label: Build
+          message: Passing
+          color: green
+
+      - name: Create Test Badge
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: <your-gist-id>
+          filename: test-badge.json
+          label: Tests
+          message: Passing
+          color: green
