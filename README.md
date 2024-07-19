@@ -1,5 +1,9 @@
 # FourtyFit
 
+![Build Status](https://github.com/yan-braslavsky/Fortyfit/blob/main/.github/badges/build-badge.svg)
+![Test Status](https://github.com/yan-braslavsky/Fortyfit/blob/main/.github/badges/test-badge.svg)
+
+
 FourtyFit is a mobile fitness application built with React Native, designed to help users track and improve their workout routines.
 Overall the app targets to keep people in their late 30s and 40s fit and active.
 
