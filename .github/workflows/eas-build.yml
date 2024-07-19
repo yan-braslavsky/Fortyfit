@@ -2,7 +2,8 @@ name: EAS Build
 on:
   push:
     branches:
-      - main
+      # - main
+      - eas-ci
   workflow_dispatch:
 
 jobs:
