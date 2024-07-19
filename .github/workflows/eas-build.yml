@@ -66,9 +66,20 @@ jobs:
           EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
         run: |
-          eas submit --platform ios \
-            --apple-id "$EXPO_APPLE_ID" \
-            --asc-app-id "$EXPO_ASC_APP_ID" \
-            --team-id "$EXPO_APPLE_TEAM_ID" \
-            --non-interactive --latest
+          echo '{
+            "cli": {
+              "version": ">= 3.13.3",
+              "appVersionSource": "remote"
+            },
+            "submit": {
+              "production": {
+                "ios": {
+                  "appleId": "'$EXPO_APPLE_ID'",
+                  "ascAppId": "'$EXPO_ASC_APP_ID'",
+                  "appleTeamId": "'$EXPO_APPLE_TEAM_ID'"
+                }
+              }
+            }
+          }' > eas-submit.json
+          eas submit --platform ios --non-interactive --latest --config eas-submit.json
           eas submit --platform android --non-interactive --latest
