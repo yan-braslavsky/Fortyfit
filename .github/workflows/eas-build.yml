@@ -61,4 +61,8 @@ jobs:
       - name: Build on EAS
         run: eas build --platform all --non-interactive --no-wait
       - name: Submit to app stores
+        env:
+          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
+          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
         run: eas submit --platform all --non-interactive --latest

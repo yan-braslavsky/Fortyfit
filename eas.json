@@ -27,9 +27,9 @@
         "serviceAccountKeyPath": "./path-to-your-google-service-account-key.json"
       },
       "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "your-app-store-connect-app-id",
-        "appleTeamId": "${{ secrets.EXPO_APPLE_TEAM_ID }}"
+        "appleId": "${EXPO_APPLE_ID}",
+        "ascAppId": "${EXPO_ASC_APP_ID}",
+        "appleTeamId": "${EXPO_APPLE_TEAM_ID}"
       }
     }
   }
