@@ -14,8 +14,7 @@
       "production": {
         "android": {
           "buildType": "app-bundle",
-          "credentialsSource": "local",
-          "gradleCommand": ":app:bundleRelease"
+          "credentialsSource": "local"
         }
       }
     },
