@@ -17,8 +17,7 @@
         "credentialsSource": "local"
       },
       "ios": {
-        "credentialsSource": "local",
-        "bundleIdentifier": "yan.braslavsky.fourtyfit"
+        "credentialsSource": "local"
       }
     }
   },
