@@ -65,24 +65,40 @@ jobs:
       - name: Submit to app stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
           EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
         run: |
-          # Backup original eas.json
-          cp eas.json eas.json.bak
-          
-          # Update eas.json with submission configuration
-          jq '.submit.production.ios = {
-            "appleId": "'"$EXPO_APPLE_ID"'",
-            "ascAppId": "'"$EXPO_ASC_APP_ID"'",
-            "appleTeamId": "'"$EXPO_APPLE_TEAM_ID"'"
-          }' eas.json > temp.json && mv temp.json eas.json
+          # Create eas.json with submission configuration
+          echo '{
+            "cli": {
+              "version": ">= 3.13.3",
+              "appVersionSource": "remote"
+            },
+            "build": {
+              "production": {
+                "android": {
+                  "buildType": "app-bundle",
+                  "credentialsSource": "local"
+                },
+                "ios": {
+                  "credentialsSource": "local"
+                }
+              }
+            },
+            "submit": {
+              "production": {
+                "ios": {
+                  "appleId": "'$EXPO_APPLE_ID'",
+                  "ascAppId": "'$EXPO_ASC_APP_ID'",
+                  "appleTeamId": "'$EXPO_APPLE_TEAM_ID'"
+                }
+              }
+            }
+          }' > eas.json
           
           # Submit for iOS
-          eas submit --platform ios --latest
+          eas submit --platform ios --latest --non-interactive
           
           # Submit for Android
-          eas submit --platform android --latest
-          
-          # Restore original eas.json
-          mv eas.json.bak eas.json
+          eas submit --platform android --latest --non-interactive
