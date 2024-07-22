@@ -37,3 +37,12 @@ jobs:
           git config --local user.name "GitHub Action"
           git add '.github/badges/*.svg'
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update badges" && git push)
+
+      - name: Check for changes
+        run: |
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update badges"
+            git push
+          fi

@@ -14,14 +14,16 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "yan.braslavsky.fourtyfit"
+      "bundleIdentifier": "yan.braslavsky.fourtyfit",
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "yan.braslavsky.fourtyfit"
+      "package": "yan.braslavsky.fourtyfit",
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro",
