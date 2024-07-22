@@ -68,6 +68,7 @@ jobs:
           EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
           EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
         run: |
           # Create eas.json with submission configuration
           echo '{
@@ -92,10 +93,17 @@ jobs:
                   "appleId": "'$EXPO_APPLE_ID'",
                   "ascAppId": "'$EXPO_ASC_APP_ID'",
                   "appleTeamId": "'$EXPO_APPLE_TEAM_ID'"
+                },
+                "android": {
+                  "serviceAccountKeyPath": "./google-service-account-key.json",
+                  "track": "internal"
                 }
               }
             }
           }' > eas.json
+          
+          # Create Google Service Account Key file
+          echo '$GOOGLE_SERVICE_ACCOUNT_KEY' > google-service-account-key.json
           
           # Submit for iOS
           eas submit --platform ios --latest --non-interactive

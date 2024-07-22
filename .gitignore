@@ -43,3 +43,9 @@ expo-env.d.ts
 .github/badges/*.svg
 credentials.json
 eas-builds/
+
+# expo
+.expo/
+
+# dependencies
+/node_modules
