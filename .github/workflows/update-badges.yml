@@ -37,9 +37,9 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add '.github/badges/*.svg'
+          git add .github/badges/*.svg || true
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update badges" && git push "https://$PAT_TOKEN@github.com/${{ github.repository }}.git" HEAD:${{ github.ref }})
-  
+
       - name: Check for changes
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
@@ -47,6 +47,7 @@ jobs:
           if git diff --quiet && git diff --staged --quiet; then
             echo "No changes to commit"
           else
+            git add .github/badges/*.svg
             git commit -m "Update badges"
             git push "https://$PAT_TOKEN@github.com/${{ github.repository }}.git" HEAD:${{ github.ref }}
           fi
