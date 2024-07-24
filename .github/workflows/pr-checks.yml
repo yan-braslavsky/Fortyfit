@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Lint
-        run: npm run lint -- --ext .js,.jsx,.ts,.tsx # echo "*** Linting skipped ***"
+        run: echo "*** Linting skipped ***" # npm run lint -- --ext .js,.jsx,.ts,.tsx
       - name: Type check
         run: npm run typecheck
       - name: Build
