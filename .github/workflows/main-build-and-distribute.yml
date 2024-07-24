@@ -19,9 +19,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Lint
-        run: echo "*** Linting skipped ***" # run: npm run lint -- --ext .js,.jsx,.ts,.tsx
+        run: npm run lint
       - name: Type check
-        run: echo "*** Typecheck skipped ***" # npm run typecheck
+        run: npm run typecheck
       - name: Build
         run: npm run build
       - name: Test
@@ -60,15 +60,17 @@ jobs:
         with:
           node-version: 18.x
           cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-      - name: Install dependencies
-        run: npm ci
       - name: Build on EAS
-        run: eas build --platform all --non-interactive --wait
+        run: npm run eas-build
       - name: Submit to app stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
