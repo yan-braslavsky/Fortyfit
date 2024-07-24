@@ -1,0 +1,91 @@
+name: Build and Distribute
+
+on:
+  push:
+    branches:
+      - local-runner
+  workflow_dispatch:
+
+jobs:
+  build-and-distribute:
+    name: Build and Distribute
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: npm
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Bump version
+        id: bump
+        run: |
+          content=$(cat app.json)
+          ios_build=$(echo $content | jq -r '.expo.ios.buildNumber')
+          new_ios_build=$((ios_build + 1))
+          android_code=$(echo $content | jq -r '.expo.android.versionCode')
+          new_android_code=$((android_code + 1))
+          content=$(echo $content | jq --arg ios "$new_ios_build" --arg android "$new_android_code" '.expo.ios.buildNumber = $ios | .expo.android.versionCode = $android')
+          echo $content > app.json
+          echo "new_ios_build=$new_ios_build" >> $GITHUB_OUTPUT
+          echo "new_android_code=$new_android_code" >> $GITHUB_OUTPUT
+      - name: Commit version bump
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add app.json
+          git commit -m "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }}"
+          git push
+      - name: Setup EAS Build
+        env:
+          EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
+          EXPO_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.EXPO_ANDROID_KEYSTORE_PASSWORD }}
+          EXPO_ANDROID_KEY_PASSWORD: ${{ secrets.EXPO_ANDROID_KEY_PASSWORD }}
+          EXPO_ANDROID_KEYSTORE_ALIAS: ${{ secrets.EXPO_ANDROID_KEYSTORE_ALIAS }}
+          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+          EXPO_APPLE_DISTRIBUTION_CERT_BASE64: ${{ secrets.EXPO_APPLE_DISTRIBUTION_CERT_BASE64 }}
+          EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD: ${{ secrets.EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD }}
+          EXPO_APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.EXPO_APPLE_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          mkdir -p eas-builds
+          echo $EXPO_ANDROID_KEYSTORE_BASE64 | base64 --decode > eas-builds/android-keystore.jks
+          echo $EXPO_APPLE_DISTRIBUTION_CERT_BASE64 | base64 --decode > eas-builds/dist-cert.p12
+          echo $EXPO_APPLE_PROVISIONING_PROFILE_BASE64 | base64 --decode > eas-builds/profile.mobileprovision
+          echo '{
+            "android": {
+              "keystore": {
+                "keystorePath": "eas-builds/android-keystore.jks",
+                "keystorePassword": "'$EXPO_ANDROID_KEYSTORE_PASSWORD'",
+                "keyAlias": "'$EXPO_ANDROID_KEYSTORE_ALIAS'",
+                "keyPassword": "'$EXPO_ANDROID_KEY_PASSWORD'"
+              }
+            },
+            "ios": {
+              "distributionCertificate": {
+                "path": "eas-builds/dist-cert.p12",
+                "password": "'$EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD'"
+              },
+              "provisioningProfilePath": "eas-builds/profile.mobileprovision"
+            }
+          }' > credentials.json
+      - name: Build on EAS
+        run: eas build --platform all --local --non-interactive --wait
+      - name: Submit to app stores
+        env:
+          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
+          EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
+          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+        run: |
+          echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}' > google-service-account-key.json
+          eas submit --platform ios --latest --non-interactive
+          eas submit --platform android --latest --non-interactive
