@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
           node-version: 18.x
@@ -37,13 +35,29 @@ jobs:
           echo $content > app.json
           echo "new_ios_build=$new_ios_build" >> $GITHUB_OUTPUT
           echo "new_android_code=$new_android_code" >> $GITHUB_OUTPUT
-      - name: Commit version bump
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add app.json
-          git commit -m "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }} [skip ci]"
-          git push
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }}"
+          title: "Bump version numbers"
+          body: "Automated version bump"
+          branch: "version-bump"
+          base: "main"
+      - name: Auto-approve Pull Request
+        if: steps.cpr.outputs.pull-request-number
+        uses: hmarr/auto-approve-action@v3
+        with:
+          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merge Pull Request
+        if: steps.cpr.outputs.pull-request-number
+        uses: pascalgn/automerge-action@v0.15.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PULL_REQUEST: ${{ steps.cpr.outputs.pull-request-number }}
+          MERGE_METHOD: squash
       - name: Setup EAS Build
         env:
           EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
