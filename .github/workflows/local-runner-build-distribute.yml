@@ -7,15 +7,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-distribute:
-    name: Build and Distribute
-    runs-on: macos-latest
+  bump-version:
+    name: Bump Version
+    runs-on: ubuntu-latest
     steps:
-      - name: Encode and Echo Secrets
-        run: |
-          echo "EXPO_APPLE_ID: $(echo ${EXPO_APPLE_ID} | base64)"
-        env:
-          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -23,19 +18,6 @@ jobs:
         with:
           node-version: 18.x
           cache: npm
-      - name: Clear npm cache
-        run: npm cache clean --force
-      - name: Adjust npm cache permissions
-        run: sudo chown -R $(whoami) ~/.npm
-      - name: Install Homebrew (macOS)
-        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      - name: Install jq (macOS)
-        run: brew install jq
-      - name: Setup Expo and EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
       - name: Install dependencies
         run: npm ci
       - name: Bump version
@@ -57,24 +39,96 @@ jobs:
           git add app.json
           git commit -m "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }}"
           git push
-      - name: Setup EAS Build
+
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    needs: bump-version
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Setup EAS Build for Android
         env:
           EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
           EXPO_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.EXPO_ANDROID_KEYSTORE_PASSWORD }}
           EXPO_ANDROID_KEY_PASSWORD: ${{ secrets.EXPO_ANDROID_KEY_PASSWORD }}
           EXPO_ANDROID_KEYSTORE_ALIAS: ${{ secrets.EXPO_ANDROID_KEYSTORE_ALIAS }}
-          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
-          EXPO_APPLE_DISTRIBUTION_CERT_BASE64: ${{ secrets.EXPO_APPLE_DISTRIBUTION_CERT_BASE64 }}
-          EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD: ${{ secrets.EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD }}
-          EXPO_APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.EXPO_APPLE_PROVISIONING_PROFILE_BASE64 }}
         run: |
           mkdir -p eas-builds
           echo $EXPO_ANDROID_KEYSTORE_BASE64 | base64 --decode > eas-builds/android-keystore.jks
-          echo $EXPO_APPLE_DISTRIBUTION_CERT_BASE64 | base64 --decode > eas-builds/dist-cert.p12
-          echo $EXPO_APPLE_PROVISIONING_PROFILE_BASE64 | base64 --decode > eas-builds/profile.mobileprovision
           echo '{
             "android": {
               "keystore": {
                 "keystorePath": "eas-builds/android-keystore.jks",
                 "keystorePassword": "'$EXPO_ANDROID_KEYSTORE_PASSWORD'",
                 "keyAlias": "'$EXPO_ANDROID_KEYSTORE_ALIAS'",
+                "keyPassword": "'$EXPO_ANDROID_KEY_PASSWORD'"
+              }
+            }
+          }' > credentials.json
+      - name: Build Android on EAS
+        run: eas build --platform android --local --non-interactive --wait
+
+  build-ios:
+    name: Build iOS
+    runs-on: macos-latest
+    needs: bump-version
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Setup EAS Build for iOS
+        env:
+          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+          EXPO_APPLE_DISTRIBUTION_CERT_BASE64: ${{ secrets.EXPO_APPLE_DISTRIBUTION_CERT_BASE64 }}
+          EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD: ${{ secrets.EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD }}
+          EXPO_APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.EXPO_APPLE_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          mkdir -p eas-builds
+          echo $EXPO_APPLE_DISTRIBUTION_CERT_BASE64 | base64 --decode > eas-builds/dist-cert.p12
+          echo $EXPO_APPLE_PROVISIONING_PROFILE_BASE64 | base64 --decode > eas-builds/profile.mobileprovision
+          echo '{
+            "ios": {
+              "distributionCertificate": {
+                "path": "eas-builds/dist-cert.p12",
+                "password": "'$EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD'"
+              },
+              "provisioningProfilePath": "eas-builds/profile.mobileprovision"
+            }
+          }' > credentials.json
+      - name: Build iOS on EAS
+        run: eas build --platform ios --local --non-interactive --wait
+
+  submit-to-app-stores:
+    name: Submit to App Stores
+    runs-on: ubuntu-latest
+    needs: [build-android, build-ios]
+    env:
+      EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+      EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
+      EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
+      EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+      GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: builds
+      - name: Submit to App Stores
+        run: |
+          echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}' > google-service-account-key.json
+          eas submit --platform ios --latest --non-interactive
+          eas submit --platform android --latest --non-interactive
