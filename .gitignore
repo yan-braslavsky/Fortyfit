@@ -49,3 +49,7 @@ eas-builds/
 
 # dependencies
 /node_modules
+
+# Ignore EAS Build artifacts
+android/
+ios/
