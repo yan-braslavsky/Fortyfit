@@ -1,60 +1,19 @@
 name: EAS Build and Submit
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
   workflow_dispatch:
 
 jobs:
-  version-bump:
-    name: Bump Version
-    runs-on: ubuntu-latest
-    outputs:
-      pr_number: ${{ steps.create-pr.outputs.pull-request-number }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Bump version
-        id: bump
-        run: |
-          content=$(cat app.json)
-          ios_build=$(echo $content | jq -r '.expo.ios.buildNumber')
-          new_ios_build=$((ios_build + 1))
-          android_code=$(echo $content | jq -r '.expo.android.versionCode')
-          new_android_code=$((android_code + 1))
-          content=$(echo $content | jq --arg ios "$new_ios_build" --arg android "$new_android_code" '.expo.ios.buildNumber = $ios | .expo.android.versionCode = $android')
-          echo $content > app.json
-          echo "new_ios_build=$new_ios_build" >> $GITHUB_OUTPUT
-          echo "new_android_code=$new_android_code" >> $GITHUB_OUTPUT
-      - name: Create Pull Request
-        id: create-pr
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }}"
-          title: "Bump version numbers"
-          body: "Automated version bump"
-          branch: "version-bump"
-          base: "main"
-      - name: Auto-approve Pull Request
-        uses: hmarr/auto-approve-action@v3
-        with:
-          pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Merge Pull Request
-        uses: pascalgn/automerge-action@v0.15.6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PULL_REQUEST: ${{ steps.create-pr.outputs.pull-request-number }}
-          MERGE_METHOD: squash
-
-  build-and-submit:
-    name: Build and Submit
-    needs: version-bump
+  build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
           node-version: 18.x
@@ -70,6 +29,33 @@ jobs:
           npm ci
       - name: Run tests
         run: npm test -- --ci --coverage --maxWorkers=2
+
+  version-bump-build-submit:
+    name: Version Bump, Build and Submit
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Bump version
+        id: bump
+        run: |
+          content=$(cat app.json)
+          ios_build=$(echo $content | jq -r '.expo.ios.buildNumber')
+          new_ios_build=$((ios_build + 1))
+          android_code=$(echo $content | jq -r '.expo.android.versionCode')
+          new_android_code=$((android_code + 1))
+          content=$(echo $content | jq --arg ios "$new_ios_build" --arg android "$new_android_code" '.expo.ios.buildNumber = $ios | .expo.android.versionCode = $android')
+          echo $content > app.json
+          echo "new_ios_build=$new_ios_build" >> $GITHUB_OUTPUT
+          echo "new_android_code=$new_android_code" >> $GITHUB_OUTPUT
+      - name: Commit version bump
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add app.json
+          git commit -m "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }}"
+          git push
       - name: Setup EAS Build
         env:
           EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
