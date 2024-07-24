@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-test:
-    name: Build and Test
+  version-bump-and-test:
+    name: Version Bump and Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -29,16 +29,8 @@ jobs:
           npm ci
       - name: Run tests
         run: npm test -- --ci --coverage --maxWorkers=2
-
-  version-bump-build-submit:
-    name: Version Bump, Build and Submit
-    needs: build-and-test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Bump version
-        id: bump
+      - name: Version bump
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           content=$(cat app.json)
           ios_build=$(echo $content | jq -r '.expo.ios.buildNumber')
@@ -47,15 +39,22 @@ jobs:
           new_android_code=$((android_code + 1))
           content=$(echo $content | jq --arg ios "$new_ios_build" --arg android "$new_android_code" '.expo.ios.buildNumber = $ios | .expo.android.versionCode = $android')
           echo $content > app.json
-          echo "new_ios_build=$new_ios_build" >> $GITHUB_OUTPUT
-          echo "new_android_code=$new_android_code" >> $GITHUB_OUTPUT
       - name: Commit version bump
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add app.json
-          git commit -m "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }}"
+          git commit -m "Bump version numbers [skip ci]"
           git push
+
+  build-and-submit:
+    name: Build and Submit
+    needs: version-bump-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
       - name: Setup EAS Build
         env:
           EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
