@@ -3,7 +3,7 @@ name: Build and Distribute
 on:
   push:
     branches:
-      - main
+      - local-runner
   workflow_dispatch:
 
 jobs:
