@@ -11,6 +11,8 @@ jobs:
     name: Build and Distribute
     runs-on: macos-latest
     steps:
+      - name: Echo EXPO_APPLE_ID
+        run: echo "EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}"
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
