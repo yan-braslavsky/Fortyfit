@@ -3,7 +3,7 @@ name: Build and Distribute
 on:
   push:
     branches:
-      - local-runner
+      - main
   workflow_dispatch:
 
 jobs:
@@ -11,8 +11,9 @@ jobs:
     name: Build and Distribute
     runs-on: macos-latest
     steps:
-      - name: Echo EXPO_APPLE_ID
-        run: "echo EXPO_APPLE_ID: ${EXPO_APPLE_ID}"
+      - name: Encode and Echo Secrets
+        run: |
+          echo "EXPO_APPLE_ID: $(echo ${EXPO_APPLE_ID} | base64)"
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
       - uses: actions/checkout@v3
@@ -77,29 +78,3 @@ jobs:
                 "keystorePath": "eas-builds/android-keystore.jks",
                 "keystorePassword": "'$EXPO_ANDROID_KEYSTORE_PASSWORD'",
                 "keyAlias": "'$EXPO_ANDROID_KEYSTORE_ALIAS'",
-                "keyPassword": "'$EXPO_ANDROID_KEY_PASSWORD'"
-              }
-            },
-            "ios": {
-              "distributionCertificate": {
-                "path": "eas-builds/dist-cert.p12",
-                "password": "'$EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD'"
-              },
-              "provisioningProfilePath": "eas-builds/profile.mobileprovision"
-            }
-          }' > credentials.json
-      - name: Build on EAS for Android
-        run: eas build --platform android --local --non-interactive --wait
-      - name: Build on EAS for iOS
-        run: eas build --platform ios --local --non-interactive --wait
-      - name: Submit to app stores
-        env:
-          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
-          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
-          EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
-          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
-          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
-        run: |
-          echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}' > google-service-account-key.json
-          eas submit --platform ios --latest --non-interactive
-          eas submit --platform android --latest --non-interactive
