@@ -50,12 +50,14 @@ jobs:
           echo "ANDROID_VERSION_CODE=$new_android_code" >> $GITHUB_ENV
 
       - name: Commit version bump
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add app.json
           git commit -m "Bump iOS build number to ${{ env.IOS_BUILD_NUMBER }} and Android version code to ${{ env.ANDROID_VERSION_CODE }}"
-          git push
+          git push "https://$PAT_TOKEN@github.com/${{ github.repository }}.git" HEAD:${{ github.ref }}
       - name: Setup EAS Build
         env:
           EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
