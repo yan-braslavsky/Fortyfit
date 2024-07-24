@@ -7,7 +7,6 @@ export const routes = {
     workout: 'screens/WorkoutScreen'
 }
 
-//Index
 export default function Index() {
   return <Redirect href="/(tabs)" />;
 }
