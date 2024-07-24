@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-distribute:
     name: Build and Distribute
-    runs-on: self-hosted
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -18,6 +18,14 @@ jobs:
         with:
           node-version: 18.x
           cache: npm
+      - name: Clear npm cache
+        run: npm cache clean --force
+      - name: Adjust npm cache permissions
+        run: sudo chown -R $(whoami) ~/.npm
+      - name: Install Homebrew (macOS)
+        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      - name: Install jq (macOS)
+        run: brew install jq
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
         with:
@@ -76,8 +84,10 @@ jobs:
               "provisioningProfilePath": "eas-builds/profile.mobileprovision"
             }
           }' > credentials.json
-      - name: Build on EAS
-        run: eas build --platform all --local --non-interactive --wait
+      - name: Build on EAS for Android
+        run: eas build --platform android --local --non-interactive --wait
+      - name: Build on EAS for iOS
+        run: eas build --platform ios --local --non-interactive --wait
       - name: Submit to app stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
