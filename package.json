@@ -15,8 +15,7 @@
     "eas-build-ios": "eas build --platform ios --non-interactive --wait",
     "eas-submit": "eas submit --platform all --non-interactive",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "typecheck": "tsc --noEmit",
-    "build": "expo build:web"
+    "typecheck": "tsc --noEmit"
   },
   "jest": {
     "preset": "jest-expo"

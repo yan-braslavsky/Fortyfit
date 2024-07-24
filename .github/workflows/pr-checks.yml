@@ -21,7 +21,7 @@ jobs:
         run: echo "*** Linting skipped ***" # npm run lint -- --ext .js,.jsx,.ts,.tsx
       - name: Type check
         run: echo "*** Typecheck skipped ***" # npm run typecheck
-      - name: Build
-        run: npm run build
+      - name: Build on EAS
+        run: npm run eas-build
       - name: Test
         run: npm test

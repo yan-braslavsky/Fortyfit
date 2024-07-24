@@ -22,8 +22,8 @@ jobs:
         run: npm run lint
       - name: Type check
         run: npm run typecheck
-      - name: Build
-        run: npm run build
+      - name: Build on EAS
+        run: npm run eas-build
       - name: Test
         run: npm test
 
