@@ -53,3 +53,6 @@ eas-builds/
 # Ignore EAS Build artifacts
 android/
 ios/
+
+# Keystore
+fourtyfit.keystore
