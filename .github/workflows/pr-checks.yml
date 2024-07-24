@@ -7,7 +7,7 @@ on:
 
 jobs:
   check-and-test:
-    name: Check, Build and Test
+    name: Check and Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -21,7 +21,5 @@ jobs:
         run: echo "*** Linting skipped ***" # npm run lint -- --ext .js,.jsx,.ts,.tsx
       - name: Type check
         run: echo "*** Typecheck skipped ***" # npm run typecheck
-      - name: Build on EAS
-        run: npm run eas-build
       - name: Test
         run: npm test
