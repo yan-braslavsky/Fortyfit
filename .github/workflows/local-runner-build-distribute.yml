@@ -98,6 +98,11 @@ jobs:
       - name: Find IPA Path
         id: find-ipa
         run: echo "::set-output name=path::$(find . -name "*.ipa")"
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-artifact
+          path: $(find . -name "*.ipa")
 
   build-android:
     needs: prepare
@@ -148,6 +153,11 @@ jobs:
       - name: Find AAB Path
         id: find-aab
         run: echo "::set-output name=path::$(find . -name "*.aab")"
+      - name: Upload AAB Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-artifact
+          path: $(find . -name "*.aab")
 
   submit:
     needs: [prepare, build-ios, build-android]
@@ -163,6 +173,14 @@ jobs:
         run: npm ci
       - name: Setup EAS
         run: npm install -g eas-cli
+      - name: Download IPA and AAB Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ios-artifact
+      - name: Download Android Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: android-artifact
       - name: Submit to App Stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
@@ -172,8 +190,8 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
         run: |
           echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}' > google-service-account-key.json
-          ipa_path=${{ needs.build-ios.outputs.ipa_path }}
-          aab_path=${{ needs.build-android.outputs.aab_path }}
+          ipa_path=$(find . -name "*.ipa")
+          aab_path=$(find . -name "*.aab")
           echo "IPA path: $ipa_path"
           echo "AAB path: $aab_path"
           if [ -z "$ipa_path" ]; then
