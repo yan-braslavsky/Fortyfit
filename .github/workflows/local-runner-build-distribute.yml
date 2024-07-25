@@ -29,46 +29,32 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install CocoaPods
-        run: brew install cocoapods
-
-      - name: Setup EAS
-        run: npm install -g eas-cli
-
-      - name: Install Fastlane using Homebrew
-        run: brew install fastlane
-
       - name: Install dependencies
         run: npm ci
 
-      - name: Cache npm modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+      - name: Bump version
+        id: bump
+        run: |
+          content=$(cat app.json)
+          ios_build=$(echo $content | jq -r '.expo.ios.buildNumber')
+          new_ios_build=$((ios_build + 1))
+          android_code=$(echo $content | jq -r '.expo.android.versionCode')
+          new_android_code=$((android_code + 1))
+          content=$(echo $content | jq --arg ios "$new_ios_build" --arg android "$new_android_code" '.expo.ios.buildNumber = $ios | .expo.android.versionCode = $android')
+          echo $content > app.json
+          echo "new_ios_build=$new_ios_build" >> $GITHUB_OUTPUT
+          echo "new_android_code=$new_android_code" >> $GITHUB_OUTPUT
 
-      # - name: Bump version
-      #   id: bump
-      #   run: |
-      #     content=$(cat app.json)
-      #     ios_build=$(echo $content | jq -r '.expo.ios.buildNumber')
-      #     new_ios_build=$((ios_build + 1))
-      #     android_code=$(echo $content | jq -r '.expo.android.versionCode')
-      #     new_android_code=$((android_code + 1))
-      #     content=$(echo $content | jq --arg ios "$new_ios_build" --arg android "$new_android_code" '.expo.ios.buildNumber = $ios | .expo.android.versionCode = $android')
-      #     echo $content > app.json
-      #     echo "new_ios_build=$new_ios_build" >> $GITHUB_OUTPUT
-      #     echo "new_android_code=$new_android_code" >> $GITHUB_OUTPUT
+      - name: Commit version bump
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add app.json
+          git commit -m "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }}"
+          git push
 
-      # - name: Commit version bump
-      #   run: |
-      #     git config --local user.email "action@github.com"
-      #     git config --local user.name "GitHub Action"
-      #     git add app.json
-      #     git commit -m "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }}"
-      #     git push
+      - name: Setup EAS
+        run: npm install -g eas-cli
 
   build-ios:
     needs: prepare
@@ -76,15 +62,14 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
-      - name: Restore npm cache
-        uses: actions/cache@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+          node-version: 18.x
       - name: Install dependencies
         run: npm ci
+      - name: Setup EAS
+        run: npm install -g eas-cli
       - name: Setup EAS Build
         env:
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
@@ -115,15 +100,19 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
-      - name: Restore npm cache
-        uses: actions/cache@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+          node-version: 18.x
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
       - name: Install dependencies
         run: npm ci
+      - name: Setup EAS
+        run: npm install -g eas-cli
       - name: Setup EAS Build
         env:
           EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
@@ -156,15 +145,14 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
-      - name: Restore npm cache
-        uses: actions/cache@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+          node-version: 18.x
       - name: Install dependencies
         run: npm ci
+      - name: Setup EAS
+        run: npm install -g eas-cli
       - name: Submit to App Stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
