@@ -10,6 +10,9 @@ jobs:
   bump-version:
     name: Bump Version
     runs-on: ubuntu-latest
+    outputs:
+      new_ios_build: ${{ steps.bump.outputs.new_ios_build }}
+      new_android_code: ${{ steps.bump.outputs.new_android_code }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -40,29 +43,38 @@ jobs:
           git commit -m "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }}"
           git push
 
-  build-android:
-    name: Build Android
-    runs-on: ubuntu-latest
+  build:
+    name: Build Android and iOS
     needs: bump-version
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 18.x
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-      - name: Setup EAS Build for Android
+      - name: Setup EAS Build
         env:
           EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
           EXPO_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.EXPO_ANDROID_KEYSTORE_PASSWORD }}
           EXPO_ANDROID_KEY_PASSWORD: ${{ secrets.EXPO_ANDROID_KEY_PASSWORD }}
           EXPO_ANDROID_KEYSTORE_ALIAS: ${{ secrets.EXPO_ANDROID_KEYSTORE_ALIAS }}
+          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+          EXPO_APPLE_DISTRIBUTION_CERT_BASE64: ${{ secrets.EXPO_APPLE_DISTRIBUTION_CERT_BASE64 }}
+          EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD: ${{ secrets.EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD }}
+          EXPO_APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.EXPO_APPLE_PROVISIONING_PROFILE_BASE64 }}
         run: |
           mkdir -p eas-builds
           echo $EXPO_ANDROID_KEYSTORE_BASE64 | base64 --decode > eas-builds/android-keystore.jks
+          echo $EXPO_APPLE_DISTRIBUTION_CERT_BASE64 | base64 --decode > eas-builds/dist-cert.p12
+          echo $EXPO_APPLE_PROVISIONING_PROFILE_BASE64 | base64 --decode > eas-builds/profile.mobileprovision
           echo '{
             "android": {
               "keystore": {
@@ -71,36 +83,7 @@ jobs:
                 "keyAlias": "'$EXPO_ANDROID_KEYSTORE_ALIAS'",
                 "keyPassword": "'$EXPO_ANDROID_KEY_PASSWORD'"
               }
-            }
-          }' > credentials.json
-      - name: Build Android on EAS
-        run: eas build --platform android --local --non-interactive --wait
-
-  build-ios:
-    name: Build iOS
-    runs-on: macos-latest
-    needs: bump-version
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18.x
-      - name: Setup Expo and EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-      - name: Setup EAS Build for iOS
-        env:
-          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
-          EXPO_APPLE_DISTRIBUTION_CERT_BASE64: ${{ secrets.EXPO_APPLE_DISTRIBUTION_CERT_BASE64 }}
-          EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD: ${{ secrets.EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD }}
-          EXPO_APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.EXPO_APPLE_PROVISIONING_PROFILE_BASE64 }}
-        run: |
-          mkdir -p eas-builds
-          echo $EXPO_APPLE_DISTRIBUTION_CERT_BASE64 | base64 --decode > eas-builds/dist-cert.p12
-          echo $EXPO_APPLE_PROVISIONING_PROFILE_BASE64 | base64 --decode > eas-builds/profile.mobileprovision
-          echo '{
+            },
             "ios": {
               "distributionCertificate": {
                 "path": "eas-builds/dist-cert.p12",
@@ -109,26 +92,46 @@ jobs:
               "provisioningProfilePath": "eas-builds/profile.mobileprovision"
             }
           }' > credentials.json
-      - name: Build iOS on EAS
-        run: eas build --platform ios --local --non-interactive --wait
+      - name: Build on EAS
+        run: |
+          eas build --platform all --local --non-interactive --wait || exit 1
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-builds
+          path: |
+            *.aab
+            *.ipa
 
   submit-to-app-stores:
     name: Submit to App Stores
+    needs: build
     runs-on: ubuntu-latest
-    needs: [build-android, build-ios]
-    env:
-      EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
-      EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
-      EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
-      EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
-      GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
       - name: Download Build Artifacts
         uses: actions/download-artifact@v3
         with:
-          path: builds
+          name: app-builds
       - name: Submit to App Stores
+        env:
+          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
+          EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
+          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
         run: |
           echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}' > google-service-account-key.json
-          eas submit --platform ios --latest --non-interactive
-          eas submit --platform android --latest --non-interactive
+          eas submit --platform ios --path *.ipa --non-interactive || echo "iOS submission failed"
+          eas submit --platform android --path *.aab --non-interactive || echo "Android submission failed"
