@@ -60,8 +60,6 @@ jobs:
     needs: prepare
     name: Build iOS
     runs-on: self-hosted
-    outputs:
-      ipa_path: ${{ steps.find-ipa.outputs.path }}
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node.js
@@ -95,21 +93,22 @@ jobs:
         env:
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
         run: eas build --platform ios --local --non-interactive --wait
-      - name: Find IPA Path
+      - name: Find IPA
         id: find-ipa
-        run: echo "::set-output name=path::$(find . -name "*.ipa")"
+        run: |
+          IPA_PATH=$(find . -name "*.ipa")
+          echo "IPA_PATH=${IPA_PATH}" >> $GITHUB_OUTPUT
+          echo "Found IPA at: ${IPA_PATH}"
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v3
         with:
           name: ios-artifact
-          path: $(find . -name "*.ipa")
+          path: ${{ steps.find-ipa.outputs.IPA_PATH }}
 
   build-android:
     needs: prepare
     name: Build Android
     runs-on: self-hosted
-    outputs:
-      aab_path: ${{ steps.find-aab.outputs.path }}
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node.js
@@ -150,14 +149,17 @@ jobs:
           EXPO_ANDROID_KEY_PASSWORD: ${{ secrets.EXPO_ANDROID_KEY_PASSWORD }}
           EXPO_ANDROID_KEYSTORE_ALIAS: ${{ secrets.EXPO_ANDROID_KEYSTORE_ALIAS }}
         run: eas build --platform android --local --non-interactive --wait
-      - name: Find AAB Path
+      - name: Find AAB
         id: find-aab
-        run: echo "::set-output name=path::$(find . -name "*.aab")"
+        run: |
+          AAB_PATH=$(find . -name "*.aab")
+          echo "AAB_PATH=${AAB_PATH}" >> $GITHUB_OUTPUT
+          echo "Found AAB at: ${AAB_PATH}"
       - name: Upload AAB Artifact
         uses: actions/upload-artifact@v3
         with:
           name: android-artifact
-          path: $(find . -name "*.aab")
+          path: ${{ steps.find-aab.outputs.AAB_PATH }}
 
   submit:
     needs: [prepare, build-ios, build-android]
@@ -173,18 +175,22 @@ jobs:
         run: npm ci
       - name: Setup EAS
         run: npm install -g eas-cli
-      - name: Download IPA and AAB Artifacts
+      - name: Download iOS Artifact
         uses: actions/download-artifact@v3
         with:
           name: ios-artifact
-      - name: List files in current directory (debug)
-        run: ls -la
-      - name: Download Android Artifacts
+          path: ios-build
+      - name: Download Android Artifact
         uses: actions/download-artifact@v3
         with:
           name: android-artifact
-      - name: List files in current directory (debug)
-        run: ls -la
+          path: android-build
+      - name: List downloaded artifacts
+        run: |
+          echo "iOS build directory contents:"
+          ls -R ios-build
+          echo "Android build directory contents:"
+          ls -R android-build
       - name: Submit to App Stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
@@ -194,17 +200,17 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
         run: |
           echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}' > google-service-account-key.json
-          ipa_path=$(find . -name "*.ipa")
-          aab_path=$(find . -name "*.aab")
-          echo "IPA path: $ipa_path"
-          echo "AAB path: $aab_path"
-          if [ -z "$ipa_path" ]; then
+          IPA_PATH=$(find ios-build -name "*.ipa")
+          AAB_PATH=$(find android-build -name "*.aab")
+          echo "IPA path: $IPA_PATH"
+          echo "AAB path: $AAB_PATH"
+          if [ -z "$IPA_PATH" ]; then
             echo "No IPA file found."
             exit 1
           fi
-          if [ -z "$aab_path" ]; then
+          if [ -z "$AAB_PATH" ]; then
             echo "No AAB file found."
             exit 1
           fi
-          eas submit --platform ios --path "$ipa_path"
-          eas submit --platform android --path "$aab_path"
+          eas submit --platform ios --path "$IPA_PATH" --non-interactive
+          eas submit --platform android --path "$AAB_PATH" --non-interactive
