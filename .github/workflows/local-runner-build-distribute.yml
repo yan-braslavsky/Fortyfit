@@ -276,7 +276,16 @@ jobs:
               }
             }
           }' > eas.json
-          echo "$GOOGLE_SERVICE_ACCOUNT_KEY" | base64 --decode > google-service-account-key.json
+          echo '$GOOGLE_SERVICE_ACCOUNT_KEY' > google-service-account-key.json
+      - name: Verify Google Service Account Key file
+        run: |
+          if [ -s google-service-account-key.json ]; then
+            echo "Google Service Account Key file is not empty"
+            jq empty google-service-account-key.json && echo "JSON is valid" || echo "JSON is invalid"
+          else
+            echo "Google Service Account Key file is empty or does not exist"
+            exit 1
+          fi
       - name: Submit to App Stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
