@@ -10,9 +10,6 @@ jobs:
   prepare:
     name: Prepare Environment
     runs-on: self-hosted
-    outputs:
-      new_ios_build: ${{ steps.bump.outputs.new_ios_build }}
-      new_android_code: ${{ steps.bump.outputs.new_android_code }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -32,6 +29,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Setup EAS
+        run: npm install -g eas-cli
+
+  version-bump:
+    needs: prepare
+    name: Version Bump
+    runs-on: self-hosted
+    outputs:
+      new_ios_build: ${{ steps.bump.outputs.new_ios_build }}
+      new_android_code: ${{ steps.bump.outputs.new_android_code }}
+    steps:
       - name: Bump version
         id: bump
         run: |
@@ -52,12 +60,8 @@ jobs:
           git add app.json
           git commit -m "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }}"
           git push
-
-      - name: Setup EAS
-        run: npm install -g eas-cli
-
   build-ios:
-    needs: prepare
+    needs: version-bump
     name: Build iOS
     runs-on: self-hosted
     steps:
@@ -108,7 +112,7 @@ jobs:
           path: ${{ steps.find-ipa.outputs.IPA_PATH }}
 
   build-android:
-    needs: prepare
+    needs: version-bump
     name: Build Android
     runs-on: self-hosted
     steps:
@@ -166,7 +170,7 @@ jobs:
           path: ${{ steps.find-aab.outputs.AAB_PATH }}
 
   submit:
-    needs: [prepare, build-ios, build-android]
+    needs: [version-bump, build-ios, build-android]
     name: Submit to App Stores
     runs-on: self-hosted
     steps:
