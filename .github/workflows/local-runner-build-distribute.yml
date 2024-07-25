@@ -7,9 +7,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-distribute:
-    name: Build and Distribute
+  prepare:
+    name: Prepare Environment
     runs-on: self-hosted
+    outputs:
+      new_ios_build: ${{ steps.bump.outputs.new_ios_build }}
+      new_android_code: ${{ steps.bump.outputs.new_android_code }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -86,11 +89,53 @@ jobs:
             }
           }' > credentials.json
 
-      - name: Build iOS
-        run: eas build --platform ios --local --non-interactive --wait
+  build:
+    needs: prepare
+    name: Build
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        platform: [ios, android]
+    steps:
+      - uses: actions/checkout@v3
 
-      - name: Build Android
-        run: eas build --platform android --local --non-interactive --wait
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup EAS
+        run: npm install -g eas-cli
+
+      - name: Build ${{ matrix.platform }}
+        run: eas build --platform ${{ matrix.platform }} --local --non-interactive --wait
+
+  submit:
+    needs: [prepare, build]
+    name: Submit to App Stores
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup EAS
+        run: npm install -g eas-cli
 
       - name: Submit to App Stores
         env:
