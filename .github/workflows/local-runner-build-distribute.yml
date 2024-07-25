@@ -70,14 +70,16 @@ jobs:
         run: npm ci
       - name: Setup EAS
         run: npm install -g eas-cli
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.0'
-      - name: Install Fastlane
+      - name: Install Homebrew
         run: |
-          gem install bundler
-          gem install fastlane
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/runner/.zprofile
+          eval "$(/opt/homebrew/bin/brew shellenv)"
+      
+      - name: Install Fastlane using Homebrew
+        run: |
+          brew install fastlane
+      
       - name: Setup EAS Build
         env:
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
