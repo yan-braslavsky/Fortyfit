@@ -249,7 +249,7 @@ jobs:
           ls -R ios-build
           echo "Android build directory contents:"
           ls -R android-build
-      - name: Create EAS JSON config
+      - name: Create EAS JSON config and Google Service Account Key
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
@@ -276,7 +276,7 @@ jobs:
               }
             }
           }' > eas.json
-          echo '$GOOGLE_SERVICE_ACCOUNT_KEY' > google-service-account-key.json
+          echo "$GOOGLE_SERVICE_ACCOUNT_KEY" | base64 --decode > google-service-account-key.json
       - name: Submit to App Stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
