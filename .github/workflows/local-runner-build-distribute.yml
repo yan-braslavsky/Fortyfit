@@ -10,6 +10,9 @@ jobs:
   prepare:
     name: Prepare Environment
     runs-on: self-hosted
+    outputs:
+      new_version: ${{ steps.bump.outputs.new_version }}
+      new_build_number: ${{ steps.bump.outputs.new_build_number }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -32,6 +35,21 @@ jobs:
       - name: Setup EAS
         run: npm install -g eas-cli
 
+      - name: Bump version and build number
+        id: bump
+        run: |
+          content=$(cat app.json)
+          current_version=$(echo $content | jq -r '.expo.version')
+          current_build=$(echo $content | jq -r '.expo.ios.buildNumber')
+          new_version=$(echo $current_version | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          new_build_number=$((current_build + 1))
+          content=$(echo $content | jq --arg version "$new_version" --arg build "$new_build_number" '.expo.version = $version | .expo.ios.buildNumber = $build | .expo.android.versionCode = $build')
+          echo $content > app.json
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          echo "new_build_number=$new_build_number" >> $GITHUB_OUTPUT
+          echo "Updated app.json:"
+          cat app.json
+
       - name: Create EAS JSON config
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
@@ -50,9 +68,7 @@ jobs:
               "preview": {
                 "distribution": "internal"
               },
-              "production": {
-                "autoIncrement": true
-              }
+              "production": {}
             },
             "submit": {
               "production": {
@@ -64,9 +80,6 @@ jobs:
               }
             }
           }' > eas.json
-
-      - name: Display eas.json content
-        run: cat eas.json
 
   build-ios:
     needs: prepare
@@ -84,6 +97,15 @@ jobs:
         run: npm ci
       - name: Setup EAS
         run: npm install -g eas-cli
+      - name: Update app.json with new version and build number
+        run: |
+          content=$(cat app.json)
+          new_version="${{ needs.prepare.outputs.new_version }}"
+          new_build_number="${{ needs.prepare.outputs.new_build_number }}"
+          content=$(echo $content | jq --arg version "$new_version" --arg build "$new_build_number" '.expo.version = $version | .expo.ios.buildNumber = $build')
+          echo $content > app.json
+          echo "Updated app.json:"
+          cat app.json
       - name: Setup EAS Build
         env:
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
@@ -107,15 +129,21 @@ jobs:
         env:
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
         run: eas build --platform ios --profile production --local --non-interactive --wait
+      - name: Verify IPA version and build number
+        run: |
+          IPA_PATH=$(find . -name "*.ipa")
+          unzip -p "$IPA_PATH" "Payload/*.app/Info.plist" > temp_info.plist
+          BUNDLE_VERSION=$(plutil -extract CFBundleVersion xml1 -o - temp_info.plist | sed -n 's/.*<string>\(.*\)<\/string>.*/\1/p')
+          BUNDLE_SHORT_VERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - temp_info.plist | sed -n 's/.*<string>\(.*\)<\/string>.*/\1/p')
+          echo "Bundle Version (Build Number): $BUNDLE_VERSION"
+          echo "Bundle Short Version (Version Number): $BUNDLE_SHORT_VERSION"
+          rm temp_info.plist
       - name: Find IPA
         id: find-ipa
         run: |
           IPA_PATH=$(find . -name "*.ipa")
           echo "IPA_PATH=${IPA_PATH}" >> $GITHUB_OUTPUT
           echo "Found IPA at: ${IPA_PATH}"
-      - name: Verify IPA build number
-        run: |
-          unzip -p "${{ steps.find-ipa.outputs.IPA_PATH }}" "Payload/*.app/Info.plist" | plutil -convert xml1 - -o - | grep -A1 "<key>CFBundleVersion</key>" | tail -n 1 | awk -F'[<>]' '{print $3}'
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v3
         with:
@@ -143,6 +171,15 @@ jobs:
         run: npm ci
       - name: Setup EAS
         run: npm install -g eas-cli
+      - name: Update app.json with new version and build number
+        run: |
+          content=$(cat app.json)
+          new_version="${{ needs.prepare.outputs.new_version }}"
+          new_build_number="${{ needs.prepare.outputs.new_build_number }}"
+          content=$(echo $content | jq --arg version "$new_version" --arg build "$new_build_number" '.expo.version = $version | .expo.android.versionCode = $build')
+          echo $content > app.json
+          echo "Updated app.json:"
+          cat app.json
       - name: Setup EAS Build
         env:
           EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
@@ -181,7 +218,7 @@ jobs:
           path: ${{ steps.find-aab.outputs.AAB_PATH }}
 
   submit:
-    needs: [build-ios, build-android]
+    needs: [prepare, build-ios, build-android]
     name: Submit to App Stores
     runs-on: self-hosted
     steps:
@@ -196,33 +233,6 @@ jobs:
         run: npm ci
       - name: Setup EAS
         run: npm install -g eas-cli
-      - name: Create EAS JSON config
-        env:
-          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
-          EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
-          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
-        run: |
-          echo '{
-            "cli": {
-              "version": ">= 3.13.3"
-            },
-            "build": {
-              "production": {
-                "autoIncrement": true
-              }
-            },
-            "submit": {
-              "production": {
-                "ios": {
-                  "appleId": "'$EXPO_APPLE_ID'",
-                  "ascAppId": "'$EXPO_ASC_APP_ID'",
-                  "appleTeamId": "'$EXPO_APPLE_TEAM_ID'"
-                }
-              }
-            }
-          }' > eas.json
-      - name: Display eas.json content
-        run: cat eas.json
       - name: Download iOS Artifact
         uses: actions/download-artifact@v3
         with:
@@ -239,6 +249,29 @@ jobs:
           ls -R ios-build
           echo "Android build directory contents:"
           ls -R android-build
+      - name: Create EAS JSON config
+        env:
+          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
+          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+        run: |
+          echo '{
+            "cli": {
+              "version": ">= 3.13.3"
+            },
+            "build": {
+              "production": {}
+            },
+            "submit": {
+              "production": {
+                "ios": {
+                  "appleId": "'$EXPO_APPLE_ID'",
+                  "ascAppId": "'$EXPO_ASC_APP_ID'",
+                  "appleTeamId": "'$EXPO_APPLE_TEAM_ID'"
+                }
+              }
+            }
+          }' > eas.json
       - name: Submit to App Stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
