@@ -177,10 +177,14 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ios-artifact
+      - name: List files in current directory (debug)
+        run: ls -la
       - name: Download Android Artifacts
         uses: actions/download-artifact@v3
         with:
           name: android-artifact
+      - name: List files in current directory (debug)
+        run: ls -la
       - name: Submit to App Stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
