@@ -40,6 +40,9 @@ jobs:
       new_ios_build: ${{ steps.bump.outputs.new_ios_build }}
       new_android_code: ${{ steps.bump.outputs.new_android_code }}
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Bump version
         id: bump
         run: |
@@ -52,7 +55,10 @@ jobs:
           echo $content > app.json
           echo "new_ios_build=$new_ios_build" >> $GITHUB_OUTPUT
           echo "new_android_code=$new_android_code" >> $GITHUB_OUTPUT
-
+      - name: Verify app.json content
+        run: |
+          echo "Updated app.json content:"
+          cat app.json
       - name: Commit version bump
         run: |
           git config --local user.email "action@github.com"
@@ -60,6 +66,7 @@ jobs:
           git add app.json
           git commit -m "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }}"
           git push
+
   build-ios:
     needs: version-bump
     name: Build iOS
@@ -76,6 +83,10 @@ jobs:
         run: npm ci
       - name: Setup EAS
         run: npm install -g eas-cli
+      - name: Verify app.json before build
+        run: |
+          echo "app.json content before build:"
+          cat app.json
       - name: Setup EAS Build
         env:
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
@@ -98,13 +109,18 @@ jobs:
       - name: Build iOS
         env:
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
-        run: eas build --platform ios --local --non-interactive --wait
+        run: |
+          eas build --platform ios --local --non-interactive --wait \
+            --build-profile production
       - name: Find IPA
         id: find-ipa
         run: |
           IPA_PATH=$(find . -name "*.ipa")
           echo "IPA_PATH=${IPA_PATH}" >> $GITHUB_OUTPUT
           echo "Found IPA at: ${IPA_PATH}"
+      - name: Verify IPA build number
+        run: |
+          unzip -p "${{ steps.find-ipa.outputs.IPA_PATH }}" "Payload/*.app/Info.plist" | plutil -convert xml1 - -o - | grep -A1 "<key>CFBundleVersion</key>" | tail -n 1 | awk -F'[<>]' '{print $3}'
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v3
         with:
