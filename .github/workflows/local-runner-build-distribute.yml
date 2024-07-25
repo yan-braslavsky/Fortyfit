@@ -83,9 +83,13 @@ jobs:
         run: npm ci
       - name: Setup EAS
         run: npm install -g eas-cli
-      - name: Verify app.json before build
+      - name: Update app.json with new version
         run: |
-          echo "app.json content before build:"
+          content=$(cat app.json)
+          new_ios_build=${{ needs.version-bump.outputs.new_ios_build }}
+          content=$(echo $content | jq --arg ios "$new_ios_build" '.expo.ios.buildNumber = $ios')
+          echo $content > app.json
+          echo "Updated app.json content:"
           cat app.json
       - name: Setup EAS Build
         env:
@@ -109,9 +113,7 @@ jobs:
       - name: Build iOS
         env:
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
-        run: |
-          eas build --platform ios --local --non-interactive --wait \
-            --build-profile production
+        run: eas build --platform ios --profile production --local --non-interactive --wait
       - name: Find IPA
         id: find-ipa
         run: |
@@ -148,6 +150,14 @@ jobs:
         run: npm ci
       - name: Setup EAS
         run: npm install -g eas-cli
+      - name: Update app.json with new version
+        run: |
+          content=$(cat app.json)
+          new_android_code=${{ needs.version-bump.outputs.new_android_code }}
+          content=$(echo $content | jq --arg android "$new_android_code" '.expo.android.versionCode = $android')
+          echo $content > app.json
+          echo "Updated app.json content:"
+          cat app.json
       - name: Setup EAS Build
         env:
           EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
@@ -172,7 +182,7 @@ jobs:
           EXPO_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.EXPO_ANDROID_KEYSTORE_PASSWORD }}
           EXPO_ANDROID_KEY_PASSWORD: ${{ secrets.EXPO_ANDROID_KEY_PASSWORD }}
           EXPO_ANDROID_KEYSTORE_ALIAS: ${{ secrets.EXPO_ANDROID_KEYSTORE_ALIAS }}
-        run: eas build --platform android --local --non-interactive --wait
+        run: eas build --platform android --profile production --local --non-interactive --wait
       - name: Find AAB
         id: find-aab
         run: |
