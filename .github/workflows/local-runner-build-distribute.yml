@@ -70,6 +70,14 @@ jobs:
         run: npm ci
       - name: Setup EAS
         run: npm install -g eas-cli
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+      - name: Install Fastlane
+        run: |
+          gem install bundler
+          gem install fastlane
       - name: Setup EAS Build
         env:
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
