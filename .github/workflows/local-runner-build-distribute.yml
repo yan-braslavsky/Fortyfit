@@ -191,6 +191,32 @@ jobs:
           ls -R ios-build
           echo "Android build directory contents:"
           ls -R android-build
+      - name: Create EAS JSON config
+        run: |
+          echo '{
+            "cli": {
+              "version": ">= 3.13.3"
+            },
+            "build": {
+              "development": {
+                "developmentClient": true,
+                "distribution": "internal"
+              },
+              "preview": {
+                "distribution": "internal"
+              },
+              "production": {}
+            },
+            "submit": {
+              "production": {
+                "ios": {
+                  "appleId": "${{ secrets.EXPO_APPLE_ID }}",
+                  "ascAppId": "${{ secrets.EXPO_ASC_APP_ID }}",
+                  "appleTeamId": "${{ secrets.EXPO_APPLE_TEAM_ID }}"
+                }
+              }
+            }
+          }' > eas.json
       - name: Submit to App Stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
@@ -217,7 +243,7 @@ jobs:
             exit 1
           fi
           echo "Submitting iOS app..."
-          eas submit --platform ios --path "$IPA_PATH" --asc-app-id "$EXPO_ASC_APP_ID" --non-interactive
+          eas submit --platform ios --path "$IPA_PATH" --non-interactive
           if [ $? -ne 0 ]; then
             echo "iOS submission failed"
             exit 1
