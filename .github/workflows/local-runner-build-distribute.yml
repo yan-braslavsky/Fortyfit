@@ -254,6 +254,7 @@ jobs:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
         run: |
           echo '{
             "cli": {
@@ -268,19 +269,21 @@ jobs:
                   "appleId": "'$EXPO_APPLE_ID'",
                   "ascAppId": "'$EXPO_ASC_APP_ID'",
                   "appleTeamId": "'$EXPO_APPLE_TEAM_ID'"
+                },
+                "android": {
+                  "serviceAccountKeyPath": "./google-service-account-key.json"
                 }
               }
             }
           }' > eas.json
+          echo '$GOOGLE_SERVICE_ACCOUNT_KEY' > google-service-account-key.json
       - name: Submit to App Stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
           EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
-          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
         run: |
-          echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}' > google-service-account-key.json
           IPA_PATH=$(find ios-build -name "*.ipa")
           AAB_PATH=$(find android-build -name "*.aab")
           echo "IPA path: $IPA_PATH"
@@ -297,16 +300,16 @@ jobs:
             echo "EXPO_ASC_APP_ID is not set. Please add it to your GitHub secrets."
             exit 1
           fi
-          echo "Submitting iOS app..."
-          eas submit --platform ios --path "$IPA_PATH" --non-interactive
-          if [ $? -ne 0 ]; then
-            echo "iOS submission failed"
-            exit 1
-          fi
           echo "Submitting Android app..."
           eas submit --platform android --path "$AAB_PATH" --non-interactive
           if [ $? -ne 0 ]; then
             echo "Android submission failed"
+            exit 1
+          fi
+          echo "Submitting iOS app..."
+          eas submit --platform ios --path "$IPA_PATH" --non-interactive
+          if [ $? -ne 0 ]; then
+            echo "iOS submission failed"
             exit 1
           fi
           echo "Both submissions completed successfully"
