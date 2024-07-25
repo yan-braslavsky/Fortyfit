@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-prepare:
+  prepare:
     name: Prepare Environment
     runs-on: self-hosted
     steps:
@@ -67,7 +67,7 @@ prepare:
 
       - name: Display eas.json content
         run: cat eas.json
-        
+
   build-ios:
     needs: prepare
     name: Build iOS
