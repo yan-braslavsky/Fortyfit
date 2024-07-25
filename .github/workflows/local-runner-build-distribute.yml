@@ -29,8 +29,25 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Install CocoaPods
+        run: brew install cocoapods
+
+      - name: Setup EAS
+        run: npm install -g eas-cli
+
+      - name: Install Fastlane using Homebrew
+        run: brew install fastlane
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Cache npm modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Bump version
         id: bump
@@ -53,27 +70,21 @@ jobs:
           git commit -m "Bump iOS build number to ${{ steps.bump.outputs.new_ios_build }} and Android version code to ${{ steps.bump.outputs.new_android_code }}"
           git push
 
-      - name: Setup EAS
-        run: npm install -g eas-cli
-
   build-ios:
     needs: prepare
     name: Build iOS
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Restore npm cache
+        uses: actions/cache@v3
         with:
-          node-version: 18.x
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: Install dependencies
         run: npm ci
-      - name: Setup EAS
-        run: npm install -g eas-cli
-      - name: Install Fastlane using Homebrew
-        run: |
-          brew install fastlane
-      
       - name: Setup EAS Build
         env:
           EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
@@ -104,19 +115,15 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Restore npm cache
+        uses: actions/cache@v3
         with:
-          node-version: 18.x
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: Install dependencies
         run: npm ci
-      - name: Setup EAS
-        run: npm install -g eas-cli
       - name: Setup EAS Build
         env:
           EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
@@ -149,14 +156,15 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Restore npm cache
+        uses: actions/cache@v3
         with:
-          node-version: 18.x
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: Install dependencies
         run: npm ci
-      - name: Setup EAS
-        run: npm install -g eas-cli
       - name: Submit to App Stores
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
