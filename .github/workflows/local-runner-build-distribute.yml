@@ -85,7 +85,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: android-build
-          path: *.aab
+          path: '*.aab'
 
   build-ios:
     name: Build iOS
@@ -129,7 +129,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ios-build
-          path: *.ipa
+          path: '*.ipa'
 
   submit-to-app-stores:
     name: Submit to App Stores
@@ -165,5 +165,5 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
         run: |
           echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}' > google-service-account-key.json
-          eas submit --platform ios --path *.ipa --non-interactive || echo "iOS submission failed"
-          eas submit --platform android --path *.aab --non-interactive || echo "Android submission failed"
+          eas submit --platform ios --path $(find . -name "*.ipa") --non-interactive || echo "iOS submission failed"
+          eas submit --platform android --path $(find . -name "*.aab") --non-interactive || echo "Android submission failed"
