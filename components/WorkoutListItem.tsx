@@ -1,10 +1,13 @@
+// src/components/WorkoutListItem.tsx
+
 import React from 'react';
 import { StyleSheet, Pressable, Image, Text, View } from 'react-native';
-import { WorkoutDataModel, EquipmentModel } from '@/constants/DataModels';
+import { WorkoutDataModel } from '@/constants/DataModels';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '@/contexts/ThemeContext';
 import Colors from '@/constants/Colors';
+import { useWorkoutListItemViewModel } from '@/viewmodels/WorkoutListItemViewModel';
 
 interface WorkoutListItemProps {
   item: WorkoutDataModel;
@@ -14,30 +17,12 @@ interface WorkoutListItemProps {
 const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
   const { theme } = useTheme();
   const colors = Colors[theme];
+  const { duration, totalExercises, uniqueEquipment, muscleGroups, exerciseImages } = useWorkoutListItemViewModel(item);
 
   if (!item || !item.exercises || item.exercises.length === 0) {
     console.log('Invalid item data:', item);
     return null;
   }
-
-  const allExercises = item.exercises.flat();
-  const equipment = Array.from(new Set(allExercises.flatMap(exercise => exercise.equipment)))
-    .filter((equipment): equipment is EquipmentModel => equipment !== null && equipment !== undefined);
-
-  const uniqueEquipment = Array.from(new Set(equipment.map(eq => eq.name)));
-
-  const duration = Math.floor(Math.random() * (60 - 30 + 1)) + 30; // Random duration between 30 and 60 minutes
-  const totalExercises = allExercises.length;
-  
-  // Get unique muscle groups
-  const muscleGroups = Array.from(new Set(allExercises.flatMap(exercise => exercise.muscleGroups)));
-
-  // Get 4 random exercise images
-  const exerciseImages = allExercises
-    .map(exercise => exercise.imageUrl)
-    .filter(url => url !== '')
-    .sort(() => 0.5 - Math.random())
-    .slice(0, 4);
 
   return (
     <Pressable
