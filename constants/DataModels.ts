@@ -59,14 +59,20 @@ export enum MuscleGroup {
     FullBody = "FullBody"
 }
 
-export class EquipmentModel {
-    readonly id: string;
-    readonly name: string;
-    readonly imageUrl: string;
+// export class EquipmentModel {
+//     readonly id: string;
+//     readonly name: string;
+//     readonly imageUrl: string;
 
-    constructor(id: string, name: string, imageUrl: string) {
-        this.id = id;
-        this.name = name;
-        this.imageUrl = imageUrl;
-    }
-}
+//     constructor(id: string, name: string, imageUrl: string) {
+//         this.id = id;
+//         this.name = name;
+//         this.imageUrl = imageUrl;
+//     }
+// }
+
+export interface EquipmentModel {
+    id: string;
+    name: string;
+    imageUrl: string;
+  }
