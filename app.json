@@ -1,1 +1,55 @@
-{ "expo": { "name": "Fourtyfit", "slug": "Fourtyfit", "version": "1.0.0", "orientation": "portrait", "icon": "./assets/images/icon.png", "scheme": "fourtyfit-app-scheme", "userInterfaceStyle": "automatic", "splash": { "image": "./assets/images/splash.png", "resizeMode": "contain", "backgroundColor": "#ffffff" }, "ios": { "supportsTablet": true, "bundleIdentifier": "yan.braslavsky.fourtyfit", "buildNumber": "5" }, "android": { "adaptiveIcon": { "foregroundImage": "./assets/images/adaptive-icon.png", "backgroundColor": "#ffffff" }, "package": "yan.braslavsky.fourtyfit", "versionCode": "5" }, "web": { "bundler": "metro", "output": "static", "favicon": "./assets/images/favicon.png" }, "plugins": [ "expo-router", [ "expo-notifications", { "icon": "./assets/images/adaptive-icon.png", "color": "#ffffff" } ] ], "experiments": { "typedRoutes": true }, "extra": { "router": { "origin": false }, "eas": { "projectId": "fd8e2e1e-2257-4213-8e5e-e841e7ef19c4" } } } }
+{
+    "expo": {
+        "name": "Fourtyfit",
+        "slug": "Fourtyfit",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/images/icon.png",
+        "scheme": "fourtyfit-app-scheme",
+        "userInterfaceStyle": "automatic",
+        "splash": {
+            "image": "./assets/images/splash.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#ffffff"
+        },
+        "ios": {
+            "supportsTablet": true,
+            "bundleIdentifier": "yan.braslavsky.fourtyfit",
+            "buildNumber": "5"
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/images/adaptive-icon.png",
+                "backgroundColor": "#ffffff"
+            },
+            "package": "yan.braslavsky.fourtyfit",
+            "versionCode": "5"
+        },
+        "web": {
+            "bundler": "metro",
+            "output": "static",
+            "favicon": "./assets/images/favicon.png"
+        },
+        "plugins": [
+            "expo-router",
+            [
+                "expo-notifications",
+                {
+                    "icon": "./assets/images/adaptive-icon.png",
+                    "color": "#ffffff"
+                }
+            ]
+        ],
+        "experiments": {
+            "typedRoutes": true
+        },
+        "extra": {
+            "router": {
+                "origin": false
+            },
+            "eas": {
+                "projectId": "fd8e2e1e-2257-4213-8e5e-e841e7ef19c4"
+            }
+        }
+    }
+}
