@@ -1,0 +1,324 @@
+name: Local Build and Distribute
+
+on:
+  push:
+    branches:
+      - local-runner
+  workflow_dispatch:
+
+jobs:
+  prepare:
+    name: Prepare Environment
+    runs-on: self-hosted
+    outputs:
+      new_version: ${{ steps.bump.outputs.new_version }}
+      new_build_number: ${{ steps.bump.outputs.new_build_number }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup EAS
+        run: npm install -g eas-cli
+
+      - name: Bump version and build number
+        id: bump
+        run: |
+          content=$(cat app.json)
+          current_version=$(echo $content | jq -r '.expo.version')
+          current_build=$(echo $content | jq -r '.expo.ios.buildNumber')
+          new_version=$(echo $current_version | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          new_build_number=$((current_build + 1))
+          content=$(echo $content | jq --arg version "$new_version" --arg build "$new_build_number" '.expo.version = $version | .expo.ios.buildNumber = $build | .expo.android.versionCode = $build')
+          echo $content > app.json
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          echo "new_build_number=$new_build_number" >> $GITHUB_OUTPUT
+          echo "Updated app.json:"
+          cat app.json
+
+      - name: Create EAS JSON config
+        env:
+          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
+          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+        run: |
+          echo '{
+            "cli": {
+              "version": ">= 3.13.3"
+            },
+            "build": {
+              "development": {
+                "developmentClient": true,
+                "distribution": "internal"
+              },
+              "preview": {
+                "distribution": "internal"
+              },
+              "production": {}
+            },
+            "submit": {
+              "production": {
+                "ios": {
+                  "appleId": "'$EXPO_APPLE_ID'",
+                  "ascAppId": "'$EXPO_ASC_APP_ID'",
+                  "appleTeamId": "'$EXPO_APPLE_TEAM_ID'"
+                }
+              }
+            }
+          }' > eas.json
+
+  build-ios:
+    needs: prepare
+    name: Build iOS
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - name: Install dependencies
+        run: npm ci
+      - name: Setup EAS
+        run: npm install -g eas-cli
+      - name: Update app.json with new version and build number
+        run: |
+          content=$(cat app.json)
+          new_version="${{ needs.prepare.outputs.new_version }}"
+          new_build_number="${{ needs.prepare.outputs.new_build_number }}"
+          content=$(echo $content | jq --arg version "$new_version" --arg build "$new_build_number" '.expo.version = $version | .expo.ios.buildNumber = $build')
+          echo $content > app.json
+          echo "Updated app.json:"
+          cat app.json
+      - name: Setup EAS Build
+        env:
+          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+          EXPO_APPLE_DISTRIBUTION_CERT_BASE64: ${{ secrets.EXPO_APPLE_DISTRIBUTION_CERT_BASE64 }}
+          EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD: ${{ secrets.EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD }}
+          EXPO_APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.EXPO_APPLE_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          mkdir -p eas-builds
+          echo $EXPO_APPLE_DISTRIBUTION_CERT_BASE64 | base64 --decode > eas-builds/dist-cert.p12
+          echo $EXPO_APPLE_PROVISIONING_PROFILE_BASE64 | base64 --decode > eas-builds/profile.mobileprovision
+          echo '{
+            "ios": {
+              "distributionCertificate": {
+                "path": "eas-builds/dist-cert.p12",
+                "password": "'$EXPO_APPLE_DISTRIBUTION_CERT_PASSWORD'"
+              },
+              "provisioningProfilePath": "eas-builds/profile.mobileprovision"
+            }
+          }' > credentials.json
+      - name: Build iOS
+        env:
+          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+        run: eas build --platform ios --profile production --local --non-interactive --wait
+      - name: Verify IPA version and build number
+        run: |
+          IPA_PATH=$(find . -name "*.ipa")
+          unzip -p "$IPA_PATH" "Payload/*.app/Info.plist" > temp_info.plist
+          BUNDLE_VERSION=$(plutil -extract CFBundleVersion xml1 -o - temp_info.plist | sed -n 's/.*<string>\(.*\)<\/string>.*/\1/p')
+          BUNDLE_SHORT_VERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - temp_info.plist | sed -n 's/.*<string>\(.*\)<\/string>.*/\1/p')
+          echo "Bundle Version (Build Number): $BUNDLE_VERSION"
+          echo "Bundle Short Version (Version Number): $BUNDLE_SHORT_VERSION"
+          rm temp_info.plist
+      - name: Find IPA
+        id: find-ipa
+        run: |
+          IPA_PATH=$(find . -name "*.ipa")
+          echo "IPA_PATH=${IPA_PATH}" >> $GITHUB_OUTPUT
+          echo "Found IPA at: ${IPA_PATH}"
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-artifact
+          path: ${{ steps.find-ipa.outputs.IPA_PATH }}
+
+  build-android:
+    needs: prepare
+    name: Build Android
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Install dependencies
+        run: npm ci
+      - name: Setup EAS
+        run: npm install -g eas-cli
+      - name: Update app.json with new version and build number
+        run: |
+          content=$(cat app.json)
+          new_version="${{ needs.prepare.outputs.new_version }}"
+          new_build_number="${{ needs.prepare.outputs.new_build_number }}"
+          content=$(echo $content | jq --arg version "$new_version" --arg build "$new_build_number" '.expo.version = $version | .expo.android.versionCode = $build')
+          echo $content > app.json
+          echo "Updated app.json:"
+          cat app.json
+      - name: Setup EAS Build
+        env:
+          EXPO_ANDROID_KEYSTORE_BASE64: ${{ secrets.EXPO_ANDROID_KEYSTORE_BASE64 }}
+          EXPO_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.EXPO_ANDROID_KEYSTORE_PASSWORD }}
+          EXPO_ANDROID_KEY_PASSWORD: ${{ secrets.EXPO_ANDROID_KEY_PASSWORD }}
+          EXPO_ANDROID_KEYSTORE_ALIAS: ${{ secrets.EXPO_ANDROID_KEYSTORE_ALIAS }}
+        run: |
+          mkdir -p eas-builds
+          echo $EXPO_ANDROID_KEYSTORE_BASE64 | base64 --decode > eas-builds/android-keystore.jks
+          echo '{
+            "android": {
+              "keystore": {
+                "keystorePath": "eas-builds/android-keystore.jks",
+                "keystorePassword": "'$EXPO_ANDROID_KEYSTORE_PASSWORD'",
+                "keyAlias": "'$EXPO_ANDROID_KEYSTORE_ALIAS'",
+                "keyPassword": "'$EXPO_ANDROID_KEY_PASSWORD'"
+              }
+            }
+          }' > credentials.json
+      - name: Build Android
+        env:
+          EXPO_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.EXPO_ANDROID_KEYSTORE_PASSWORD }}
+          EXPO_ANDROID_KEY_PASSWORD: ${{ secrets.EXPO_ANDROID_KEY_PASSWORD }}
+          EXPO_ANDROID_KEYSTORE_ALIAS: ${{ secrets.EXPO_ANDROID_KEYSTORE_ALIAS }}
+        run: eas build --platform android --profile production --local --non-interactive --wait
+      - name: Find AAB
+        id: find-aab
+        run: |
+          AAB_PATH=$(find . -name "*.aab")
+          echo "AAB_PATH=${AAB_PATH}" >> $GITHUB_OUTPUT
+          echo "Found AAB at: ${AAB_PATH}"
+      - name: Upload AAB Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-artifact
+          path: ${{ steps.find-aab.outputs.AAB_PATH }}
+
+  submit:
+    needs: [prepare, build-ios, build-android]
+    name: Submit to App Stores
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - name: Install dependencies
+        run: npm ci
+      - name: Setup EAS
+        run: npm install -g eas-cli
+      - name: Download iOS Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ios-artifact
+          path: ios-build
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: android-artifact
+          path: android-build
+      - name: List downloaded artifacts
+        run: |
+          echo "iOS build directory contents:"
+          ls -R ios-build
+          echo "Android build directory contents:"
+          ls -R android-build
+      - name: Create EAS JSON config and Google Service Account Key
+        env:
+          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
+          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+        run: |
+          echo '{
+            "cli": {
+              "version": ">= 3.13.3"
+            },
+            "build": {
+              "production": {}
+            },
+            "submit": {
+              "production": {
+                "ios": {
+                  "appleId": "'$EXPO_APPLE_ID'",
+                  "ascAppId": "'$EXPO_ASC_APP_ID'",
+                  "appleTeamId": "'$EXPO_APPLE_TEAM_ID'"
+                },
+                "android": {
+                  "serviceAccountKeyPath": "./google-service-account-key.json"
+                }
+              }
+            }
+          }' > eas.json
+          echo '$GOOGLE_SERVICE_ACCOUNT_KEY' > google-service-account-key.json
+      - name: Verify Google Service Account Key file
+        run: |
+          if [ -s google-service-account-key.json ]; then
+            echo "Google Service Account Key file is not empty"
+            jq empty google-service-account-key.json && echo "JSON is valid" || echo "JSON is invalid"
+          else
+            echo "Google Service Account Key file is empty or does not exist"
+            exit 1
+          fi
+      - name: Submit to App Stores
+        env:
+          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
+          EXPO_ASC_APP_ID: ${{ secrets.EXPO_ASC_APP_ID }}
+          EXPO_APPLE_TEAM_ID: ${{ secrets.EXPO_APPLE_TEAM_ID }}
+        run: |
+          IPA_PATH=$(find ios-build -name "*.ipa")
+          AAB_PATH=$(find android-build -name "*.aab")
+          echo "IPA path: $IPA_PATH"
+          echo "AAB path: $AAB_PATH"
+          if [ -z "$IPA_PATH" ]; then
+            echo "No IPA file found."
+            exit 1
+          fi
+          if [ -z "$AAB_PATH" ]; then
+            echo "No AAB file found."
+            exit 1
+          fi
+          if [ -z "$EXPO_ASC_APP_ID" ]; then
+            echo "EXPO_ASC_APP_ID is not set. Please add it to your GitHub secrets."
+            exit 1
+          fi
+          echo "Submitting Android app..."
+          eas submit --platform android --path "$AAB_PATH" --non-interactive
+          if [ $? -ne 0 ]; then
+            echo "Android submission failed"
+            exit 1
+          fi
+          echo "Submitting iOS app..."
+          eas submit --platform ios --path "$IPA_PATH" --non-interactive
+          if [ $? -ne 0 ]; then
+            echo "iOS submission failed"
+            exit 1
+          fi
+          echo "Both submissions completed successfully"

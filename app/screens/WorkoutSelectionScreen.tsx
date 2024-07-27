@@ -1,31 +1,30 @@
+// src/app/screens/WorkoutSelectionScreen.tsx
+
 import React from 'react';
 import { StyleSheet, FlatList, View } from 'react-native';
-import { WorkoutDataModel } from '@/constants/DataModels';
-import { DEMO_WORKOUTS } from '@/constants/Data';
 import WorkoutListItem from '@/components/WorkoutListItem';
-import { router } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import Colors from '@/constants/Colors';
+import LoadingOverlay from '@/components/LoadingOverlay';
+import { useWorkoutSelectionViewModel } from '@/viewmodels/WorkoutSelectionScreenViewModel';
 
 export default function WorkoutSelectionScreen() {
   const { theme } = useTheme();
   const colors = Colors[theme];
+  const { workouts, isLoading, handleWorkoutSelection } = useWorkoutSelectionViewModel();
 
-  const handleWorkoutSelection = (workoutId: string) => {
-    router.push({
-      pathname: "/workout/[id]",
-      params: { id: workoutId }
-    });
-  };
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.listBackground }]}>
       <FlatList
-        data={DEMO_WORKOUTS}
+        data={workouts}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <WorkoutListItem 
-            item={item} 
+          <WorkoutListItem
+            item={item}
             onPress={() => handleWorkoutSelection(item.id)}
           />
         )}

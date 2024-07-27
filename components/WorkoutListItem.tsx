@@ -1,12 +1,13 @@
+// src/components/WorkoutListItem.tsx
+
 import React from 'react';
 import { StyleSheet, Pressable, Image, Text, View } from 'react-native';
 import { WorkoutDataModel } from '@/constants/DataModels';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '@/contexts/ThemeContext';
 import Colors from '@/constants/Colors';
+import { useWorkoutListItemViewModel } from '@/viewmodels/WorkoutListItemViewModel';
 
 interface WorkoutListItemProps {
   item: WorkoutDataModel;
@@ -16,17 +17,12 @@ interface WorkoutListItemProps {
 const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
   const { theme } = useTheme();
   const colors = Colors[theme];
+  const { duration, totalExercises, uniqueEquipment, muscleGroups, exerciseImages } = useWorkoutListItemViewModel(item);
 
-  const equipmentIconMapping = {
-    'Rings': { icon: <FontAwesome5 name="ring" size={14} color={colors.text} />, color: colors.primary },
-    'Gymnastic Ball': { icon: <FontAwesome5 name="volleyball-ball" size={14} color={colors.text} />, color: colors.secondary },
-    'Dumbbell': { icon: <FontAwesome name="dumbbell" size={14} color={colors.text} />, color: colors.ternary },
-    'Barbell': { icon: <FontAwesome5 name="weight-hanging" size={14} color={colors.text} />, color: colors.quaternary },
-    'Resistance Band': { icon: <Ionicons name="ios-fitness" size={14} color={colors.text} />, color: colors.textSecondary },
-  };
-
-  const uniqueEquipment = new Set(item.exercises.flatMap(exercise => exercise[0].equipment.map(eq => eq.name)));
-  const duration = Math.floor(Math.random() * 60);
+  if (!item || !item.exercises || item.exercises.length === 0) {
+    console.log('Invalid item data:', item);
+    return null;
+  }
 
   return (
     <Pressable
@@ -37,32 +33,41 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
         pressed && styles.listItemContainerPressed
       ]}
     >
-      <View style={styles.containerView}>
-        <Image source={{ uri: item.imageUrl }} style={styles.workoutImage} />
-        <View style={styles.workoutInfo}>
-          <Text style={[styles.title, { color: colors.text }]}>{item.name}</Text>
-          <Text style={[styles.description, { color: colors.textSecondary }]}>{item.exercises[0][0].description}</Text>
-          <View style={styles.detailsContainer}>
-            <View style={styles.detail}>
-              <Ionicons name="time-outline" size={14} color={colors.text} />
-              <Text style={[styles.detailText, { color: colors.text }]}>{duration} mins</Text>
-            </View>
-            <View style={styles.detail}>
-              <MaterialIcons name="fitness-center" size={14} color={colors.text} />
-              <Text style={[styles.detailText, { color: colors.text }]}>{item.exercises.length} exercises</Text>
-            </View>
+      <View style={styles.imageCollage}>
+        {exerciseImages.map((imageUrl, index) => (
+          <Image key={index} source={{ uri: imageUrl }} style={styles.collageImage} />
+        ))}
+      </View>
+      <View style={styles.contentContainer}>
+        <Text style={[styles.title, { color: colors.text }]}>{item.name || 'Unnamed Workout'}</Text>
+        
+        <View style={styles.infoRow}>
+          <View style={styles.infoItem}>
+            <Ionicons name="time-outline" size={16} color={colors.text} />
+            <Text style={[styles.infoText, { color: colors.text }]}>{duration} mins</Text>
           </View>
-          <View style={styles.equipmentContainer}>
-            {Array.from(uniqueEquipment).map((equipment, index) => {
-              const { icon, color } = equipmentIconMapping[equipment] || { icon: <MaterialIcons name="fitness-center" size={14} color={colors.text} />, color: colors.secondary };
-              return (
-                <View key={index} style={[styles.equipmentBadge, { backgroundColor: color }]}>
-                  {icon}
-                  <Text style={[styles.equipmentText, { color: colors.text }]}>{equipment}</Text>
-                </View>
-              );
-            })}
+          <View style={styles.infoItem}>
+            <MaterialCommunityIcons name="dumbbell" size={16} color={colors.text} />
+            <Text style={[styles.infoText, { color: colors.text }]}>{totalExercises} exercises</Text>
           </View>
+        </View>
+
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Equipment:</Text>
+        <View style={styles.badgeContainer}>
+          {uniqueEquipment.map((equipmentName, index) => (
+            <View key={index} style={[styles.badge, { backgroundColor: colors.primary }]}>
+              <Text style={[styles.badgeText, { color: colors.card }]}>{equipmentName || 'Unnamed Equipment'}</Text>
+            </View>
+          ))}
+        </View>
+
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Muscle Groups:</Text>
+        <View style={styles.badgeContainer}>
+          {muscleGroups.map((group, index) => (
+            <View key={index} style={[styles.badge, { backgroundColor: colors.secondary }]}>
+              <Text style={[styles.badgeText, { color: colors.card }]}>{group}</Text>
+            </View>
+          ))}
         </View>
       </View>
     </Pressable>
@@ -71,68 +76,69 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
 
 const styles = StyleSheet.create({
   listItemContainer: {
-    borderRadius: 10,
-    marginBottom: 10,
-    marginTop: 5,
-    borderWidth: 1,
-    padding: 10,
-    minHeight: 200
+    borderRadius: 15,
+    marginBottom: 20,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   listItemContainerPressed: {
-    opacity: 0.75,
+    opacity: 0.9,
   },
-  containerView: {
-    flexDirection: 'row',
-    flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  workoutImage: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
-    marginRight: 16,
-  },
-  workoutInfo: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  description: {
-    fontSize: 14,
-    marginVertical: 4,
-  },
-  detailsContainer: {
-    flexDirection: 'row',
-    marginVertical: 8,
-  },
-  detail: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  detailText: {
-    marginLeft: 4,
-    fontSize: 12,
-  },
-  equipmentContainer: {
+  imageCollage: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 8,
+    height: 200,
   },
-  equipmentBadge: {
+  collageImage: {
+    width: '50%',
+    height: '50%',
+  },
+  contentContainer: {
+    padding: 15,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  infoItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 4,
-    padding: 4,
+  },
+  infoText: {
+    marginLeft: 5,
+    fontSize: 14,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  badgeContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 10,
+  },
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
     marginRight: 8,
     marginBottom: 8,
   },
-  equipmentText: {
-    marginLeft: 4,
-    fontSize: 12,
+  badgeText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 
