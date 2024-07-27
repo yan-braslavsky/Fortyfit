@@ -57,3 +57,4 @@ ios/
 
 # Keystore
 fourtyfit.keystore
+.env
