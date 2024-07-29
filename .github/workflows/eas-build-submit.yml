@@ -3,60 +3,60 @@ name: EAS Build and Submit
 on:
   push:
     branches:
-      - eas-updates
+      - release
 
 jobs:
-  # build-ios:
-  #   name: Build iOS
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v2
+  build-ios:
+    name: Build iOS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-  #     - name: Setup Node
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: 16.x
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
 
-  #     - name: Setup Expo and EAS
-  #       uses: expo/expo-github-action@v8
-  #       with:
-  #         eas-version: latest
-  #         token: ${{ secrets.EXPO_TOKEN }}
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
 
-  #     - name: Install dependencies
-  #       run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-  #     - name: Build iOS on EAS
-  #       run: eas build --platform ios --non-interactive
+      - name: Build iOS on EAS
+        run: eas build --platform ios --non-interactive
 
-  # build-android:
-  #   name: Build Android
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v2
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-  #     - name: Setup Node
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: 16.x
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
 
-  #     - name: Setup Expo and EAS
-  #       uses: expo/expo-github-action@v8
-  #       with:
-  #         eas-version: latest
-  #         token: ${{ secrets.EXPO_TOKEN }}
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
 
-  #     - name: Install dependencies
-  #       run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-  #     - name: Build Android on EAS
-  #       run: eas build --platform android --non-interactive
+      - name: Build Android on EAS
+        run: eas build --platform android --non-interactive
 
   submit-ios:
     name: Submit iOS
-    # needs: build-ios
+    needs: build-ios
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -84,7 +84,7 @@ jobs:
 
   submit-android:
     name: Submit Android
-    # needs: build-android
+    needs: build-android
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
