@@ -128,4 +128,4 @@ jobs:
         run: npm ci
 
       - name: Submit to Play Store
-        run: eas submit -p android --latest
+        run: echo "Simulating Android submission"
