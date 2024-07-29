@@ -1,33 +1,83 @@
-name: Build and Deploy
+name: EAS Build and Submit
 
 on:
   push:
     branches:
-      - release
+      - eas-updates
 
 jobs:
   build:
-    runs-on: macos-latest
-
+    name: EAS Build
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Check for EXPO_TOKEN
+        run: |
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "You must provide an EXPO_TOKEN secret linked to this project's Expo account in this repo's secrets. Learn more: https://docs.expo.dev/eas-update/github-actions"
+            exit 1
+          fi
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
         with:
-          node-version: '18'
+          node-version: 16.x
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v7
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
+      - name: Build on EAS
+        run: eas build --platform all --non-interactive
 
-      - name: Build and deploy to EAS
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+  submit:
+    name: EAS Submit
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [ios, android]
+    steps:
+      - name: Check for EXPO_TOKEN
         run: |
-          eas build --platform all --non-interactive
-          eas submit --platform ios --non-interactive
-          eas submit --platform android --non-interactive
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "You must provide an EXPO_TOKEN secret linked to this project's Expo account in this repo's secrets. Learn more: https://docs.expo.dev/eas-update/github-actions"
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v7
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Submit to App Store
+        if: matrix.platform == 'ios'
+        env:
+          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
+        run: eas submit -p ios --latest
+
+      - name: Submit to Play Store
+        if: matrix.platform == 'android'
+        run: eas submit -p android --latest
