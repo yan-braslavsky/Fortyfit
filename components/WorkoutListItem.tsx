@@ -34,9 +34,7 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
       ]}
     >
       <View style={styles.imageCollage}>
-        {exerciseImages.map((imageUrl, index) => (
-          <Image key={index} source={{ uri: imageUrl }} style={styles.collageImage} />
-        ))}
+        <Image source={{ uri: item.imageUrl }} style={styles.collageImage} />
       </View>
       <View style={styles.contentContainer}>
         <Text style={[styles.title, { color: colors.text }]}>{item.name || 'Unnamed Workout'}</Text>
@@ -94,8 +92,8 @@ const styles = StyleSheet.create({
     height: 200,
   },
   collageImage: {
-    width: '50%',
-    height: '50%',
+    width: '100%',
+    height: '100%',
   },
   contentContainer: {
     padding: 15,

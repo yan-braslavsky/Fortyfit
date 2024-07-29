@@ -19,8 +19,13 @@ export async function fetchRawWorkouts(): Promise<RawWorkout[]> {
   const workoutsCol = collection(db, 'workouts');
   const workoutSnapshot = await getDocs(workoutsCol);
 
-  return workoutSnapshot.docs.map(doc => ({
+
+  const rawWorkouts = workoutSnapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
   } as RawWorkout));
+
+  // console.log(rawWorkouts);
+
+  return rawWorkouts;
 }

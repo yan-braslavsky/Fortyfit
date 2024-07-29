@@ -4,7 +4,10 @@ import { RawExercise, fetchRawExercise } from '../services/exercisesService';
 import { RawEquipment, fetchRawEquipment } from '../services/equipmentService';
 
 // TODO: Remove this when real muscle groups are implemented
-const FAKE_MUSCLE_GROUPS = ['Chest', 'Back', 'Legs', 'Arms', 'Shoulders', 'Core'];
+const FAKE_MUSCLE_GROUPS = ['Chest', 'Back', 'Legs', 'Arms', 'Shoulders',
+  'Core', 'Glutes', 'Calves', 'Forearms', 'Traps', 'Lats', 'Triceps', 'Biceps',
+  'Quads', 'Hamstrings', 'Abs', 'Obliques', 'Lower Back', 'Neck', 'Triceps', 'Biceps', 'Cardio'
+];
 
 export async function adaptRawWorkoutToWorkoutDataModel(rawWorkout: RawWorkout): Promise<WorkoutDataModel> {
   const exercisesPromises = rawWorkout.exerciseGroups.map(async (group, groupIndex) => {
@@ -43,8 +46,8 @@ export async function adaptRawWorkoutToWorkoutDataModel(rawWorkout: RawWorkout):
 }
 
 function adaptRawExerciseToExerciseDataModel(
-  rawExercise: RawExercise, 
-  equipment: EquipmentModel[], 
+  rawExercise: RawExercise,
+  equipment: EquipmentModel[],
   setData: { weight: number; reps: number; setNumber: number }
 ): ExerciseDataModel {
   // TODO: Remove this when real muscle groups are implemented
