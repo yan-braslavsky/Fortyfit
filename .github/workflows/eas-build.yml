@@ -27,14 +27,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-  build:
-    name: Build
+  build-ios:
+    name: Build iOS
     needs: prepare
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ios, android]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -53,17 +49,38 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build on EAS
-        run: eas build --platform ${{ matrix.platform }} --non-interactive --no-wait
+      - name: Build iOS on EAS
+        run: eas build --platform ios --non-interactive --no-wait
 
-  submit:
-    name: Submit
-    needs: build
+  build-android:
+    name: Build Android
+    needs: prepare
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ios, android]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Android on EAS
+        run: eas build --platform android --non-interactive --no-wait
+
+  submit-ios:
+    name: Submit iOS
+    needs: build-ios
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -83,12 +100,32 @@ jobs:
         run: npm ci
 
       - name: Submit to App Store
-        if: matrix.platform == 'ios'
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
         run: eas submit -p ios --latest
 
+  submit-android:
+    name: Submit Android
+    needs: build-android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Submit to Play Store
-        if: matrix.platform == 'android'
         run: eas submit -p android --latest
