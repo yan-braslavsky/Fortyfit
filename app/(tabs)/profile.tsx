@@ -1,68 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+// src/app/profile.tsx
+
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
+import Colors from '@/constants/Colors';
 
-const OptionItem = ({ icon, title, onPress }:{ icon:string, title:string, onPress:() => void }) => (
-  <TouchableOpacity style={styles.option} onPress={onPress}>
-    <View style={styles.iconContainer}>
-      <FontAwesome name={icon} size={24} color="#007AFF" />
-    </View>
-    <Text style={styles.optionText}>{title}</Text>
-    <FontAwesome name="chevron-right" size={16} color="#C7C7CC" />
-  </TouchableOpacity>
-);
-
-const ProfileScreen = () => {
-  const [image, setImage] = useState(null);
-
-  useEffect(() => {
-    (async () => {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        alert('Sorry, we need media library permissions to make this work!');
-      }
-    })();
-  }, []);
-
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
-  };
-
-  const profileOptions = [
-    { icon: 'user', title: 'Personal Information' },
-    { icon: 'cog', title: 'Settings' },
-    { icon: 'line-chart', title: 'Activity History' },
-    { icon: 'sign-out', title: 'Log Out' },
-  ];
+const OptionItem = ({ icon, title, onPress }: { icon: string; title: string; onPress: () => void }) => {
+  const { theme } = useTheme();
+  const colors = Colors[theme];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.profileInfo}>
-        <TouchableOpacity onPress={pickImage}>
-          {image ? (
-            <Image source={{ uri: image }} style={styles.avatar} />
-          ) : (
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>JD</Text>
-            </View>
-          )}
-          <View style={styles.editIconContainer}>
-            <FontAwesome name="camera" size={16} color="#FFF" />
+    <TouchableOpacity style={[styles.option, { backgroundColor: colors.card }]} onPress={onPress}>
+      <Ionicons name={icon} size={24} color={colors.primary} style={styles.optionIcon} />
+      <Text style={[styles.optionText, { color: colors.text }]}>{title}</Text>
+      <Ionicons name="chevron-forward" size={24} color={colors.text} />
+    </TouchableOpacity>
+  );
+};
+
+const ProfileScreen = () => {
+  const { theme } = useTheme();
+  const colors = Colors[theme];
+
+  const profileOptions = [
+    { icon: 'person-outline', title: 'Personal Information' },
+    { icon: 'settings-outline', title: 'Settings' },
+    { icon: 'bar-chart-outline', title: 'Activity History' },
+    { icon: 'log-out-outline', title: 'Log Out' },
+  ];
+
+  const handleImagePress = () => {
+    Alert.alert(
+      "Profile Picture",
+      "This is where you'd normally upload a profile picture. For now, it's just a placeholder!",
+      [{ text: "OK", onPress: () => console.log("OK Pressed") }]
+    );
+  };
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleImagePress}>
+          <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+            <Text style={[styles.avatarText, { color: colors.card }]}>JD</Text>
           </View>
         </TouchableOpacity>
-        <Text style={styles.name}>John Doe</Text>
-        <Text style={styles.email}>johndoe@example.com</Text>
+        <Text style={[styles.name, { color: colors.text }]}>John Doe</Text>
+        <Text style={[styles.email, { color: colors.textSecondary }]}>johndoe@example.com</Text>
       </View>
       <View style={styles.optionsContainer}>
         {profileOptions.map((option, index) => (
@@ -81,74 +67,47 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+  },
+  header: {
+    alignItems: 'center',
     padding: 20,
   },
-  profileInfo: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
   avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#007AFF',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   avatarText: {
-    fontSize: 48,
+    fontSize: 36,
     fontWeight: 'bold',
-    color: '#FFF',
-  },
-  editIconContainer: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#007AFF',
-    borderRadius: 15,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   name: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#000',
+    marginBottom: 5,
   },
   email: {
     fontSize: 16,
-    color: '#666',
-    marginBottom: 24,
   },
   optionsContainer: {
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-    overflow: 'hidden',
+    paddingHorizontal: 20,
   },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
   },
-  iconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#E1F0FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
+  optionIcon: {
+    marginRight: 15,
   },
   optionText: {
     flex: 1,
-    fontSize: 18,
-    color: '#000',
+    fontSize: 16,
   },
 });
 
