@@ -11,6 +11,7 @@
       "distribution": "internal"
     },
     "production": {
+      "autoIncrement": true
     }
   },
   "submit": {
@@ -19,7 +20,9 @@
         "track": "internal",
         "releaseStatus": "draft"
       },
-      "ios": {}
+      "ios": {
+        "ascAppId": "6560104903"
+      }
     }
   }
 }
