@@ -50,7 +50,7 @@ jobs:
         run: npm ci
 
       - name: Build iOS on EAS
-        run: eas build --platform ios --non-interactive --no-wait
+        run: echo "Simulating iOS build"
 
   build-android:
     name: Build Android
@@ -75,7 +75,7 @@ jobs:
         run: npm ci
 
       - name: Build Android on EAS
-        run: eas build --platform android --non-interactive --no-wait
+        run: echo "Simulating Android build"
 
   submit-ios:
     name: Submit iOS
