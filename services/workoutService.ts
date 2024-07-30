@@ -8,7 +8,7 @@ export interface RawWorkout {
   exerciseGroups: {
     sets: number;
     exercises: {
-      exerciseId: string;
+      exerciseId: string; //FR Key for exercises
       reps: number;
       weight: number;
     }[];
@@ -24,8 +24,5 @@ export async function fetchRawWorkouts(): Promise<RawWorkout[]> {
     id: doc.id,
     ...doc.data()
   } as RawWorkout));
-
-  // console.log(rawWorkouts);
-
   return rawWorkouts;
 }

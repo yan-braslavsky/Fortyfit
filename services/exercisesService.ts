@@ -6,8 +6,8 @@ export interface RawExercise {
   name: string;
   imageUrl: string;
   description: string;
-  equipmentIds: string[];
-  muscleGroups: string[];
+  equipmentIds: string[]; //FR Key for equipment
+  muscleGroups: string[]; //FR Key for muscleGroups
 }
 
 export async function fetchRawExercise(exerciseId: string): Promise<RawExercise | null> {
