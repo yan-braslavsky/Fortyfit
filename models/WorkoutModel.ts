@@ -1,20 +1,23 @@
-import ExerciseHeaderModel from './ExerciseHeaderModel';
-import SingleSetModel from './SingleSetModel';
+// src/models/WorkoutModel.ts
 
 export enum ExerciseStatus {
-    Active,
-    Finished,
-    NotActive
+    Active = 'Active',
+    Finished = 'Finished',
+    NotActive = 'NotActive'
+}
+
+export interface SingleSetModel {
+    id: string;
+    name: string;
+    weight: number;
+    reps: number;
+    completedReps?: number;
+    recomendedRepsRange: { min: number, max: number };
+    imageUrl: string;
 }
 
 export interface CompoundSet {
     id: string;
     singleSets: SingleSetModel[];
     status: ExerciseStatus;
-}
-
-export interface WorkoutModel {
-    workoutID: string;
-    exerciseHeaderModels: ExerciseHeaderModel[];
-    compoundSets: CompoundSet[];
 }

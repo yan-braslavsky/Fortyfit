@@ -19,7 +19,7 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
   const colors = Colors[theme];
   const { duration, totalExercises, uniqueEquipment, muscleGroups, exerciseImages } = useWorkoutListItemViewModel(item);
 
-  if (!item || !item.exercises || item.exercises.length === 0) {
+  if (!item || !item.exerciseGroups || item.exerciseGroups.length === 0) {
     console.log('Invalid item data:', item);
     return null;
   }
@@ -47,6 +47,10 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
           <View style={styles.infoItem}>
             <MaterialCommunityIcons name="dumbbell" size={16} color={colors.text} />
             <Text style={[styles.infoText, { color: colors.text }]}>{totalExercises} exercises</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Ionicons name="layers-outline" size={16} color={colors.text} />
+            <Text style={[styles.infoText, { color: colors.text }]}>{item.exerciseGroups.length} groups</Text>
           </View>
         </View>
 

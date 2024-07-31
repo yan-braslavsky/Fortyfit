@@ -1,17 +1,25 @@
-import { WorkoutDataModel, ExerciseDataModel, EquipmentModel } from '../constants/DataModels';
+// src/services/dataAdaptionHelper.ts
+
+import { WorkoutDataModel, ExerciseDataModel, EquipmentModel, ExerciseGroup, ExerciseSetDataModel, MuscleGroup } from '@/constants/DataModels';
 import { RawWorkout } from '../services/workoutService';
 import { RawExercise, fetchRawExercise } from '../services/exercisesService';
 import { RawEquipment, fetchRawEquipment } from '../services/equipmentService';
 
-// TODO: Remove this when real muscle groups are implemented
-const FAKE_MUSCLE_GROUPS = ['Chest', 'Back', 'Legs', 'Arms', 'Shoulders',
-  'Core', 'Glutes', 'Calves', 'Forearms', 'Traps', 'Lats', 'Triceps', 'Biceps',
-  'Quads', 'Hamstrings', 'Abs', 'Obliques', 'Lower Back', 'Neck', 'Triceps', 'Biceps', 'Cardio'
-];
-
 export async function adaptRawWorkoutToWorkoutDataModel(rawWorkout: RawWorkout): Promise<WorkoutDataModel> {
-  const exercisesPromises = rawWorkout.exerciseGroups.map(async (group, groupIndex) => {
-    const groupExercises = await Promise.all(group.exercises.map(async (exerciseData, exerciseIndex) => {
+  console.log("Adapting raw workout:", rawWorkout);
+
+  if (!rawWorkout.exerciseGroups || !Array.isArray(rawWorkout.exerciseGroups)) {
+    console.error("Invalid exerciseGroups in rawWorkout:", rawWorkout.exerciseGroups);
+    throw new Error("Invalid exerciseGroups in rawWorkout");
+  }
+
+  const exerciseGroupsPromises = rawWorkout.exerciseGroups.map(async (group): Promise<ExerciseGroup> => {
+    if (!group.exercises || !Array.isArray(group.exercises)) {
+      console.error("Invalid exercises in group:", group);
+      throw new Error("Invalid exercises in group");
+    }
+
+    const exercisesPromises = group.exercises.map(async (exerciseData) => {
       const rawExercise = await fetchRawExercise(exerciseData.exerciseId);
       if (!rawExercise) {
         console.warn(`Exercise with id ${exerciseData.exerciseId} not found`);
@@ -19,7 +27,7 @@ export async function adaptRawWorkoutToWorkoutDataModel(rawWorkout: RawWorkout):
       }
 
       const equipment = await Promise.all(
-        rawExercise.equipmentIds.map(async equipmentId => {
+        (rawExercise.equipmentIds || []).map(async equipmentId => {
           const rawEquipment = await fetchRawEquipment(equipmentId);
           return rawEquipment ? adaptRawEquipmentToEquipmentModel(rawEquipment) : null;
         })
@@ -28,48 +36,50 @@ export async function adaptRawWorkoutToWorkoutDataModel(rawWorkout: RawWorkout):
       return adaptRawExerciseToExerciseDataModel(rawExercise, equipment.filter((eq): eq is EquipmentModel => eq !== null), {
         weight: exerciseData.weight,
         reps: exerciseData.reps,
-        setNumber: exerciseIndex + 1
       });
-    }));
+    });
 
-    return groupExercises.filter((exercise): exercise is ExerciseDataModel => exercise !== null);
+    const exercises = (await Promise.all(exercisesPromises)).filter((exercise): exercise is ExerciseDataModel => exercise !== null);
+    return {
+      exercises,
+      sets: group.sets
+    };
   });
 
-  const exercises = await Promise.all(exercisesPromises);
+  const exerciseGroups = await Promise.all(exerciseGroupsPromises);
 
-  return {
-    id: rawWorkout.id,
-    name: rawWorkout.name,
-    imageUrl: rawWorkout.imageUrl,
-    exercises: exercises
-  };
+  return new WorkoutDataModel(
+    rawWorkout.id,
+    rawWorkout.name,
+    rawWorkout.imageUrl,
+    exerciseGroups
+  );
 }
 
 function adaptRawExerciseToExerciseDataModel(
   rawExercise: RawExercise,
   equipment: EquipmentModel[],
-  setData: { weight: number; reps: number; setNumber: number }
+  setData: { weight: number; reps: number }
 ): ExerciseDataModel {
-  // TODO: Remove this when real muscle groups are implemented
-  const muscleGroups = rawExercise.muscleGroups && rawExercise.muscleGroups.length > 0
-    ? rawExercise.muscleGroups
-    : FAKE_MUSCLE_GROUPS.sort(() => 0.5 - Math.random()).slice(0, 3);
+  const muscleGroups = (rawExercise.muscleGroups || []).map(group => MuscleGroup[group as keyof typeof MuscleGroup] || MuscleGroup.FullBody);
 
-  return {
-    id: rawExercise.id,
-    name: rawExercise.name,
-    imageUrl: rawExercise.imageUrl,
-    description: rawExercise.description,
-    sets: [{
-      id: `${rawExercise.id}-set-${setData.setNumber}`,
-      name: `Set ${setData.setNumber}`,
-      weight: setData.weight,
-      reps: setData.reps
-    }],
-    equipment: equipment,
-    restTimeInSeconds: 60, // You might want to add this to your RawExercise model
-    muscleGroups: muscleGroups
-  };
+  const sets = [new ExerciseSetDataModel(
+    `${rawExercise.id}-set-1`,
+    'Set 1',
+    setData.weight,
+    setData.reps
+  )];
+
+  return new ExerciseDataModel(
+    rawExercise.id,
+    rawExercise.name,
+    rawExercise.imageUrl,
+    60, // default rest time
+    sets,
+    equipment,
+    rawExercise.description || '',
+    muscleGroups
+  );
 }
 
 function adaptRawEquipmentToEquipmentModel(rawEquipment: RawEquipment): EquipmentModel {

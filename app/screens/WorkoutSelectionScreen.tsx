@@ -1,7 +1,7 @@
 // src/app/screens/WorkoutSelectionScreen.tsx
 
 import React from 'react';
-import { StyleSheet, FlatList, View } from 'react-native';
+import { StyleSheet, FlatList, View, Text } from 'react-native';
 import WorkoutListItem from '@/components/WorkoutListItem';
 import { useTheme } from '@/contexts/ThemeContext';
 import Colors from '@/constants/Colors';
@@ -11,10 +11,18 @@ import { useWorkoutSelectionViewModel } from '@/viewmodels/WorkoutSelectionScree
 export default function WorkoutSelectionScreen() {
   const { theme } = useTheme();
   const colors = Colors[theme];
-  const { workouts, isLoading, handleWorkoutSelection } = useWorkoutSelectionViewModel();
+  const { workouts, isLoading, error, handleWorkoutSelection } = useWorkoutSelectionViewModel();
 
   if (isLoading) {
     return <LoadingOverlay />;
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.text }]}>{error}</Text>
+      </View>
+    );
   }
 
   return (
@@ -41,5 +49,10 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 10,
+  },
+  errorText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
