@@ -45,14 +45,18 @@ export const useWorkoutViewModel = (workoutId: string) => {
   const createCompoundSets = (exerciseGroup: ExerciseGroup): CompoundSet[] => {
     return Array(exerciseGroup.sets).fill(null).map((_, i) => ({
       id: `compound-${i}`,
-      singleSets: exerciseGroup.exercises.map(exercise => ({
-        id: `${exercise.id}-${i}`,
-        name: exercise.name,
-        weight: exercise.sets[0].weight,
-        reps: exercise.sets[0].reps,
-        recomendedRepsRange: { min: exercise.sets[0].reps - 2, max: exercise.sets[0].reps + 2 },
-        imageUrl: exercise.imageUrl
-      })),
+      singleSets: exerciseGroup.exercises.map(exercise => {
+        const minReps = Math.min(...exercise.sets.map(set => set.reps));
+        const maxReps = Math.max(...exercise.sets.map(set => set.reps));
+        return {
+          id: `${exercise.id}-${i}`,
+          name: exercise.name,
+          weight: exercise.sets[0].weight,
+          reps: exercise.sets[0].reps,
+          recomendedRepsRange: { min: minReps, max: maxReps },
+          imageUrl: exercise.imageUrl
+        };
+      }),
       status: ExerciseStatus.NotActive
     }));
   };
