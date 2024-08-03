@@ -6,7 +6,8 @@ import { useLocalSearchParams } from "expo-router";
 import { useWorkoutViewModel } from '@/viewmodels/WorkoutViewModel';
 import ExerciseGroupScreen from './ExerciseGroupScreen';
 import LoadingOverlay from '@/components/LoadingOverlay';
-import { ExerciseStatus, CompoundSet, SingleSetModel } from '@/models/WorkoutModel';
+import { ExerciseStatus, CompoundSet } from '@/models/WorkoutModel';
+import SingleSetModel from '@/models/SingleSetModel';
 import { ExerciseDataModel } from '@/constants/DataModels';
 
 export default function WorkoutScreen() {
@@ -23,28 +24,22 @@ export default function WorkoutScreen() {
 
     const currentGroup = workout.exerciseGroups[currentGroupIndex];
 
-    const mapToCompoundSets = (exercises: ExerciseDataModel[]): CompoundSet[] => {
-        const compoundSets: CompoundSet[] = [];
-
-        for (let i = 0; i < 3; i++) {
-            const singleSets = exercises.map(exercise => ({
+    const createInitialCompoundSets = (exercises: ExerciseDataModel[]): CompoundSet[] => {
+        return Array(currentGroup.sets).fill(null).map((_, i) => ({
+            id: `compound-${i}`,
+            singleSets: exercises.map(exercise => ({
                 id: `${exercise.id}-${i}`,
                 name: exercise.name,
-                weight: exercise.sets[0].weight, // Assuming we use the first set's weight
-                reps: exercise.sets[0].reps, // Assuming we use the first set's reps
+                weight: exercise.sets[0].weight,
+                reps: exercise.sets[0].reps,
                 recomendedRepsRange: { min: exercise.sets[0].reps - 2, max: exercise.sets[0].reps + 2 },
                 imageUrl: exercise.imageUrl
-            } as SingleSetModel));
-
-            compoundSets.push({
-                id: `compound-${i}`,
-                singleSets,
-                status: ExerciseStatus.NotActive
-            });
-        }
-
-        return compoundSets;
+            } as SingleSetModel)),
+            status: ExerciseStatus.NotActive
+        }));
     };
+
+    const initialCompoundSets = createInitialCompoundSets(currentGroup.exercises);
 
     return (
         <ExerciseGroupScreen
@@ -54,7 +49,7 @@ export default function WorkoutScreen() {
                 subtitle: exercise.muscleGroups.join(', '),
                 equipmentImagesUrls: exercise.equipment.map(eq => eq.imageUrl)
             }))}
-            compoundSets={mapToCompoundSets(currentGroup.exercises)}
+            initialCompoundSets={initialCompoundSets}
             onGroupComplete={moveToNextGroup}
         />
     );

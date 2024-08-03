@@ -21,11 +21,8 @@ interface Exercise {
 
 export async function fetchRawWorkouts(): Promise<RawWorkout[]> {
   try {
-    console.log("Fetching workouts from Firestore...");
     const workoutsCol = collection(db, 'workouts');
     const workoutSnapshot = await getDocs(workoutsCol);
-
-    console.log(`Fetched ${workoutSnapshot.docs.length} documents`);
 
     if (workoutSnapshot.empty) {
       console.log("No workouts found in Firestore");
@@ -34,7 +31,6 @@ export async function fetchRawWorkouts(): Promise<RawWorkout[]> {
 
     const rawWorkouts = workoutSnapshot.docs.map(doc => {
       const data = doc.data();
-      console.log(`Processing document ${doc.id}:`, data);
       return {
         id: doc.id,
         ...data
@@ -51,7 +47,7 @@ export async function fetchRawWorkouts(): Promise<RawWorkout[]> {
 export async function fetchRawWorkout(workoutId: string): Promise<RawWorkout | null> {
   try {
     const workoutDoc = await getDoc(doc(db, 'workouts', workoutId));
-    
+
     if (!workoutDoc.exists()) {
       return null;
     }

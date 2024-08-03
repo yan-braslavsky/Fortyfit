@@ -1,13 +1,14 @@
+// src/components/ActiveCompoundSet.tsx
+
 import React from 'react';
-import { useActiveCompoundSetViewModel } from '@/viewmodels/ActiveCompoundSetViewModel';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
+import SingleSetModel from '@/models/SingleSetModel';
 import DoneBtn from '@/components/DoneBtn';
 import Separator from '@/components/Separator';
-import Colors from '@/constants/Colors';
 import { SeparatorType } from '@/components/Separator';
 import ActiveSingleSetRow from './ActiveSingleSetRow';
-import { ViewStyle } from 'react-native';
-import SingleSetModel from '@/models/SingleSetModel';
+import Colors from '@/constants/Colors';
+import { useActiveCompoundSetViewModel } from '@/viewmodels/ActiveCompoundSetViewModel';
 
 interface ActiveCompoundSetProps {
     id: string;

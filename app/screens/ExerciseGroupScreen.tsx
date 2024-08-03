@@ -16,25 +16,25 @@ import ExerciseHeaderModel from '@/models/ExerciseHeaderModel';
 
 interface ExerciseGroupScreenProps {
   exerciseHeaders: ExerciseHeaderModel[];
-  compoundSets: CompoundSet[];
+  initialCompoundSets: CompoundSet[];
   onGroupComplete: () => void;
 }
 
-export default function ExerciseGroupScreen({ exerciseHeaders, compoundSets, onGroupComplete }: ExerciseGroupScreenProps) {
+export default function ExerciseGroupScreen({ exerciseHeaders, initialCompoundSets, onGroupComplete }: ExerciseGroupScreenProps) {
   const { theme } = useTheme();
   const colors = Colors[theme];
   const {
-    compoundSets: currentCompoundSets,
+    compoundSets,
     handleSetCompletion,
     handleSetActivation,
     handleTimerEnd,
     showExitDialog,
     timerRef,
     isTimerVisible
-  } = useExerciseGroupViewModel(compoundSets, onGroupComplete);
+  } = useExerciseGroupViewModel(initialCompoundSets, onGroupComplete);
 
   const renderExercises = () => {
-    return currentCompoundSets.map((compoundSet, index) => {
+    return compoundSets.map((compoundSet, index) => {
       const key = `${compoundSet.id}-${compoundSet.status}`;
       switch (compoundSet.status) {
         case ExerciseStatus.Active:
@@ -107,7 +107,6 @@ export default function ExerciseGroupScreen({ exerciseHeaders, compoundSets, onG
     </TouchableWithoutFeedback>
   );
 }
-
 
 const styles = StyleSheet.create({
   scrollView: {

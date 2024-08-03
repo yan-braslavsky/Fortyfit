@@ -1,6 +1,6 @@
 // src/viewmodels/ExerciseGroupViewModel.ts
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { CompoundSet, ExerciseStatus } from '@/models/WorkoutModel';
 import SingleSetModel from '@/models/SingleSetModel';
@@ -14,6 +14,12 @@ export const useExerciseGroupViewModel = (
   const [activeCompoundSetIndex, setActiveCompoundSetIndex] = useState<number | null>(null);
   const [isTimerVisible, setIsTimerVisible] = useState(false);
   const timerRef = useRef<TimerOverlayRef>(null);
+
+  // Add this useEffect hook to update compoundSets when initialCompoundSets changes
+  useEffect(() => {
+    setCompoundSets(initialCompoundSets);
+    setActiveCompoundSetIndex(null);
+  }, [initialCompoundSets]);
 
   const handleSetCompletion = useCallback((id: string, completedSets: SingleSetModel[]) => {
     setCompoundSets(prevSets => 
