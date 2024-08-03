@@ -24,15 +24,26 @@ export default function WorkoutScreen() {
     const currentGroup = workout.exerciseGroups[currentGroupIndex];
 
     const mapToCompoundSets = (exercises: ExerciseDataModel[]): CompoundSet[] => {
-        return exercises.map(exercise => ({
-            id: exercise.id,
-            singleSets: exercise.sets.map(set => ({
-                ...set,
-                recomendedRepsRange: { min: set.reps - 2, max: set.reps + 2 }, // Example range
-                imageUrl: exercise.imageUrl // Using exercise image for each set
-            } as SingleSetModel)),
-            status: ExerciseStatus.NotActive
-        }));
+        const compoundSets: CompoundSet[] = [];
+
+        for (let i = 0; i < 3; i++) {
+            const singleSets = exercises.map(exercise => ({
+                id: `${exercise.id}-${i}`,
+                name: exercise.name,
+                weight: exercise.sets[0].weight, // Assuming we use the first set's weight
+                reps: exercise.sets[0].reps, // Assuming we use the first set's reps
+                recomendedRepsRange: { min: exercise.sets[0].reps - 2, max: exercise.sets[0].reps + 2 },
+                imageUrl: exercise.imageUrl
+            } as SingleSetModel));
+
+            compoundSets.push({
+                id: `compound-${i}`,
+                singleSets,
+                status: ExerciseStatus.NotActive
+            });
+        }
+
+        return compoundSets;
     };
 
     return (

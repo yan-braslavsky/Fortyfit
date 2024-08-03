@@ -19,9 +19,7 @@ export const useWorkoutSelectionViewModel = () => {
     setIsLoading(true);
     setError(null);
     try {
-      console.log("Fetching workouts...");
       const rawWorkouts = await fetchRawWorkouts();
-      console.log("Raw workouts fetched:", rawWorkouts);
 
       if (!rawWorkouts || rawWorkouts.length === 0) {
         console.log("No workouts found or rawWorkouts is undefined");
@@ -29,7 +27,6 @@ export const useWorkoutSelectionViewModel = () => {
         return;
       }
 
-      console.log("Adapting workouts...");
       const adaptedWorkouts = await Promise.all(
         rawWorkouts.map(async (rawWorkout: RawWorkout) => {
           try {
@@ -40,8 +37,6 @@ export const useWorkoutSelectionViewModel = () => {
           }
         })
       );
-
-      console.log("Adapted workouts:", adaptedWorkouts);
 
       const validWorkouts = adaptedWorkouts.filter((workout): workout is WorkoutDataModel => workout !== null);
       setWorkouts(validWorkouts);

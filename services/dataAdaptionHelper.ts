@@ -6,7 +6,6 @@ import { RawExercise, fetchRawExercise } from '../services/exercisesService';
 import { RawEquipment, fetchRawEquipment } from '../services/equipmentService';
 
 export async function adaptRawWorkoutToWorkoutDataModel(rawWorkout: RawWorkout): Promise<WorkoutDataModel> {
-  console.log("Adapting raw workout:", rawWorkout);
 
   if (!rawWorkout.exerciseGroups || !Array.isArray(rawWorkout.exerciseGroups)) {
     console.error("Invalid exerciseGroups in rawWorkout:", rawWorkout.exerciseGroups);

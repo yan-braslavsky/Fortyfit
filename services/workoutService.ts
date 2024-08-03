@@ -41,7 +41,6 @@ export async function fetchRawWorkouts(): Promise<RawWorkout[]> {
       } as RawWorkout;
     });
 
-    console.log(`Processed ${rawWorkouts.length} workouts`);
     return rawWorkouts;
   } catch (error) {
     console.error("Error fetching workouts:", error);

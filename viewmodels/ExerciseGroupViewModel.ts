@@ -44,7 +44,11 @@ export const useExerciseGroupViewModel = (
     setIsTimerVisible(false);
     timerRef.current?.hide();
     // Logic to move to next set or finish if all sets are complete
-  }, []);
+    const allSetsCompleted = compoundSets.every(set => set.status === ExerciseStatus.Finished);
+    if (allSetsCompleted) {
+      showExitDialog();
+    }
+  }, [compoundSets]);
 
   const showExitDialog = useCallback(() => {
     Alert.alert(
