@@ -54,7 +54,8 @@ export const useWorkoutViewModel = (workoutId: string) => {
           weight: exercise.sets[0].weight,
           reps: exercise.sets[0].reps,
           recomendedRepsRange: { min: minReps, max: maxReps },
-          imageUrl: exercise.imageUrl
+          imageUrl: exercise.imageUrl,
+          equipment: exercise.equipment // Add this line
         };
       }),
       status: ExerciseStatus.NotActive

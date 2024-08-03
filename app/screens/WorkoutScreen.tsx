@@ -8,7 +8,7 @@ import ExerciseGroupScreen from './ExerciseGroupScreen';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import { ExerciseStatus, CompoundSet } from '@/models/WorkoutModel';
 import SingleSetModel from '@/models/SingleSetModel';
-import { ExerciseDataModel } from '@/constants/DataModels';
+import { ExerciseGroup } from '@/constants/DataModels';
 
 export default function WorkoutScreen() {
     const { id } = useLocalSearchParams();
@@ -24,10 +24,10 @@ export default function WorkoutScreen() {
 
     const currentGroup = workout.exerciseGroups[currentGroupIndex];
 
-    const createInitialCompoundSets = (exercises: ExerciseDataModel[]): CompoundSet[] => {
+    const createInitialCompoundSets = (exerciseGroup: ExerciseGroup): CompoundSet[] => {
         return Array(currentGroup.sets).fill(null).map((_, i) => ({
             id: `compound-${i}`,
-            singleSets: exercises.map(exercise => ({
+            singleSets: exerciseGroup.exercises.map(exercise => ({
                 id: `${exercise.id}-${i}`,
                 name: exercise.name,
                 weight: exercise.sets[0].weight,
@@ -39,7 +39,7 @@ export default function WorkoutScreen() {
         }));
     };
 
-    const initialCompoundSets = createInitialCompoundSets(currentGroup.exercises);
+    const initialCompoundSets = createInitialCompoundSets(currentGroup);
 
     return (
         <ExerciseGroupScreen
