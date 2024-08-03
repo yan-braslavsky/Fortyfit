@@ -1,4 +1,4 @@
-// src/components/WorkoutListItem.tsx
+// src/components/WorkoutSelectionListItem.tsx
 
 import React from 'react';
 import { StyleSheet, Pressable, Image, Text, View } from 'react-native';
@@ -7,17 +7,17 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '@/contexts/ThemeContext';
 import Colors from '@/constants/Colors';
-import { useWorkoutListItemViewModel } from '@/viewmodels/WorkoutListItemViewModel';
+import { useWorkoutSelectionListItemViewModel as useWorkoutSelectionListItemViewModel } from '@/viewmodels/WorkoutSelectionListItemViewModel';
 
-interface WorkoutListItemProps {
+interface WorkoutSelectionListItemProps {
   item: WorkoutDataModel;
   onPress: () => void;
 }
 
-const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
+const WorkoutSelectionListItem: React.FC<WorkoutSelectionListItemProps> = ({ item, onPress }) => {
   const { theme } = useTheme();
   const colors = Colors[theme];
-  const { duration, totalExercises, uniqueEquipment, muscleGroups, exerciseImages } = useWorkoutListItemViewModel(item);
+  const { duration, totalExercises, uniqueEquipment, muscleGroups, exerciseImages } = useWorkoutSelectionListItemViewModel(item);
 
   if (!item || !item.exerciseGroups || item.exerciseGroups.length === 0) {
     console.log('Invalid item data:', item);
@@ -144,4 +144,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WorkoutListItem;
+export default WorkoutSelectionListItem;

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { StyleSheet, FlatList, View, Text } from 'react-native';
-import WorkoutListItem from '@/components/WorkoutListItem';
+import WorkoutListItem from '@/components/WorkoutSelectionListItem';
 import { useTheme } from '@/contexts/ThemeContext';
 import Colors from '@/constants/Colors';
 import LoadingOverlay from '@/components/LoadingOverlay';

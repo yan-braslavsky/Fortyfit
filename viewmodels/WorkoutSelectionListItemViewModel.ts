@@ -1,9 +1,9 @@
-// src/viewmodels/WorkoutListItemViewModel.ts
+// src/viewmodels/WorkoutSelectionListItemViewModel.ts
 
 import { useState, useEffect } from 'react';
 import { WorkoutDataModel, EquipmentModel, MuscleGroup } from '@/constants/DataModels';
 
-export const useWorkoutListItemViewModel = (item: WorkoutDataModel) => {
+export const useWorkoutSelectionListItemViewModel = (item: WorkoutDataModel) => {
   const [duration, setDuration] = useState(0);
   const [totalExercises, setTotalExercises] = useState(0);
   const [uniqueEquipment, setUniqueEquipment] = useState<string[]>([]);
