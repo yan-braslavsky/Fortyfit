@@ -1,29 +1,36 @@
-import { StyleSheet, View, ViewStyle } from 'react-native';
+// src/components/Separator.tsx
+
 import React from 'react';
+import { View, StyleSheet, ViewStyle } from 'react-native';
+import Colors from '@/constants/Colors';
 
-
-export enum SeparatorType {
-    Horizontal,
-    Vertical
+interface SeparatorProps {
+  vertical?: boolean;
+  style?: ViewStyle;
 }
 
-export default function Separator({ type = SeparatorType.Horizontal, style }: { type?: SeparatorType; style?: ViewStyle }) {
-    return (
-        <View style={[type === SeparatorType.Horizontal ? styles.separatorHorizontal : styles.separatorVertical, style]} />
-    );
-}
+const Separator: React.FC<SeparatorProps> = ({ vertical = false, style }) => {
+  return (
+    <View
+      style={[
+        vertical ? styles.vertical : styles.horizontal,
+        style,
+      ]}
+    />
+  );
+};
 
 const styles = StyleSheet.create({
-    separatorHorizontal: {
-        backgroundColor: "#eee",
-        marginVertical: 30,
-        height: 1,
-        width: '100%',
-    },
-    separatorVertical: {
-        marginHorizontal: 30,
-        backgroundColor: "#eee",
-        height: '100%',
-        width: 1,
-    }
-})
+  horizontal: {
+    height: 1,
+    width: '100%',
+    backgroundColor: Colors.light.darkColorLight,
+  },
+  vertical: {
+    width: 1,
+    height: '100%',
+    backgroundColor: Colors.light.darkColorLight,
+  },
+});
+
+export default Separator;

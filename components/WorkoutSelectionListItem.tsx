@@ -1,4 +1,4 @@
-// src/components/WorkoutListItem.tsx
+// src/components/WorkoutSelectionListItem.tsx
 
 import React from 'react';
 import { StyleSheet, Pressable, Image, Text, View } from 'react-native';
@@ -7,19 +7,19 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '@/contexts/ThemeContext';
 import Colors from '@/constants/Colors';
-import { useWorkoutListItemViewModel } from '@/viewmodels/WorkoutListItemViewModel';
+import { useWorkoutSelectionListItemViewModel as useWorkoutSelectionListItemViewModel } from '@/viewmodels/WorkoutSelectionListItemViewModel';
 
-interface WorkoutListItemProps {
+interface WorkoutSelectionListItemProps {
   item: WorkoutDataModel;
   onPress: () => void;
 }
 
-const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
+const WorkoutSelectionListItem: React.FC<WorkoutSelectionListItemProps> = ({ item, onPress }) => {
   const { theme } = useTheme();
   const colors = Colors[theme];
-  const { duration, totalExercises, uniqueEquipment, muscleGroups, exerciseImages } = useWorkoutListItemViewModel(item);
+  const { duration, totalExercises, uniqueEquipment, muscleGroups, exerciseImages } = useWorkoutSelectionListItemViewModel(item);
 
-  if (!item || !item.exercises || item.exercises.length === 0) {
+  if (!item || !item.exerciseGroups || item.exerciseGroups.length === 0) {
     console.log('Invalid item data:', item);
     return null;
   }
@@ -34,9 +34,7 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
       ]}
     >
       <View style={styles.imageCollage}>
-        {exerciseImages.map((imageUrl, index) => (
-          <Image key={index} source={{ uri: imageUrl }} style={styles.collageImage} />
-        ))}
+        <Image source={{ uri: item.imageUrl }} style={styles.collageImage} />
       </View>
       <View style={styles.contentContainer}>
         <Text style={[styles.title, { color: colors.text }]}>{item.name || 'Unnamed Workout'}</Text>
@@ -49,6 +47,10 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ item, onPress }) => {
           <View style={styles.infoItem}>
             <MaterialCommunityIcons name="dumbbell" size={16} color={colors.text} />
             <Text style={[styles.infoText, { color: colors.text }]}>{totalExercises} exercises</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Ionicons name="layers-outline" size={16} color={colors.text} />
+            <Text style={[styles.infoText, { color: colors.text }]}>{item.exerciseGroups.length} groups</Text>
           </View>
         </View>
 
@@ -94,8 +96,8 @@ const styles = StyleSheet.create({
     height: 200,
   },
   collageImage: {
-    width: '50%',
-    height: '50%',
+    width: '100%',
+    height: '100%',
   },
   contentContainer: {
     padding: 15,
@@ -142,4 +144,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WorkoutListItem;
+export default WorkoutSelectionListItem;

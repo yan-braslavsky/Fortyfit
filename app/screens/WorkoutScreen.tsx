@@ -1,125 +1,56 @@
+// src/app/screens/WorkoutScreen.tsx
+
 import React from 'react';
-import { StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, View, Button } from 'react-native';
+import { View, Text } from 'react-native';
 import { useLocalSearchParams } from "expo-router";
-import ExerciseHeaderCompound from '@/components/ExerciseHeaderCompound';
-import ActiveCompoundSet from '@/components/ActiveCompoundSet';
-import FinishedCompoundSet from '@/components/FinishedCompoundSet';
-import NotActiveCompoundSet from '@/components/NotActiveCompoundSet';
-import Separator from '@/components/Separator';
 import { useWorkoutViewModel } from '@/viewmodels/WorkoutViewModel';
-import { ExerciseStatus } from '@/models/WorkoutModel';
-import TimerOverlay from '@/components/TimerOverlay';
-import { useTheme } from '@/contexts/ThemeContext';
-import Colors from '@/constants/Colors';
+import ExerciseGroupScreen from './ExerciseGroupScreen';
+import LoadingOverlay from '@/components/LoadingOverlay';
+import { ExerciseStatus, CompoundSet, SingleSetModel } from '@/models/WorkoutModel';
+import { ExerciseGroup } from '@/constants/DataModels';
 
 export default function WorkoutScreen() {
     const { id } = useLocalSearchParams();
-    const { theme } = useTheme();
-    const colors = Colors[theme];
-    const {
-        workoutModel,
-        handleSetCompletion,
-        handleSetActivation,
-        handleTimerEnd,
-        showExitDialog,
-        timerRef,
-        isTimerVisible
-    } = useWorkoutViewModel(id as string);
+    const { workout, currentGroupIndex, moveToNextGroup, isLoading, error } = useWorkoutViewModel(id as string);
 
-    const renderExercises = () => {
-        return workoutModel.compoundSets.map((compoundSet, index) => {
-            const key = `${compoundSet.id}-${compoundSet.status}`;
-            switch (compoundSet.status) {
-                case ExerciseStatus.Active:
-                    return (
-                        <ActiveCompoundSet
-                            key={key}
-                            id={compoundSet.id}
-                            sets={compoundSet.singleSets}
-                            onDonePress={handleSetCompletion}
-                            style={styles.compoundSet}
-                        />
-                    );
-                case ExerciseStatus.Finished:
-                    return (
-                        <FinishedCompoundSet
-                            key={key}
-                            id={compoundSet.id}
-                            pressHandler={handleSetActivation}
-                            repsCompleted={compoundSet.singleSets.map(set => set.completedReps || 0)}
-                            style={styles.compoundSet}
-                        />
-                    );
-                case ExerciseStatus.NotActive:
-                    return (
-                        <NotActiveCompoundSet
-                            key={key}
-                            id={compoundSet.id}
-                            pressHandler={handleSetActivation}
-                            numberOfExercises={compoundSet.singleSets.length}
-                            suggestedRepsRange={{
-                                min: Math.min(...compoundSet.singleSets.map(set => set.recomendedRepsRange.min)),
-                                max: Math.max(...compoundSet.singleSets.map(set => set.recomendedRepsRange.max)),
-                            }}
-                            style={styles.compoundSet}
-                        />
-                    );
-                default:
-                    return null;
-            }
-        });
+    if (isLoading) {
+        return <LoadingOverlay />;
+    }
+
+    if (error || !workout) {
+        return <View><Text>{error || 'An error occurred'}</Text></View>;
+    }
+
+    const currentGroup = workout.exerciseGroups[currentGroupIndex];
+
+    const createInitialCompoundSets = (exerciseGroup: ExerciseGroup): CompoundSet[] => {
+        return Array(currentGroup.sets).fill(null).map((_, i) => ({
+            id: `compound-${i}`,
+            singleSets: exerciseGroup.exercises.map(exercise => ({
+                id: `${exercise.id}-${i}`,
+                name: exercise.name,
+                weight: exercise.sets[0].weight,
+                reps: exercise.sets[0].reps,
+                recomendedRepsRange: { min: exercise.sets[0].reps - 2, max: exercise.sets[0].reps + 2 },
+                imageUrl: exercise.imageUrl,
+                equipment: exercise.equipment
+            } as SingleSetModel)),
+            status: ExerciseStatus.NotActive
+        }));
     };
 
-    return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <ScrollView contentContainerStyle={[styles.scrollView, { backgroundColor: colors.listBackground }]}>
-                <View style={[styles.container, { backgroundColor: colors.background }]}>
-                    <ExerciseHeaderCompound exerciseHeaderModels={workoutModel.exerciseHeaderModels} />
-                    <Separator />
-                    <View style={styles.exercisesContainer}>
-                        {renderExercises()}
-                    </View>
-                    <View style={styles.finishExerciseBtnContainer}>
-                        <Button title="Finish Exercise" onPress={showExitDialog} color={colors.primary} />
-                    </View>
-                </View>
+    const initialCompoundSets = createInitialCompoundSets(currentGroup);
 
-                {isTimerVisible && (
-                    <TimerOverlay
-                        ref={timerRef}
-                        onDismiss={handleTimerEnd}
-                        isActiveOnStart={true}
-                        initialTime={45}
-                        backgroundNotifications={false}
-                        onTimerEnd={handleTimerEnd}
-                        onTimeChange={time => console.log(`Time left: ${time}`)}
-                        theme={theme}
-                    />
-                )}
-            </ScrollView>
-        </TouchableWithoutFeedback>
+    return (
+        <ExerciseGroupScreen
+            exerciseHeaders={currentGroup.exercises.map(exercise => ({
+                imageUrl: exercise.imageUrl,
+                title: exercise.name,
+                subtitle: exercise.muscleGroups.join(', '),
+                equipmentImagesUrls: exercise.equipment.map(eq => eq.imageUrl)
+            }))}
+            initialCompoundSets={initialCompoundSets}
+            onGroupComplete={moveToNextGroup}
+        />
     );
 }
-
-const styles = StyleSheet.create({
-    scrollView: { 
-        flexGrow: 1, 
-        padding: 5 
-    },
-    container: { 
-        flex: 1, 
-        padding: 10, 
-        borderRadius: 10 
-    },
-    exercisesContainer: { 
-        flex: 1, 
-        flexDirection: 'column', 
-        justifyContent: 'flex-start',
-    },
-    compoundSet: {
-        marginBottom: 10,
-    },
-    finishExerciseBtnContainer: { 
-        marginVertical: 20 
-    },
-});

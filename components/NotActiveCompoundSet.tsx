@@ -1,47 +1,59 @@
+// src/components/NotActiveCompoundSet.tsx
+
 import React from 'react';
-import { Alert, Pressable, StyleSheet, Text, View, ViewStyle, PressableStateCallbackType } from 'react-native';
-import Separator, { SeparatorType } from '@/components/Separator';
+import { Pressable, StyleSheet, Text, View, ViewStyle, Image } from 'react-native';
 import Colors from '@/constants/Colors';
-import { Image } from 'react-native';
+import Separator from '@/components/Separator';
 
 interface NotActiveCompoundSetProps {
     id: string,
-    numberOfExercises?: number;
+    numberOfExercises: number;
     pressHandler?: (id: string) => void;
-    suggestedRepsRange?: { min: number, max: number };
+    suggestedRepsRange: { min: number, max: number };
     equipmentImagesUrls?: string[];
     style?: ViewStyle
 }
 
-const NotActiveCompoundSet: React.FC<NotActiveCompoundSetProps> = ({ id, numberOfExercises = 1, pressHandler, suggestedRepsRange, equipmentImagesUrls, style }) => {
+const NotActiveCompoundSet: React.FC<NotActiveCompoundSetProps> = ({
+    id,
+    numberOfExercises,
+    pressHandler,
+    suggestedRepsRange,
+    equipmentImagesUrls,
+    style
+}) => {
     const handlePress = (): void => {
         pressHandler?.(id);
     };
 
-    const getPressableStyle = (state: PressableStateCallbackType): ViewStyle => (
-        {
-            opacity: state.pressed ? 0.5 : 1,
-        });
-
-    const exercisesText = numberOfExercises === 1 ? 'Exercise' : 'Exercises';
-    const rangeText = suggestedRepsRange ? `${suggestedRepsRange.min}-${suggestedRepsRange.max}` : 'Max';
-
-    const equipmentSection = equipmentImagesUrls?.map((url, index) => (
-        <Image key={index} source={{ uri: url }} style={styles.equipmentImage} />
-    ));
+    const exercisesText = `${numberOfExercises} Exercise${numberOfExercises > 1 ? 's' : ''}`;
+    const repsText = `${suggestedRepsRange.min}-${suggestedRepsRange.max} Reps`;
 
     return (
-        <Pressable style={({ pressed }) => [
-            { opacity: pressed ? 0.5 : 1 }
-            , style
-        ]} onPress={handlePress}>
-            <View style={[styles.container]}>
-                <Text style={styles.genericText}>{numberOfExercises + " " + exercisesText} </Text>
-                <Separator type={SeparatorType.Vertical} style={{ marginHorizontal: 0 }} />
-                <Text style={styles.genericText}>{rangeText} Reps</Text>
-                <Separator type={SeparatorType.Vertical} style={{ marginHorizontal: 0 }} />
-                {!equipmentImagesUrls && <Text style={styles.genericText}>No Equipment</Text>}
-                {equipmentImagesUrls && equipmentSection}
+        <Pressable
+            style={({ pressed }) => [
+                styles.container,
+                { opacity: pressed ? 0.8 : 1 },
+                style
+            ]}
+            onPress={handlePress}
+        >
+            <View style={styles.section}>
+                <Text style={styles.text}>{exercisesText}</Text>
+            </View>
+            <Separator vertical style={styles.separator} />
+            <View style={styles.section}>
+                <Text style={styles.text}>{repsText}</Text>
+            </View>
+            <Separator vertical style={styles.separator} />
+            <View style={[styles.section, styles.equipmentSection]}>
+                {equipmentImagesUrls && equipmentImagesUrls.length > 0 ? (
+                    equipmentImagesUrls.map((url, index) => (
+                        <Image key={index} source={{ uri: url }} style={styles.equipmentImage} />
+                    ))
+                ) : (
+                    <Text style={styles.text}>No Equipment</Text>
+                )}
             </View>
         </Pressable>
     );
@@ -53,22 +65,32 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         backgroundColor: Colors.light.primary,
-        padding: 20,
-        minHeight: 60,
+        padding: 15,
         borderRadius: 10,
+        height: 60,
     },
-    equipmentContainer: {
+    section: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    equipmentSection: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
     },
-    genericText: {
+    text: {
         color: Colors.dark.quaternary,
         fontSize: 16,
-        textAlign: 'left',
+        textAlign: 'center',
     },
     equipmentImage: {
-        width: 24, // Adjust the width as needed
-        height: 24, // Adjust the height as needed
+        width: 24,
+        height: 24,
+        marginLeft: 5,
+    },
+    separator: {
+        height: '70%',
+        marginHorizontal: 10,
     },
 });
 

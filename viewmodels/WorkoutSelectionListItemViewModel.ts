@@ -1,13 +1,13 @@
-// src/viewmodels/WorkoutListItemViewModel.ts
+// src/viewmodels/WorkoutSelectionListItemViewModel.ts
 
 import { useState, useEffect } from 'react';
-import { WorkoutDataModel, EquipmentModel } from '@/constants/DataModels';
+import { WorkoutDataModel, EquipmentModel, MuscleGroup } from '@/constants/DataModels';
 
-export const useWorkoutListItemViewModel = (item: WorkoutDataModel) => {
+export const useWorkoutSelectionListItemViewModel = (item: WorkoutDataModel) => {
   const [duration, setDuration] = useState(0);
   const [totalExercises, setTotalExercises] = useState(0);
   const [uniqueEquipment, setUniqueEquipment] = useState<string[]>([]);
-  const [muscleGroups, setMuscleGroups] = useState<string[]>([]);
+  const [muscleGroups, setMuscleGroups] = useState<MuscleGroup[]>([]);
   const [exerciseImages, setExerciseImages] = useState<string[]>([]);
 
   useEffect(() => {
@@ -15,10 +15,12 @@ export const useWorkoutListItemViewModel = (item: WorkoutDataModel) => {
   }, [item]);
 
   const calculateWorkoutDetails = () => {
-    const allExercises = item.exercises.flat();
+    const allExercises = item.exerciseGroups.flatMap(group => group.exercises);
     
-    // Calculate duration (random between 30 and 60 minutes)
-    setDuration(Math.floor(Math.random() * (60 - 30 + 1)) + 30);
+    // Calculate duration (estimate based on number of exercises and sets)
+    const totalSets = item.exerciseGroups.reduce((sum, group) => sum + group.sets, 0);
+    const estimatedDuration = totalSets * 2 + allExercises.length * 1; // 2 minutes per set, 1 minute per exercise for rest
+    setDuration(Math.max(estimatedDuration, 20)); // Minimum 20 minutes
     
     // Calculate total exercises
     setTotalExercises(allExercises.length);

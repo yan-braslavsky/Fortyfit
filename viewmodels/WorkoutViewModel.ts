@@ -1,120 +1,85 @@
-import { useState, useCallback, useRef } from 'react';
-import { Alert } from 'react-native';
-import { WorkoutModel, CompoundSet, ExerciseStatus } from '@/models/WorkoutModel';
-import { generateDemoWorkoutModel } from '@/constants/DataGenerationUtils';
+// src/viewmodels/WorkoutViewModel.ts
+
+import { useState, useEffect } from 'react';
+import { WorkoutDataModel, EquipmentModel } from '@/constants/DataModels';
+import { fetchRawWorkout } from '@/services/workoutService';
+import { adaptRawWorkoutToWorkoutDataModel } from '@/services/dataAdaptionHelper';
+import { ExerciseStatus, CompoundSet } from '@/models/WorkoutModel';
+import { ExerciseGroup } from '@/constants/DataModels';
 import SingleSetModel from '@/models/SingleSetModel';
-import { TimerOverlayRef } from '@/components/TimerOverlay';
-import { router } from 'expo-router';
 
 export const useWorkoutViewModel = (workoutId: string) => {
-    const [workoutModel, setWorkoutModel] = useState<WorkoutModel>(generateDemoWorkoutModel());
-    const [activeCompoundSetIndex, setActiveCompoundSetIndex] = useState<number | null>(null);
-    const [isTimerVisible, setIsTimerVisible] = useState(false);
-    const timerRef = useRef<TimerOverlayRef>(null);
+  const [workout, setWorkout] = useState<WorkoutDataModel | null>(null);
+  const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
+  const [currentCompoundSets, setCurrentCompoundSets] = useState<CompoundSet[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    console.log('Current Workout ID:', workoutId);
-
-    const findNextUnfinishedSetIndex = useCallback((startIndex: number): number | null => {
-        const totalSets = workoutModel.compoundSets.length;
-        for (let i = 1; i <= totalSets; i++) {
-            const nextIndex = (startIndex + i) % totalSets;
-            if (workoutModel.compoundSets[nextIndex].status !== ExerciseStatus.Finished) {
-                return nextIndex;
-            }
+  useEffect(() => {
+    const loadWorkout = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const rawWorkout = await fetchRawWorkout(workoutId);
+        if (rawWorkout) {
+          const adaptedWorkout = await adaptRawWorkoutToWorkoutDataModel(rawWorkout);
+          setWorkout(adaptedWorkout);
+          initializeCompoundSets(adaptedWorkout.exerciseGroups[currentGroupIndex]);
+        } else {
+          setError('Workout not found');
         }
-        return null;
-    }, [workoutModel.compoundSets]);
-
-    const handleSetCompletion = useCallback((id: string, completedSets: SingleSetModel[]) => {
-        setWorkoutModel((prevModel) => {
-            const updatedCompoundSets = prevModel.compoundSets.map((compoundSet) => {
-                if (compoundSet.id === id) {
-                    return {
-                        ...compoundSet,
-                        singleSets: completedSets,
-                        status: ExerciseStatus.Finished,
-                    };
-                }
-                return compoundSet;
-            });
-
-            return { ...prevModel, compoundSets: updatedCompoundSets };
-        });
-
-        setIsTimerVisible(true);
-        timerRef.current?.show();
-
-        if (activeCompoundSetIndex !== null) {
-            const nextIndex = findNextUnfinishedSetIndex(activeCompoundSetIndex);
-            setActiveCompoundSetIndex(nextIndex);
-        }
-    }, [activeCompoundSetIndex, findNextUnfinishedSetIndex]);
-
-    const handleSetActivation = useCallback((id: string) => {
-        setWorkoutModel((prevModel) => {
-            const updatedCompoundSets = prevModel.compoundSets.map((compoundSet) => {
-                if (compoundSet.id === id) {
-                    return { ...compoundSet, status: ExerciseStatus.Active };
-                } else if (compoundSet.status === ExerciseStatus.Active) {
-                    return { ...compoundSet, status: ExerciseStatus.NotActive };
-                }
-                return compoundSet;
-            });
-
-            return { ...prevModel, compoundSets: updatedCompoundSets };
-        });
-
-        const index = workoutModel.compoundSets.findIndex((set) => set.id === id);
-        setActiveCompoundSetIndex(index);
-    }, [workoutModel]);
-
-    const handleTimerEnd = useCallback(() => {
-        setIsTimerVisible(false);
-        timerRef.current?.hide();
-
-        if (activeCompoundSetIndex !== null) {
-            const nextIndex = findNextUnfinishedSetIndex(activeCompoundSetIndex);
-            if (nextIndex !== null) {
-                handleSetActivation(workoutModel.compoundSets[nextIndex].id);
-            } else {
-                showExitDialog();
-            }
-        }
-    }, [workoutModel, activeCompoundSetIndex, findNextUnfinishedSetIndex, handleSetActivation]);
-
-    const showExitDialog = useCallback(() => {
-        Alert.alert(
-            "Workout Completed",
-            "What would you like to do next?",
-            [
-                {
-                    text: "Start Another Workout",
-                    onPress: () => {
-                        const newWorkoutId = `workout-${Date.now()}`;
-                        router.push({
-                            pathname: "/workout/[id]",
-                            params: { id: newWorkoutId }
-                        });
-                    }
-                },
-                {
-                    text: "Return to Workout Selection",
-                    onPress: () => {
-                        // Return all the way back popping the entire stack
-                        router.dismissAll();
-                    }
-                }
-            ]
-        );
-    }, []);
-
-    return {
-        workoutModel,
-        handleSetCompletion,
-        handleSetActivation,
-        handleTimerEnd,
-        showExitDialog,
-        timerRef,
-        isTimerVisible,
+      } catch (err) {
+        setError('Error loading workout');
+        console.error('Error loading workout:', err);
+      } finally {
+        setIsLoading(false);
+      }
     };
+    loadWorkout();
+  }, [workoutId]);
+
+  const initializeCompoundSets = (exercisesGroup: ExerciseGroup) => {
+    const newCompoundSets = createCompoundSets(exercisesGroup);
+    setCurrentCompoundSets(newCompoundSets);
+  };
+
+  const createCompoundSets = (exerciseGroup: ExerciseGroup): CompoundSet[] => {
+    return Array(exerciseGroup.sets).fill(null).map((_, i) => ({
+      id: `compound-${i}`,
+      singleSets: exerciseGroup.exercises.map(exercise => {
+        const minReps = Math.min(...exercise.sets.map(set => set.reps));
+        const maxReps = Math.max(...exercise.sets.map(set => set.reps));
+        return {
+          id: `${exercise.id}-${i}`,
+          name: exercise.name,
+          weight: exercise.sets[0].weight,
+          reps: exercise.sets[0].reps,
+          recomendedRepsRange: { min: minReps, max: maxReps },
+          imageUrl: exercise.imageUrl,
+          equipment: exercise.equipment
+        } as SingleSetModel;
+      }),
+      status: ExerciseStatus.NotActive
+    }));
+  };
+
+  const moveToNextGroup = () => {
+    if (workout && currentGroupIndex < workout.exerciseGroups.length - 1) {
+      const nextGroupIndex = currentGroupIndex + 1;
+      setCurrentGroupIndex(nextGroupIndex);
+      initializeCompoundSets(workout.exerciseGroups[nextGroupIndex]);
+    } else {
+      // Workout completed
+      console.log('Workout completed');
+    }
+  };
+
+  return {
+    workout,
+    currentGroupIndex,
+    currentCompoundSets,
+    moveToNextGroup,
+    isLoading,
+    error,
+  };
 };
