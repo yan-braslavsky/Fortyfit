@@ -1,10 +1,16 @@
-import { StyleSheet, Text } from 'react-native'
+// src/components/DoneBtn.tsx
+
+import { StyleSheet, Text, ViewStyle } from 'react-native'
 import React from 'react'
 import { Pressable } from 'react-native'
 import Colors from '@/constants/Colors'
 
-export default function DoneBtn({ pressHandler }: { pressHandler?: () => void }) {
+interface DoneBtnProps {
+    pressHandler?: () => void;
+    style?: ViewStyle;
+}
 
+export default function DoneBtn({ pressHandler, style }: DoneBtnProps) {
     function localPressHandler(): void {
         if (pressHandler) {
             pressHandler();
@@ -12,30 +18,32 @@ export default function DoneBtn({ pressHandler }: { pressHandler?: () => void })
     }
 
     return (
-        <Pressable onPress={localPressHandler}
-            style={(state) =>
-                state.pressed
-                    ? [styles.suggestionItemHighlight, styles.doneBtnPressed]
-                    : styles.suggestionItemHighlight
-            }
+        <Pressable 
+            onPress={localPressHandler}
+            style={(state) => [
+                styles.button,
+                state.pressed ? styles.buttonPressed : null,
+                style
+            ]}
         >
-            <Text style={styles.doneBtn}>DONE</Text>
+            <Text style={styles.buttonText}>DONE</Text>
         </Pressable>
     )
 }
 
 const styles = StyleSheet.create({
-    suggestionItemHighlight: {
+    button: {
         backgroundColor: Colors.light.secondary,
-        padding: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
         borderRadius: 10,
     },
-    doneBtn: {
+    buttonPressed: {
+        opacity: 0.5,
+    },
+    buttonText: {
         color: Colors.dark.quaternary,
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
     },
-    doneBtnPressed: {
-        opacity: 0.5,
-    }
-})
+});

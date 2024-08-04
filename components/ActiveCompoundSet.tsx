@@ -17,9 +17,9 @@ interface ActiveCompoundSetProps {
 }
 
 const ActiveCompoundSet: React.FC<ActiveCompoundSetProps> = ({ id, onDonePress, sets, style }) => {
-
     const viewModel = useActiveCompoundSetViewModel({
-        sets: sets, doneHandler: (completedSets: SingleSetModel[]) => {
+        sets: sets, 
+        doneHandler: (completedSets: SingleSetModel[]) => {
             if (onDonePress) {
                 onDonePress(id, completedSets);
             }
@@ -29,27 +29,24 @@ const ActiveCompoundSet: React.FC<ActiveCompoundSetProps> = ({ id, onDonePress, 
     return (
         <View style={[styles.container, style]}>
             <View style={styles.rowsContainer}>
-                {sets.map(function (set: SingleSetModel, index: number) {
-                    return (
-                        <View key={index + 50}>
-                            {(index > 0) && <Separator  style={{ marginHorizontal: 0, marginVertical: 15 }} />}
-                            <ActiveSingleSetRow
-                                activeSetRepsPlaceholderValue={set.recomendedRepsRange.max.toString()}
-                                activeSetRepsInputValue={set.completedReps?.toString()}
-                                imageUrl={set.imageUrl}
-                                onRepsChange={(reps) => viewModel.repsChangeForSet(reps, set)}
-                            />
-                        </View>
-                    );
-                })}
+                {sets.map((set: SingleSetModel, index: number) => (
+                    <View key={index + 50}>
+                        {(index > 0) && <Separator style={{ marginVertical: 15 }} />}
+                        <ActiveSingleSetRow
+                            activeSetRepsPlaceholderValue={set.recomendedRepsRange.max.toString()}
+                            activeSetRepsInputValue={set.completedReps?.toString()}
+                            imageUrl={set.imageUrl}
+                            onRepsChange={(reps) => viewModel.repsChangeForSet(reps, set)}
+                        />
+                    </View>
+                ))}
             </View>
-            <Separator vertical={true} />
-            <DoneBtn pressHandler={viewModel.handleDonePress} />
+            <View style={styles.doneBtnContainer}>
+                <DoneBtn pressHandler={viewModel.handleDonePress} style={styles.doneBtn} />
+            </View>
         </View>
     );
 }
-
-export default ActiveCompoundSet;
 
 const styles = StyleSheet.create({
     container: {
@@ -61,10 +58,23 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1,
         borderColor: Colors.light.background,
-        height: 'auto',
     },
     rowsContainer: {
         flex: 1,
         flexDirection: 'column',
-    }
+    },
+    doneBtnContainer: {
+        width: '30%',
+        // height: '100%',
+        aspectRatio: 0.5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 10,
+    },
+    doneBtn: {
+        width: '90%',
+        height: '90%',
+    },
 });
+
+export default ActiveCompoundSet;
