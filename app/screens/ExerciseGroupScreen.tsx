@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
   },
   exercisesContainer: {
     flex: 1,
+    marginTop: 10,
     flexDirection: 'column',
     justifyContent: 'flex-start',
   },
