@@ -68,6 +68,7 @@ export default function ExerciseGroupScreen({ exerciseHeaders, initialCompoundSe
                 min: Math.min(...compoundSet.singleSets.map(set => set.recomendedRepsRange.min)),
                 max: Math.max(...compoundSet.singleSets.map(set => set.recomendedRepsRange.max)),
               }}
+              equipmentImagesUrls={compoundSet.singleSets.flatMap(set => set.equipment?.map(eq => eq.imageUrl) || [])}
               style={styles.compoundSet}
             />
           );

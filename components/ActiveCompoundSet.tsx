@@ -5,7 +5,6 @@ import { StyleSheet, View, ViewStyle } from 'react-native';
 import SingleSetModel from '@/models/SingleSetModel';
 import DoneBtn from '@/components/DoneBtn';
 import Separator from '@/components/Separator';
-import { SeparatorType } from '@/components/Separator';
 import ActiveSingleSetRow from './ActiveSingleSetRow';
 import Colors from '@/constants/Colors';
 import { useActiveCompoundSetViewModel } from '@/viewmodels/ActiveCompoundSetViewModel';
@@ -33,7 +32,7 @@ const ActiveCompoundSet: React.FC<ActiveCompoundSetProps> = ({ id, onDonePress, 
                 {sets.map(function (set: SingleSetModel, index: number) {
                     return (
                         <View key={index + 50}>
-                            {(index > 0) && <Separator type={SeparatorType.Horizontal} style={{ marginHorizontal: 0, marginVertical: 15 }} />}
+                            {(index > 0) && <Separator  style={{ marginHorizontal: 0, marginVertical: 15 }} />}
                             <ActiveSingleSetRow
                                 activeSetRepsPlaceholderValue={set.recomendedRepsRange.max.toString()}
                                 activeSetRepsInputValue={set.completedReps?.toString()}
@@ -44,7 +43,7 @@ const ActiveCompoundSet: React.FC<ActiveCompoundSetProps> = ({ id, onDonePress, 
                     );
                 })}
             </View>
-            <Separator type={SeparatorType.Vertical} />
+            <Separator vertical={true} />
             <DoneBtn pressHandler={viewModel.handleDonePress} />
         </View>
     );

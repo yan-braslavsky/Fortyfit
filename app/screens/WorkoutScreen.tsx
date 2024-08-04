@@ -6,8 +6,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useWorkoutViewModel } from '@/viewmodels/WorkoutViewModel';
 import ExerciseGroupScreen from './ExerciseGroupScreen';
 import LoadingOverlay from '@/components/LoadingOverlay';
-import { ExerciseStatus, CompoundSet } from '@/models/WorkoutModel';
-import SingleSetModel from '@/models/SingleSetModel';
+import { ExerciseStatus, CompoundSet, SingleSetModel } from '@/models/WorkoutModel';
 import { ExerciseGroup } from '@/constants/DataModels';
 
 export default function WorkoutScreen() {
@@ -33,7 +32,8 @@ export default function WorkoutScreen() {
                 weight: exercise.sets[0].weight,
                 reps: exercise.sets[0].reps,
                 recomendedRepsRange: { min: exercise.sets[0].reps - 2, max: exercise.sets[0].reps + 2 },
-                imageUrl: exercise.imageUrl
+                imageUrl: exercise.imageUrl,
+                equipment: exercise.equipment
             } as SingleSetModel)),
             status: ExerciseStatus.NotActive
         }));

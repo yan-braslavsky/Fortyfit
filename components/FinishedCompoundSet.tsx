@@ -2,12 +2,12 @@ import React from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
-import Separator, { SeparatorType } from '@/components/Separator';
 import { ViewStyle } from 'react-native';
+import Separator from '@/components/Separator';
 
 interface FinishedCompoundSetProps {
     id: string;
-    pressHandler?: (id:string) => void;
+    pressHandler?: (id: string) => void;
     repsCompleted: number[];
     style?: ViewStyle
 }
@@ -20,16 +20,16 @@ const FinishedCompoundSet: React.FC<FinishedCompoundSetProps> = ({ id, pressHand
                 { opacity: pressed ? 0.5 : 1 }
                 , style
             ]}
-            onPress={()=>{
-                if(pressHandler){
+            onPress={() => {
+                if (pressHandler) {
                     pressHandler(id);
                 }
             }}>
             <View style={styles.content}>
                 <Text style={styles.statusText}>Completed</Text>
-                <Separator type={SeparatorType.Vertical} style={{ marginHorizontal: 0 }} />
+                <Separator vertical={true} style={{ marginHorizontal: 0 }} />
                 <Text style={styles.repsText}>{repsCompleted.join(',')} Reps</Text>
-                <Separator type={SeparatorType.Vertical} style={{ marginHorizontal: 0 }} />
+                <Separator vertical={true} style={{ marginHorizontal: 0 }} />
                 <Text style={styles.redoText}>REDO</Text>
                 <FontAwesome name="rotate-right" size={18} color={Colors.light.text} style={styles.icon} />
             </View>

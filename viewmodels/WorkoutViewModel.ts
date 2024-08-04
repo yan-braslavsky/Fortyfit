@@ -1,11 +1,12 @@
 // src/viewmodels/WorkoutViewModel.ts
 
 import { useState, useEffect } from 'react';
-import { WorkoutDataModel } from '@/constants/DataModels';
+import { WorkoutDataModel, EquipmentModel } from '@/constants/DataModels';
 import { fetchRawWorkout } from '@/services/workoutService';
 import { adaptRawWorkoutToWorkoutDataModel } from '@/services/dataAdaptionHelper';
 import { ExerciseStatus, CompoundSet } from '@/models/WorkoutModel';
 import { ExerciseGroup } from '@/constants/DataModels';
+import SingleSetModel from '@/models/SingleSetModel';
 
 export const useWorkoutViewModel = (workoutId: string) => {
   const [workout, setWorkout] = useState<WorkoutDataModel | null>(null);
@@ -55,8 +56,8 @@ export const useWorkoutViewModel = (workoutId: string) => {
           reps: exercise.sets[0].reps,
           recomendedRepsRange: { min: minReps, max: maxReps },
           imageUrl: exercise.imageUrl,
-          equipment: exercise.equipment // Add this line
-        };
+          equipment: exercise.equipment
+        } as SingleSetModel;
       }),
       status: ExerciseStatus.NotActive
     }));

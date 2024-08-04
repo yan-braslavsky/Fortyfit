@@ -2,7 +2,6 @@ import React from 'react'
 import { Keyboard, StyleSheet, Text, TextInput, View, Image } from 'react-native';
 import Separator from '@/components/Separator';
 import Colors from '@/constants/Colors';
-import { SeparatorType } from '@/components/Separator';
 import { useState } from 'react';
 
 interface ActiveSingleSetRowProps {
@@ -16,7 +15,7 @@ const ActiveSingleSetRow: React.FC<ActiveSingleSetRowProps> = ({ activeSetRepsIn
     return (
         <View style={styles.container}>
             <RepsInput placeholder={activeSetRepsPlaceholderValue} activeSetRepsInputValue={activeSetRepsInputValue} onRepsChange={onRepsChange} />
-            <Separator type={SeparatorType.Vertical} />
+            <Separator vertical={true} />
             <ImageContainer imageUrl={imageUrl} />
         </View>
     )
