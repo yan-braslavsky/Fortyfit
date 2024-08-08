@@ -26,6 +26,9 @@
           "remote-notification"
         ]
       },
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "supportsTablet": true,
       "bundleIdentifier": "yan.braslavsky.fourtyfit",
       "buildNumber": "2"
