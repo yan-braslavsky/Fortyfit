@@ -51,23 +51,7 @@ export function useTimerOverlayViewModel({
         setIsActive(true);
     };
 
-    const scheduleBackgroundTimer = async () => {
-        await Notifications.cancelAllScheduledNotificationsAsync();
-        const endTimeStr = await AsyncStorage.getItem(TIMER_STORAGE_KEY);
-        if (endTimeStr) {
-            const endTime = parseInt(endTimeStr);
-            const timeLeftMs = endTime - Date.now();
-            if (timeLeftMs > 0) {
-                await Notifications.scheduleNotificationAsync({
-                    content: {
-                        title: "Timer Ended",
-                        body: "Your timer has finished!",
-                    },
-                    trigger: { seconds: timeLeftMs / 1000 },
-                });
-            }
-        }
-    };
+
 
     const clearTimer = async () => {
         await AsyncStorage.removeItem(TIMER_STORAGE_KEY);
@@ -120,13 +104,39 @@ export function useTimerOverlayViewModel({
     };
 
     const decreaseTime = async (amount: number) => {
-        const newTime = Math.max(0, timeLeft - amount);
+        const newTime = Math.max(1, timeLeft - amount);
         setTimeLeft(newTime);
+        const now = Date.now();
         const endTimeStr = await AsyncStorage.getItem(TIMER_STORAGE_KEY);
         if (endTimeStr) {
-            const endTime = Math.max(Date.now(), parseInt(endTimeStr) - amount * 1000);
+            const endTime = Math.max(now + 1000, parseInt(endTimeStr) - amount * 1000);
             await AsyncStorage.setItem(TIMER_STORAGE_KEY, endTime.toString());
-            scheduleBackgroundTimer();
+            
+            // Only schedule a notification if the new end time is more than 1 second in the future
+            if (endTime - now > 1000) {
+                await scheduleBackgroundTimer();
+            } else {
+                // Cancel any existing notifications if the time is too short
+                await Notifications.cancelAllScheduledNotificationsAsync();
+            }
+        }
+    };
+
+    const scheduleBackgroundTimer = async () => {
+        await Notifications.cancelAllScheduledNotificationsAsync();
+        const endTimeStr = await AsyncStorage.getItem(TIMER_STORAGE_KEY);
+        if (endTimeStr) {
+            const endTime = parseInt(endTimeStr);
+            const timeLeftMs = endTime - Date.now();
+            if (timeLeftMs > 1000) {  // Only schedule if more than 1 second left
+                await Notifications.scheduleNotificationAsync({
+                    content: {
+                        title: "Timer Ended",
+                        body: "Your timer has finished!",
+                    },
+                    trigger: { seconds: Math.max(1, Math.floor(timeLeftMs / 1000)) },
+                });
+            }
         }
     };
 
