@@ -18,7 +18,7 @@
     "production": {
       "android": {
         "track": "internal",
-        "releaseStatus": "draft"
+        "releaseStatus": "completed"
       },
       "ios": {
         "ascAppId": "${EXPO_PUBLIC_APPLE_ASC_APP_ID}"
