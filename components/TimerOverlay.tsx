@@ -1,22 +1,16 @@
-import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef, useCallback } from 'react';
+// src/components/TimerOverlay.tsx
+
+import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, AppState, AppStateStatus } from 'react-native';
-import * as BackgroundFetch from 'expo-background-fetch';
-import * as TaskManager from 'expo-task-manager';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { Colors, ColorsTheme } from '@/constants/Colors';
 
-const BACKGROUND_FETCH_TASK = 'background-fetch-task';
-
-TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
-    const now = Date.now();
-    console.log(`Got background fetch call at date: ${new Date(now).toISOString()}`);
-    return BackgroundFetch.BackgroundFetchResult.NewData;
-});
+const TIMER_STORAGE_KEY = '@timer_end_time';
 
 type TimerOverlayProps = {
     isActiveOnStart?: boolean;
     initialTime?: number;
-    backgroundNotifications?: boolean;
     onTimerEnd?: () => void;
     onTimeChange?: (timeLeft: number) => void;
     onDismiss?: () => void;
@@ -32,123 +26,158 @@ export interface TimerOverlayRef {
 }
 
 const TimerOverlay = forwardRef<TimerOverlayRef, TimerOverlayProps>(({
-    isActiveOnStart: initialVisible = true,
+    isActiveOnStart = true,
     initialTime = 60,
-    backgroundNotifications = false,
     onTimerEnd,
     onTimeChange,
     onDismiss,
     theme = ColorsTheme.Light,
 }, ref) => {
     const [timeLeft, setTimeLeft] = useState<number>(initialTime);
-    const [isActive, setIsActive] = useState<boolean>(initialVisible);
+    const [isActive, setIsActive] = useState<boolean>(isActiveOnStart);
     const appState = useRef<AppStateStatus>(AppState.currentState);
-    const timerRef = useRef<NodeJS.Timeout | null>(null);
     const colors = Colors.getColorsByTheme(theme);
 
     useEffect(() => {
-        if (backgroundNotifications) {
-            setupNotifications();
-            registerBackgroundFetch();
-        }
+        setupNotifications();
         const subscription = AppState.addEventListener('change', handleAppStateChange);
+        
+        if (isActive) {
+            startTimer();
+        }
 
         return () => {
             subscription.remove();
-            if (timerRef.current) clearInterval(timerRef.current);
-            Notifications.dismissAllNotificationsAsync();
+            clearTimer();
         };
-    }, [backgroundNotifications]);
+    }, []);
 
-    useEffect(() => {
-        if (isActive && timeLeft > 0) {
-            timerRef.current = setInterval(() => {
-                setTimeLeft(prevTime => {
-                    const newTime = prevTime - 1;
-                    onTimeChange?.(newTime);
-                    if (backgroundNotifications) updateNotification(newTime);
-                    if (newTime === 0) {
-                        onTimerEnd?.();
-                    }
-                    return newTime;
-                });
-            }, 1000);
-        } else if (timeLeft === 0) {
-            if (timerRef.current) clearInterval(timerRef.current);
-            onDismiss?.();
-        }
-
-        return () => {
-            if (timerRef.current) clearInterval(timerRef.current);
-        };
-    }, [isActive, timeLeft, onTimerEnd, onDismiss, onTimeChange, backgroundNotifications]);
-
-    useImperativeHandle(ref, () => ({
-        show: () => setIsActive(true),
-        hide: () => setIsActive(false),
-        increaseTime: (amount: number) => setTimeLeft(time => time + amount),
-        decreaseTime: (amount: number) => setTimeLeft(time => Math.max(0, time - amount)),
-        reset: () => setTimeLeft(initialTime),
-    }), [initialTime]);
-
-    const setupNotifications = useCallback(async () => {
-        await Notifications.setNotificationHandler({
+    const setupNotifications = async () => {
+        await Notifications.requestPermissionsAsync();
+        Notifications.setNotificationHandler({
             handleNotification: async () => ({
                 shouldShowAlert: true,
-                shouldPlaySound: false,
+                shouldPlaySound: true,
                 shouldSetBadge: false,
             }),
         });
+    };
 
-        Notifications.addNotificationResponseReceivedListener(handleNotificationResponse);
-    }, []);
+    const startTimer = async () => {
+        const now = Date.now();
+        const endTime = now + timeLeft * 1000;
+        await AsyncStorage.setItem(TIMER_STORAGE_KEY, endTime.toString());
+        scheduleBackgroundTimer();
+    };
 
-    const registerBackgroundFetch = useCallback(async () => {
-        try {
-            await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
-                minimumInterval: 15 * 60,
-                stopOnTerminate: false,
-                startOnBoot: true,
-            });
-            console.log("Background fetch registered");
-        } catch (err) {
-            console.log("Background fetch failed to register", err);
+    const scheduleBackgroundTimer = async () => {
+        await Notifications.cancelAllScheduledNotificationsAsync();
+        const endTimeStr = await AsyncStorage.getItem(TIMER_STORAGE_KEY);
+        if (endTimeStr) {
+            const endTime = parseInt(endTimeStr);
+            const timeLeftMs = endTime - Date.now();
+            if (timeLeftMs > 0) {
+                await Notifications.scheduleNotificationAsync({
+                    content: {
+                        title: "Timer Ended",
+                        body: "Your timer has finished!",
+                    },
+                    trigger: { seconds: timeLeftMs / 1000 },
+                });
+            }
         }
-    }, []);
+    };
 
-    const updateNotification = useCallback(async (time: number) => {
-        await Notifications.scheduleNotificationAsync({
-            content: {
-                title: 'Workout Timer',
-                body: `Time left: ${formatTime(time)}`,
-                data: { timeLeft: time },
-            },
-            trigger: null,
-        });
-    }, []);
+    const clearTimer = async () => {
+        await AsyncStorage.removeItem(TIMER_STORAGE_KEY);
+        await Notifications.cancelAllScheduledNotificationsAsync();
+    };
 
-    const handleAppStateChange = useCallback((nextAppState: AppStateStatus) => {
+    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
         if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
-            Notifications.dismissAllNotificationsAsync();
+            // App has come to the foreground
+            const endTimeStr = await AsyncStorage.getItem(TIMER_STORAGE_KEY);
+            if (endTimeStr) {
+                const endTime = parseInt(endTimeStr);
+                const now = Date.now();
+                const remaining = Math.max(0, Math.round((endTime - now) / 1000));
+                setTimeLeft(remaining);
+                setIsActive(true);
+                if (remaining <= 0) {
+                    handleTimerEnd();
+                }
+            }
         }
         appState.current = nextAppState;
-    }, []);
+    };
 
-    const handleNotificationResponse = useCallback((response: Notifications.NotificationResponse) => {
-        const { actionIdentifier } = response;
-        if (actionIdentifier === 'increase') increaseTime(15);
-        else if (actionIdentifier === 'decrease') decreaseTime(15);
-        else if (actionIdentifier === 'dismiss') onDismiss?.();
-    }, [onDismiss]);
+    const handleTimerEnd = async () => {
+        setIsActive(false);
+        setTimeLeft(0);
+        await clearTimer();
+        onTimerEnd?.();
+    };
+
+    useImperativeHandle(ref, () => ({
+        show: () => {
+            setIsActive(true);
+            startTimer();
+        },
+        hide: async () => {
+            setIsActive(false);
+            await clearTimer();
+        },
+        increaseTime: async (amount: number) => {
+            const newTime = timeLeft + amount;
+            setTimeLeft(newTime);
+            const endTimeStr = await AsyncStorage.getItem(TIMER_STORAGE_KEY);
+            if (endTimeStr) {
+                const endTime = parseInt(endTimeStr) + amount * 1000;
+                await AsyncStorage.setItem(TIMER_STORAGE_KEY, endTime.toString());
+                scheduleBackgroundTimer();
+            }
+        },
+        decreaseTime: async (amount: number) => {
+            const newTime = Math.max(0, timeLeft - amount);
+            setTimeLeft(newTime);
+            const endTimeStr = await AsyncStorage.getItem(TIMER_STORAGE_KEY);
+            if (endTimeStr) {
+                const endTime = Math.max(Date.now(), parseInt(endTimeStr) - amount * 1000);
+                await AsyncStorage.setItem(TIMER_STORAGE_KEY, endTime.toString());
+                scheduleBackgroundTimer();
+            }
+        },
+        reset: () => {
+            setTimeLeft(initialTime);
+            startTimer();
+        },
+    }), [timeLeft, initialTime]);
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (isActive && timeLeft > 0) {
+            interval = setInterval(async () => {
+                const endTimeStr = await AsyncStorage.getItem(TIMER_STORAGE_KEY);
+                if (endTimeStr) {
+                    const endTime = parseInt(endTimeStr);
+                    const now = Date.now();
+                    const remaining = Math.max(0, Math.round((endTime - now) / 1000));
+                    setTimeLeft(remaining);
+                    onTimeChange?.(remaining);
+                    if (remaining <= 0) {
+                        handleTimerEnd();
+                    }
+                }
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [isActive, timeLeft]);
 
     const formatTime = (time: number): string => {
         const minutes = Math.floor(time / 60);
         const seconds = time % 60;
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };
-
-    const increaseTime = useCallback((amount: number) => setTimeLeft(time => time + amount), []);
-    const decreaseTime = useCallback((amount: number) => setTimeLeft(time => Math.max(0, time - amount)), []);
 
     const styles = StyleSheet.create({
         overlay: {
@@ -160,14 +189,12 @@ const TimerOverlay = forwardRef<TimerOverlayRef, TimerOverlayProps>(({
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
             justifyContent: 'center',
             alignItems: 'center',
-            alignContent: 'center',
         },
         container: {
             backgroundColor: colors.card,
             padding: 40,
             borderRadius: 20,
             alignItems: 'center',
-            width: '90%',
         },
         timerText: {
             fontSize: 72,
@@ -181,37 +208,37 @@ const TimerOverlay = forwardRef<TimerOverlayRef, TimerOverlayProps>(({
             marginHorizontal: 15,
             padding: 20,
             borderRadius: 10,
-            alignContent: 'center',
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        largeButton: {
-            backgroundColor: colors.primary,
-        },
-        smallButton: {
-            backgroundColor: colors.secondary,
-            padding: 15,
         },
         buttonText: {
             fontSize: 24,
             color: colors.text,
-            textAlign: 'center',
         },
     });
+
+    if (!isActive) return null;
 
     return (
         <View style={styles.overlay}>
             <View style={styles.container}>
                 <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={[styles.button, styles.largeButton]} onPress={() => decreaseTime(15)}>
-                        <Text style={styles.buttonText}>-</Text>
+                    <TouchableOpacity
+                        style={[styles.button, { backgroundColor: colors.primary }]}
+                        onPress={() => ref.current?.decreaseTime(15)}
+                    >
+                        <Text style={styles.buttonText}>-15s</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, styles.smallButton]} onPress={onDismiss}>
+                    <TouchableOpacity
+                        style={[styles.button, { backgroundColor: colors.secondary }]}
+                        onPress={onDismiss}
+                    >
                         <Text style={styles.buttonText}>Dismiss</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, styles.largeButton]} onPress={() => increaseTime(15)}>
-                        <Text style={styles.buttonText}>+</Text>
+                    <TouchableOpacity
+                        style={[styles.button, { backgroundColor: colors.primary }]}
+                        onPress={() => ref.current?.increaseTime(15)}
+                    >
+                        <Text style={styles.buttonText}>+15s</Text>
                     </TouchableOpacity>
                 </View>
             </View>
