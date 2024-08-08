@@ -11,14 +11,12 @@ export const useExerciseGroupViewModel = (
   onGroupComplete: () => void
 ) => {
   const [compoundSets, setCompoundSets] = useState<CompoundSet[]>(initialCompoundSets);
-  const [activeCompoundSetIndex, setActiveCompoundSetIndex] = useState<number | null>(null);
   const [isTimerVisible, setIsTimerVisible] = useState(false);
   const timerRef = useRef<TimerOverlayRef>(null);
 
-  // Add this useEffect hook to update compoundSets when initialCompoundSets changes
+  // Add this useEffect to update compoundSets when initialCompoundSets changes
   useEffect(() => {
     setCompoundSets(initialCompoundSets);
-    setActiveCompoundSetIndex(null);
   }, [initialCompoundSets]);
 
   const handleSetCompletion = useCallback((id: string, completedSets: SingleSetModel[]) => {
@@ -30,8 +28,15 @@ export const useExerciseGroupViewModel = (
       )
     );
     setIsTimerVisible(true);
-    timerRef.current?.show();
   }, []);
+
+  useEffect(() => {
+    if (isTimerVisible) {
+      timerRef.current?.show();
+    } else {
+      timerRef.current?.hide();
+    }
+  }, [isTimerVisible]);
 
   const handleSetActivation = useCallback((id: string) => {
     setCompoundSets(prevSets => 
@@ -43,18 +48,30 @@ export const useExerciseGroupViewModel = (
             : set
       )
     );
-    setActiveCompoundSetIndex(compoundSets.findIndex(set => set.id === id));
-  }, [compoundSets]);
+  }, []);
+
+  const activateNextSet = useCallback(() => {
+    const nextNotActiveIndex = compoundSets.findIndex(set => set.status === ExerciseStatus.NotActive);
+    if (nextNotActiveIndex !== -1) {
+      handleSetActivation(compoundSets[nextNotActiveIndex].id);
+      return true;
+    }
+    return false;
+  }, [compoundSets, handleSetActivation]);
 
   const handleTimerEnd = useCallback(() => {
     setIsTimerVisible(false);
-    timerRef.current?.hide();
-    // Logic to move to next set or finish if all sets are complete
-    const allSetsCompleted = compoundSets.every(set => set.status === ExerciseStatus.Finished);
-    if (allSetsCompleted) {
+    if (!activateNextSet()) {
       showExitDialog();
     }
-  }, [compoundSets]);
+  }, [activateNextSet]);
+
+  const handleTimerDismiss = useCallback(() => {
+    setIsTimerVisible(false);
+    if (!activateNextSet()) {
+      showExitDialog();
+    }
+  }, [activateNextSet]);
 
   const showExitDialog = useCallback(() => {
     Alert.alert(
@@ -78,8 +95,10 @@ export const useExerciseGroupViewModel = (
     handleSetCompletion,
     handleSetActivation,
     handleTimerEnd,
+    handleTimerDismiss,
     showExitDialog,
     timerRef,
     isTimerVisible,
+    setIsTimerVisible
   };
 };
