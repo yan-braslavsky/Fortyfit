@@ -21,11 +21,7 @@
         "releaseStatus": "draft"
       },
       "ios": {
-        "ascAppId": "${EXPO_PUBLIC_APPLE_ASC_APP_ID}",
-        "exportCompliance": {
-          "usesEncryption": false,
-          "complianceType": "STANDARD_ENCRYPTION"
-        }
+        "ascAppId": "${EXPO_PUBLIC_APPLE_ASC_APP_ID}"
       }
     }
   }
