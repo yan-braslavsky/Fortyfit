@@ -83,7 +83,7 @@ jobs:
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
-        run: eas submit -p ios --latest
+        run: eas submit -p ios --latest --non-interactive
 
   submit-android:
     name: Submit Android
@@ -109,4 +109,4 @@ jobs:
         run: npm ci
 
       - name: Submit to Play Store
-        run: eas submit -p android --latest
+        run: eas submit -p android --latest --non-interactive
