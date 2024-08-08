@@ -28,6 +28,7 @@ export default function ExerciseGroupScreen({ exerciseHeaders, initialCompoundSe
     handleSetCompletion,
     handleSetActivation,
     handleTimerEnd,
+    handleTimerDismiss,
     showExitDialog,
     timerRef,
     isTimerVisible
@@ -95,12 +96,10 @@ export default function ExerciseGroupScreen({ exerciseHeaders, initialCompoundSe
         {isTimerVisible && (
           <TimerOverlay
             ref={timerRef}
-            onDismiss={handleTimerEnd}
-            isActiveOnStart={true}
             initialTime={45}
-            backgroundNotifications={false}
             onTimerEnd={handleTimerEnd}
             onTimeChange={time => console.log(`Time left: ${time}`)}
+            onDismiss={handleTimerDismiss}
             theme={theme}
           />
         )}

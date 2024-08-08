@@ -1,52 +1,71 @@
 {
-    "expo": {
-      "name": "Fourtyfit",
-      "slug": "Fourtyfit",
-      "version": "1.0.1",
-      "orientation": "portrait",
-      "icon": "./assets/images/icon.png",
-      "scheme": "fourtyfit",
-      "userInterfaceStyle": "automatic",
-      "splash": {
-        "image": "./assets/images/splash.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#ffffff"
+  "expo": {
+    "name": "Fourtyfit",
+    "slug": "Fourtyfit",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "fourtyfit",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
     },
-      "updates": {
-        "fallbackToCacheTimeout": 0,
-        "url": "https://u.expo.dev/fd8e2e1e-2257-4213-8e5e-e841e7ef19c4"
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/fd8e2e1e-2257-4213-8e5e-e841e7ef19c4"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "fetch",
+          "remote-notification"
+        ]
       },
-      "assetBundlePatterns": [
-        "**/*"
+      "supportsTablet": true,
+      "bundleIdentifier": "yan.braslavsky.fourtyfit",
+      "buildNumber": "2"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "yan.braslavsky.fourtyfit",
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED",
+        "WAKE_LOCK"
       ],
-      "ios": {
-        "supportsTablet": true,
-        "bundleIdentifier": "yan.braslavsky.fourtyfit",
-        "buildNumber": "2"
-      },
-      "android": {
-        "adaptiveIcon": {
-          "foregroundImage": "./assets/images/adaptive-icon.png",
-          "backgroundColor": "#FFFFFF"
-        },
-        "package": "yan.braslavsky.fourtyfit",
-        "permissions": [],
-        "versionCode": 2
-      },
-      "web": {
-        "favicon": "./assets/favicon.png"
-      },
-      "extra": {
-        "eas": {
-          "projectId": "fd8e2e1e-2257-4213-8e5e-e841e7ef19c4"
+      "versionCode": 2
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "${EXPO_PUBLIC_EAS_PROJECT_ID}"
+      }
+    },
+    "owner": "iveliusster",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/favicon.png",
+          "color": "#ffffff",
+          "sounds": [
+            "./assets/sounds/notification.wav"
+          ]
         }
-      },
-      "owner": "iveliusster",
-      "runtimeVersion": {
-        "policy": "sdkVersion"
-      },
-      "plugins": [
-        "expo-router"
       ]
-    }
+    ]
   }
+}
