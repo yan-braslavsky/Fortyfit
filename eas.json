@@ -21,7 +21,7 @@
         "releaseStatus": "draft"
       },
       "ios": {
-        "ascAppId": "${EXPO_PUBLIC_APPLE_ASC_APP_ID}"
+        "ascAppId": "fd8e2e1e-2257-4213-8e5e-e841e7ef19c4"
       }
     }
   }
