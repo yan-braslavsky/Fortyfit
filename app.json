@@ -14,7 +14,7 @@
     },
     "updates": {
       "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/fd8e2e1e-2257-4213-8e5e-e841e7ef19c4"
+      "url": "EXPO_PUBLIC_UPDATES_URL"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -31,7 +31,7 @@
       },
       "supportsTablet": true,
       "bundleIdentifier": "yan.braslavsky.fourtyfit",
-      "buildNumber": "3"
+      "buildNumber": "4"
     },
     "android": {
       "adaptiveIcon": {
@@ -43,14 +43,14 @@
         "RECEIVE_BOOT_COMPLETED",
         "WAKE_LOCK"
       ],
-      "versionCode": 3
+      "versionCode": 4
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "fd8e2e1e-2257-4213-8e5e-e841e7ef19c4"
+        "projectId": "EXPO_PUBLIC_EAS_PROJECT_ID"
       }
     },
     "owner": "iveliusster",

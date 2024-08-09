@@ -17,11 +17,11 @@
   "submit": {
     "production": {
       "android": {
-        "track": "internal",
-        "releaseStatus": "draft"
+        "track": "alpha",
+        "releaseStatus": "completed"
       },
       "ios": {
-        "ascAppId": "6560104903"
+        "ascAppId": "EXPO_PUBLIC_APPLE_ASC_APP_ID"
       }
     }
   }
