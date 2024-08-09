@@ -3,7 +3,7 @@ name: EAS Build and Submit
 on:
   push:
     branches:
-      - main
+      - release
 
 jobs:
   build-ios:
