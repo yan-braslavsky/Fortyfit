@@ -14,7 +14,7 @@
     },
     "updates": {
       "fallbackToCacheTimeout": 0,
-      "url": "EXPO_PUBLIC_UPDATES_URL"
+      "url": "$EXPO_PUBLIC_UPDATES_URL"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -50,7 +50,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "${secrets.EXPO_PUBLIC_EAS_PROJECT_ID}"
+        "projectId": "$EXPO_PUBLIC_EAS_PROJECT_ID"
       }
     },
     "owner": "iveliusster",
