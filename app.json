@@ -31,7 +31,7 @@
       },
       "supportsTablet": true,
       "bundleIdentifier": "yan.braslavsky.fourtyfit",
-      "buildNumber": "3"
+      "buildNumber": "4"
     },
     "android": {
       "adaptiveIcon": {
@@ -43,7 +43,7 @@
         "RECEIVE_BOOT_COMPLETED",
         "WAKE_LOCK"
       ],
-      "versionCode": 3
+      "versionCode": 4
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

@@ -39,6 +39,7 @@ export function useTimerOverlayViewModel({
                 shouldShowAlert: true,
                 shouldPlaySound: true,
                 shouldSetBadge: false,
+                sound: 'default',
             }),
         });
     };
@@ -133,6 +134,8 @@ export function useTimerOverlayViewModel({
                     content: {
                         title: "Timer Ended",
                         body: "Your timer has finished!",
+                        sound: 'default',
+                        vibrate: [0, 250, 250, 250],
                     },
                     trigger: { seconds: Math.max(1, Math.floor(timeLeftMs / 1000)) },
                 });
